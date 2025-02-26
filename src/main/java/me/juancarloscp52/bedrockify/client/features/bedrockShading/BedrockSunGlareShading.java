@@ -41,7 +41,6 @@ public final class BedrockSunGlareShading {
     private final MinecraftClient client;
 
     public BedrockSunGlareShading() {
-        onSunlightIntensityChanged();
         this.sunVector3f = new Vector3f();
         this.client = MinecraftClient.getInstance();
     }
@@ -265,10 +264,11 @@ public final class BedrockSunGlareShading {
     }
 
     public float getSkyAttenuation() {
-        return this.skyAttenuation;
+        return getSkyAttenuation(false);
     }
 
-    public void onSunlightIntensityChanged() {
-        this.skyAttenuation = MathHelper.clampedLerp(1f, 0.60f, BedrockifyClient.getInstance().settings.sunlightIntensity / 100f);
+    public float getSkyAttenuation(boolean darker) {
+        this.skyAttenuation = MathHelper.clampedLerp(1f, darker? 0.40f:0.60f, BedrockifyClient.getInstance().settings.sunlightIntensity / 100f);
+        return this.skyAttenuation;
     }
 }
