@@ -35,7 +35,7 @@ public abstract class LevelLoadingScreenMixin extends Screen {
         this.renderBackground(context, mouseX, mouseY, delta);
         int xPosition = this.width / 2;
         int yPosition = this.height / 2;
-        LoadingScreenWidget.getInstance().render(context, xPosition, yPosition, Text.translatable("menu.generatingLevel"), null, this.progressProvider.getProgressPercentage());
+        LoadingScreenWidget.getInstance().render(context, xPosition, yPosition, Text.translatable("narrator.loading", Text.translatable("loading.progress", this.progressProvider.getProgressPercentage()).getString()), null, this.progressProvider.getProgressPercentage());
 
         long l = Util.getMeasuringTimeMs();
         if (l - this.lastNarrationTime > 2000L) {
