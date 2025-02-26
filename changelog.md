@@ -1,3 +1,14 @@
+## [1.10.2] - 2025-02-26
+
+Available versions:
+-   Fabric: 1.21.4
+### Changed/Fixed
+
+-   Ported to 1.21.4 by lonefelidae16
+-   Removed Shovel from boat/raft recipes.
+-   Updated zh_tw translation by notlin4
+-   Updated uk-ua by StarmanMine142.
+
 ## [1.10.1] - 2024-08-11
 
 Available versions:
