@@ -9,6 +9,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.biome.BiomeKeys;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -35,14 +36,21 @@ public abstract class ClientWorldMixin {
         final float angleDiff = sunGlareShading.getSunAngleDiff();
 
         // Closer to the Sun, Darken the Sky, based on camera angle. Use a different multiplier for each channel in order to better match bedrock edition sky color.
-        final float multiplierBlue = MathHelper.clampedLerp(sunGlareShading.getSkyAttenuation(), 1f, angleDiff + rainGradient);
+        float multiplierBlue = MathHelper.clampedLerp(sunGlareShading.getSkyAttenuation(), 1f, angleDiff + rainGradient);
         if (MathHelper.approximatelyEquals(multiplierBlue, 1f)) {
             return original;
         }
-        final float multiplierRed = MathHelper.clampedLerp(sunGlareShading.getSkyAttenuation()-0.16f, 1f, angleDiff + rainGradient);
-        final float multiplierGreen = MathHelper.clampedLerp(sunGlareShading.getSkyAttenuation()-0.06f, 1f, angleDiff + rainGradient);
+        float multiplierRed = MathHelper.clampedLerp(sunGlareShading.getSkyAttenuation()-0.16f, 1f, angleDiff + rainGradient);
+        float multiplierGreen = MathHelper.clampedLerp(sunGlareShading.getSkyAttenuation()-0.06f, 1f, angleDiff + rainGradient);
 
         Vec3d color = Vec3d.unpackRgb(original);
+
+        // Use same dimming for all three channels when the biome is PALE GARDEN, with some extra darkness.
+        if (client.player!=null && client.world.getBiome(client.player.getBlockPos()).matchesId(BiomeKeys.PALE_GARDEN.getValue())){
+            multiplierRed = MathHelper.clampedLerp(sunGlareShading.getSkyAttenuation(true), 1f, angleDiff + rainGradient);
+            multiplierGreen = MathHelper.clampedLerp(sunGlareShading.getSkyAttenuation(true), 1f, angleDiff + rainGradient);
+            multiplierBlue = MathHelper.clampedLerp(sunGlareShading.getSkyAttenuation(true), 1f, angleDiff + rainGradient);
+        }
 
         return ColorHelper.getArgb(color.multiply(multiplierRed, multiplierGreen, multiplierBlue));
     }
