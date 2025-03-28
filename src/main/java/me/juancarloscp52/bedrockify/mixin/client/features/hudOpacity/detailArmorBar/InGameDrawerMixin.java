@@ -17,8 +17,6 @@ public class InGameDrawerMixin {
 
     @Inject(method = "drawTexturedQuad", at = @At(value = "HEAD"))
     private static void applyOpacity(Identifier identifier, Matrix4f matrices, int x0, int x1, int y0, int y1, int z, float u0, float u1, float v0, float v1, boolean mirror, CallbackInfo ci){
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         var currentColors = RenderSystem.getShaderColor();
         //Cap original transparency to one
         if(currentColors[3] > 1){

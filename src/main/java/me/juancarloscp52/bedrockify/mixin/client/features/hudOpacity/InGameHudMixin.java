@@ -26,8 +26,6 @@ public class InGameHudMixin {
     }
     @Inject(method = "renderExperienceBar", at= @At("HEAD"))
     public void experienceBar(DrawContext context, int x, CallbackInfo ci){
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1,1,1,BedrockifyClient.getInstance().hudOpacity.getHudOpacity(false));
     }
 

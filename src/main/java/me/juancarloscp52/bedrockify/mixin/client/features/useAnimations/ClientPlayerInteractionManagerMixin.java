@@ -39,6 +39,6 @@ public abstract class ClientPlayerInteractionManagerMixin {
             return;
         }
 
-        AnimationsHelper.notifyChangedSlot((hand == Hand.OFF_HAND) ? PlayerInventory.OFF_HAND_SLOT : player.getInventory().selectedSlot);
+        AnimationsHelper.notifyChangedSlot((hand == Hand.OFF_HAND) ? PlayerInventory.OFF_HAND_SLOT : player.getInventory().getSelectedSlot());
     }
 }

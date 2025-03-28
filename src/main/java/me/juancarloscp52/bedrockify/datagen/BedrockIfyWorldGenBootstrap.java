@@ -41,18 +41,8 @@ public class BedrockIfyWorldGenBootstrap {
     private static PlacedFeature PLACED_DYING_PINE_TREE;
     private static PlacedFeature PLACED_DYING_DARK_OAK_TREE;
 
-
-    // Fallen Trees
-    private static final ConfiguredFeature<?, ?> FALLEN_OAK_TREE_CONFIGURED = new ConfiguredFeature<>(DyingTrees.FALLEN_OAK_TREE,FeatureConfig.DEFAULT);
-    private static final ConfiguredFeature<?, ?> FALLEN_BIRCH_TREE_CONFIGURED = new ConfiguredFeature<>(DyingTrees.FALLEN_BIRCH_TREE,FeatureConfig.DEFAULT);
-    private static final ConfiguredFeature<?, ?> FALLEN_SPRUCE_TREE_CONFIGURED = new ConfiguredFeature<>(DyingTrees.FALLEN_SPRUCE_TREE,FeatureConfig.DEFAULT);
-
     private static final ConfiguredFeature<SimpleBlockFeatureConfig, ?> SINGLE_PIECE_OF_FERN = new ConfiguredFeature<>(Feature.SIMPLE_BLOCK, new SimpleBlockFeatureConfig(BlockStateProvider.of(Blocks.FERN.getDefaultState())));
 
-    private static PlacedFeature PLACED_FALLEN_OAK_TREE;
-    private static PlacedFeature PLACED_FALLEN_OAK_TREE_PLAINS;
-    private static PlacedFeature PLACED_FALLEN_BIRCH_TREE;
-    private static PlacedFeature PLACED_FALLEN_SPRUCE_TREE;
     private static PlacedFeature PLACED_FERN_BONEMEAL;
 
 
@@ -65,13 +55,7 @@ public class BedrockIfyWorldGenBootstrap {
         PLACED_DYING_PINE_TREE = new PlacedFeature(lookup.getOrThrow(DyingTrees.DYING_PINE_TREE),VegetationPlacedFeatures.treeModifiersWithWouldSurvive(PlacedFeatures.createCountExtraModifier(1, 0.1f, 0), Blocks.SPRUCE_SAPLING));
         PLACED_DYING_DARK_OAK_TREE = new PlacedFeature(lookup.getOrThrow(DyingTrees.DYING_DARK_OAK_TREE),VegetationPlacedFeatures.treeModifiersWithWouldSurvive(PlacedFeatures.createCountExtraModifier(1, 0.1f, 0), Blocks.DARK_OAK_SAPLING));
 
-        PLACED_FALLEN_OAK_TREE = new PlacedFeature(lookup.getOrThrow(DyingTrees.FALLEN_OAK_TREE_CONFIGURED),VegetationPlacedFeatures.treeModifiersWithWouldSurvive(PlacedFeatures.createCountExtraModifier(0, 0.1f, 1), Blocks.OAK_SAPLING));
-        PLACED_FALLEN_OAK_TREE_PLAINS = new PlacedFeature(lookup.getOrThrow(DyingTrees.FALLEN_OAK_TREE_CONFIGURED),VegetationPlacedFeatures.treeModifiersWithWouldSurvive(PlacedFeatures.createCountExtraModifier(0, 0.01f, 1), Blocks.OAK_SAPLING));
-        PLACED_FALLEN_BIRCH_TREE = new PlacedFeature(lookup.getOrThrow(DyingTrees.FALLEN_BIRCH_TREE_CONFIGURED),VegetationPlacedFeatures.treeModifiersWithWouldSurvive(PlacedFeatures.createCountExtraModifier(0, 0.1f, 1), Blocks.BIRCH_SAPLING));
-        PLACED_FALLEN_SPRUCE_TREE = new PlacedFeature(lookup.getOrThrow(DyingTrees.FALLEN_SPRUCE_TREE_CONFIGURED),VegetationPlacedFeatures.treeModifiersWithWouldSurvive(PlacedFeatures.createCountExtraModifier(0, 0.2f, 1), Blocks.SPRUCE_SAPLING));
-
         PLACED_FERN_BONEMEAL = new PlacedFeature(lookup.getOrThrow(FernBonemeal.SINGLE_PIECE_OF_FERN), Collections.singletonList(PlacedFeatures.isAir()));
-
     }
 
     static void placedFeatures(Registerable<PlacedFeature> registry){
@@ -85,13 +69,7 @@ public class BedrockIfyWorldGenBootstrap {
         registry.register(DyingTrees.DYING_PINE_TREE_PF,PLACED_DYING_PINE_TREE);
         registry.register(DyingTrees.DYING_DARK_OAK_TREE_PF,PLACED_DYING_DARK_OAK_TREE);
 
-        registry.register(DyingTrees.FALLEN_BIRCH_TREE_PLACED,PLACED_FALLEN_BIRCH_TREE);
-        registry.register(DyingTrees.FALLEN_OAK_TREE_PLAINS_PLACED,PLACED_FALLEN_OAK_TREE_PLAINS);
-        registry.register(DyingTrees.FALLEN_OAK_TREE_PLACED,PLACED_FALLEN_OAK_TREE);
-        registry.register(DyingTrees.FALLEN_SPRUCE_TREE_PLACED,PLACED_FALLEN_SPRUCE_TREE);
-
         registry.register(FernBonemeal.SINGLE_PIECE_OF_FERN_PLACED,PLACED_FERN_BONEMEAL);
-
     }
 
     public static void configureFeatures(Registerable<ConfiguredFeature<?, ?>> registry){
@@ -101,10 +79,6 @@ public class BedrockIfyWorldGenBootstrap {
         registry.register(DyingTrees.DYING_SPRUCE_TREE, DYING_SPRUCE_TREE_CONFIGURED);
         registry.register(DyingTrees.DYING_PINE_TREE, DYING_PINE_TREE_CONFIGURED);
         registry.register(DyingTrees.DYING_DARK_OAK_TREE, DYING_DARK_OAK_TREE_CONFIGURED);
-
-        registry.register(DyingTrees.FALLEN_BIRCH_TREE_CONFIGURED,FALLEN_BIRCH_TREE_CONFIGURED);
-        registry.register(DyingTrees.FALLEN_OAK_TREE_CONFIGURED,FALLEN_OAK_TREE_CONFIGURED);
-        registry.register(DyingTrees.FALLEN_SPRUCE_TREE_CONFIGURED,FALLEN_SPRUCE_TREE_CONFIGURED);
 
         registry.register(FernBonemeal.SINGLE_PIECE_OF_FERN,SINGLE_PIECE_OF_FERN);
 

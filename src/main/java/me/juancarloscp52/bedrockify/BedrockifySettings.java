@@ -6,7 +6,6 @@ public class BedrockifySettings {
     public boolean dyingTrees = true;
     public boolean fireAspectLight = true;
     public boolean fernBonemeal = true;
-    public boolean fallenTrees = true;
     public boolean bedrockCauldron = true;
 
     public boolean isBedrockRecipesEnabled() {

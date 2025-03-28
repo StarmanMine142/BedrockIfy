@@ -27,7 +27,7 @@ public abstract class InGameHudMixin{
 
     @Inject(method = "renderHotbarItem", at=@At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;getBobbingAnimationTime()I"))
     private void captureItemStack(DrawContext context, int x, int y, RenderTickCounter tickCounter, PlayerEntity player, ItemStack stack, int seed, CallbackInfo ci){
-        pickedItemCooldownLeft = stack.getBobbingAnimationTime()-tickCounter.getTickDelta(true);
+        pickedItemCooldownLeft = stack.getBobbingAnimationTime()-tickCounter.getTickProgress(true);
     }
     @WrapOperation(method = "renderHotbarItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;scale(FFF)V"))
     private void applyAnimation(MatrixStack matrixStack, float x, float y, float z, Operation<Void> original){

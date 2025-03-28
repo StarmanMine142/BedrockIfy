@@ -1,8 +1,6 @@
 package me.juancarloscp52.bedrockify.client.features.loadingScreens;
 
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -88,8 +86,6 @@ public class LoadingScreenWidget {
     }
 
     private void renderLoadingWidget(DrawContext drawContext, int x, int y) {
-        RenderSystem.enableBlend();
-        RenderSystem.blendFunc(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
         drawContext.drawTexture(RenderLayer::getGuiTextured, WIDGET_TEXTURE, x - 256 / 2, y - 89 / 2, 0, 0, 256, 89, 256, 256);
     }
 

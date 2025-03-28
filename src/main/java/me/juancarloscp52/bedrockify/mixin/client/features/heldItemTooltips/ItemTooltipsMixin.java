@@ -35,7 +35,7 @@ public class ItemTooltipsMixin {
      */
     @Redirect(method = "tick()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z", ordinal = 1))
     private boolean interceptItemStack(ItemStack itemStack) {
-        ItemStack nextItem = this.client.player.getInventory().getMainHandStack();
+        ItemStack nextItem = this.client.player.getMainHandStack();
         HeldItemTooltips heldItemTooltips = BedrockifyClient.getInstance().heldItemTooltips;
         if(itemStack.getItem() == this.currentStack.getItem() && !heldItemTooltips.equals(currentStack,nextItem)){
             this.heldItemTooltipFade = 41;

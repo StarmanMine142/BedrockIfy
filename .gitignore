@@ -25,3 +25,4 @@ logs
 
 Thumbs.db
 *.psd
+/src/main/generated/.cache/

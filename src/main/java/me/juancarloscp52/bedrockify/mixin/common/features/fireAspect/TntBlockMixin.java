@@ -25,7 +25,9 @@ import org.spongepowered.asm.mixin.injection.At;
 public abstract class TntBlockMixin {
 
     @Shadow
-    public static void primeTnt(World world, BlockPos pos) {}
+    public static boolean primeTnt(World world, BlockPos pos) {
+        return false;
+    }
 
     @ModifyReturnValue(method = "onUseWithItem",at=@At("RETURN"))
     private ActionResult onUse(ActionResult original, ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit){

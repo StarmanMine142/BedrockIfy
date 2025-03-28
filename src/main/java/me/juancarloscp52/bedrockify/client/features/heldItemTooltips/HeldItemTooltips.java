@@ -1,7 +1,6 @@
 package me.juancarloscp52.bedrockify.client.features.heldItemTooltips;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
 import me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip.ContainerTooltip;
@@ -14,11 +13,16 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffectUtil;
+import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.*;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.screen.ScreenTexts;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -30,7 +34,7 @@ import java.util.Objects;
 
 public class HeldItemTooltips {
 
-    private final int  tooltipSize = 6;
+    private static final int TOOLTIP_SIZE = 6;
 
     private static final boolean B_DAB_LOADED = FabricLoader.getInstance().isModLoaded("detailab");
 
@@ -45,7 +49,7 @@ public class HeldItemTooltips {
             return 0;
         if(MinecraftClient.getInstance().interactionManager.hasStatusBars()){
             y-=16;
-            if(player.getArmor()>0 || (B_DAB_LOADED && Sets.newHashSet(player.getArmorItems()).stream().anyMatch(stack -> stack.contains(DataComponentTypes.GLIDER)))){
+            if(player.getArmor()>0 || (B_DAB_LOADED && PlayerInventory.EQUIPMENT_SLOTS.keySet().intStream().anyMatch(value -> player.getInventory().getStack(value).contains(DataComponentTypes.GLIDER)))){
                 y-=10;
             }
             if(player.getAbsorptionAmount()>0){
@@ -63,14 +67,14 @@ public class HeldItemTooltips {
                 tooltips.add(tooltip.getTooltipText());
             }
             // Limit the maximum number of shown tooltips to tooltipSize.
-            final boolean showMoreTooltip = (tooltips.size() > tooltipSize);
+            final boolean showMoreTooltip = (tooltips.size() > TOOLTIP_SIZE);
             if (showMoreTooltip) {
                 // Store the number of items.
-                final int xMore = tooltips.size() - (tooltipSize-1);
+                final int xMore = tooltips.size() - (TOOLTIP_SIZE -1);
                 // Trim tooltips.
-                tooltips.subList(tooltipSize - 1, tooltips.size()).clear();
+                tooltips.subList(TOOLTIP_SIZE - 1, tooltips.size()).clear();
                 // Add the "and x more..." tooltip.
-                tooltips.add(Text.translatable("container.shulkerBox.more", xMore).formatted(Formatting.GRAY));
+                tooltips.add(Text.translatable("item.container.more_items", xMore).formatted(Formatting.GRAY));
             }
 
             tooltipOffset = 12 * tooltips.size();
@@ -99,34 +103,33 @@ public class HeldItemTooltips {
     public static List<Tooltip> getTooltips(ItemStack currentStack) {
         final Item item = currentStack.getItem();
         final List<Tooltip> result = Lists.newArrayList();
-        //If the item is a enchanted book, retrieve the enchantments.
         if (item == Items.ENCHANTED_BOOK || currentStack.hasEnchantments()) {
             var enchantmentsComponent = EnchantmentHelper.getEnchantments(currentStack);
             enchantmentsComponent.getEnchantments().forEach(enchantment -> result.add(new EnchantmentTooltip(enchantment.value(), enchantmentsComponent.getLevel(enchantment))));
-            //If the item has a potion effects, retrieve them.
+
         } else if (item instanceof PotionItem || item instanceof TippedArrowItem) {
-            List<Text> generated = Lists.newArrayList();
-            // Lingering Potion has its own multiplier of duration, and it is hardcoded.
-            item.appendTooltip(currentStack, Item.TooltipContext.DEFAULT, generated, TooltipType.BASIC);
-            generateTooltipsForPotion(generated, result);
+            result.addAll(generateTooltipsForPotion(currentStack));
+
         } else if (item == Items.OMINOUS_BOTTLE) {
             var ominousComponent = currentStack.getComponents().get(DataComponentTypes.OMINOUS_BOTTLE_AMPLIFIER);
             if (ominousComponent != null) {
-                List<Text> generated = Lists.newArrayList();
-                ominousComponent.appendTooltip(Item.TooltipContext.DEFAULT, generated::add, TooltipType.BASIC);
-                generateTooltipsForPotion(generated, result);
+                List<StatusEffectInstance> list = List.of(new StatusEffectInstance(StatusEffects.BAD_OMEN, 120000, ominousComponent.value(), false, false, true));
+                result.addAll(generateTooltipsForPotion(currentStack, list));
             }
+
         } else if(currentStack.getComponents().contains(DataComponentTypes.CONTAINER)){
-            var container = currentStack.getComponents().get(DataComponentTypes.CONTAINER);
+            var container = currentStack.get(DataComponentTypes.CONTAINER);
             if(container != null){
                 generateTooltipsFromContainer(container.stream().toList(), result);
             }
+
         } else if (currentStack.getComponents().contains(DataComponentTypes.BUNDLE_CONTENTS)){
             var container = currentStack.getComponents().get(DataComponentTypes.BUNDLE_CONTENTS);
             if(container != null){
                 generateTooltipsFromContainer(container.stream().toList(), result);
             }
         }
+
         return result;
     }
 
@@ -147,19 +150,27 @@ public class HeldItemTooltips {
         }
     }
 
-    /**
-     * Formats a generated tooltip list from the given {@link Text} list.
-     *
-     * @param texts tooltip list of an item.
-     * @param instance Where the list of {@link Tooltip} is stored.
-     */
-    private static void generateTooltipsForPotion(List<Text> texts, List<Tooltip> instance) {
-        // Trim lines after "When Applied" string if present.
-        int startIndex = texts.indexOf(ScreenTexts.EMPTY);
-        if (startIndex > 0) {
-            texts.subList(startIndex, texts.size()).clear();
+    private static List<PotionTooltip> generateTooltipsForPotion(ItemStack stack, Iterable<StatusEffectInstance> effects){
+        List<PotionTooltip> tooltips = new ArrayList<>();
+        for (StatusEffectInstance statusEffectInstance : effects) {
+            RegistryEntry<StatusEffect> registryEntry = statusEffectInstance.getEffectType();
+            int i = statusEffectInstance.getAmplifier();
+            MutableText mutableText = PotionContentsComponent.getEffectText(registryEntry, i);
+            if (!statusEffectInstance.isDurationBelow(20)) {
+                mutableText = Text.translatable("potion.withDuration", mutableText, StatusEffectUtil.getDurationText(statusEffectInstance, stack.getComponents().getOrDefault(DataComponentTypes.POTION_DURATION_SCALE, 1.0F), MinecraftClient.getInstance().world.getTickManager().getTickRate()));
+            }
+
+            tooltips.add(new PotionTooltip(mutableText.formatted(registryEntry.value().getCategory().getFormatting())));
         }
-        texts.forEach((current) -> instance.add(new PotionTooltip(current)));
+
+        if (tooltips.isEmpty()) {
+            tooltips.add(new PotionTooltip(Text.translatable("effect.none")));
+        }
+        return tooltips;
+    }
+
+    private static List<PotionTooltip> generateTooltipsForPotion(ItemStack stack) {
+        return generateTooltipsForPotion(stack, stack.get(DataComponentTypes.POTION_CONTENTS).getEffects());
     }
 
     private void renderBackground(DrawContext drawContext, float y, int screenBorder, int tooltipOffset, int maxLength, int alpha) {

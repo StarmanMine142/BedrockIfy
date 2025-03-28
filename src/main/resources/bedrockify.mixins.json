@@ -44,7 +44,6 @@
     "client.features.screenSafeArea.InGameHudMixin",
     "client.features.screenSafeArea.SubtitlesHudMixin",
     "client.features.screenSafeArea.detailArmorBar.ArmorBarRendererMixin",
-    "client.features.sheepColors.SheepWoolFeatureRendererMixin",
     "client.features.slotHighlight.HandledScreenMixin",
     "client.features.useAnimations.ClientPlayerEntityMixin",
     "client.features.useAnimations.ClientPlayerInteractionManagerMixin",

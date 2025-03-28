@@ -45,8 +45,6 @@ public abstract class InGameHudMixin {
                 drawContext.fill(x,y + height - screenBorder,x+width,y+height+1 - screenBorder, ColorHelper.getArgb(255,0,0,0));
         }else{
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, BedrockifyClient.getInstance().hudOpacity.getHudOpacity(true));
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
             original.call(drawContext, function, texture, x, y - screenBorder, width, height);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, BedrockifyClient.getInstance().hudOpacity.getHudOpacity(false));
         }

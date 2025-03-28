@@ -58,7 +58,7 @@ public final class EatParticlePayload extends AbstractVelocityParticlePayload {
 
                 client.execute(() -> {
                     if (null != client.world)
-                        client.world.addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, stack), x, y, z, velx, vely, velz);
+                        client.world.addParticleClient(new ItemStackParticleEffect(ParticleTypes.ITEM, stack), x, y, z, velx, vely, velz);
                 });
             } catch (Exception ignored) {
             }

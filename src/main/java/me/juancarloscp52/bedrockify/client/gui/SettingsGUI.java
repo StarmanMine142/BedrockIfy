@@ -56,9 +56,8 @@ public class SettingsGUI {
             reachAround.add(entryBuilder.startBooleanToggle(Text.translatable("bedrockify.options.reachAround.indicator"), settingsClient.reacharoundIndicator).setDefaultValue(false).setSaveConsumer(newValue -> settingsClient.reacharoundIndicator=newValue).build());
             gameplay.addEntry(reachAround.build());
         
-            // Dying and Fallen Trees.
+            // Dying Trees.
             gameplay.addEntry(entryBuilder.startBooleanToggle(Text.translatable("bedrockify.options.dyingTrees"), settingsCommon.dyingTrees).setDefaultValue(true).setSaveConsumer(newValue -> settingsCommon.dyingTrees=newValue).build());
-            gameplay.addEntry(entryBuilder.startBooleanToggle(Text.translatable("bedrockify.options.fallenTrees"), settingsCommon.fallenTrees).setDefaultValue(true).setSaveConsumer(newValue -> settingsCommon.fallenTrees=newValue).build());
 
             // Other Settings.
             gameplay.addEntry(entryBuilder.startBooleanToggle(Text.translatable("bedrockify.options.recipes"), settingsCommon.bedrockRecipes).setTooltip(wrapLines(Text.translatable("bedrockify.options.recipes.tooltip"))).setDefaultValue(true).setSaveConsumer(newValue -> settingsCommon.bedrockRecipes=newValue).build());
@@ -67,7 +66,6 @@ public class SettingsGUI {
             gameplay.addEntry(entryBuilder.startBooleanToggle(Text.translatable("bedrockify.options.disableFlyingMomentum"), settingsClient.disableFlyingMomentum).setDefaultValue(true).setSaveConsumer(newValue -> settingsClient.disableFlyingMomentum =newValue).build());
             gameplay.addEntry(entryBuilder.startBooleanToggle(Text.translatable("bedrockify.options.elytraStop"), settingsClient.elytraStop).setDefaultValue(true).setSaveConsumer(newValue -> settingsClient.elytraStop=newValue).build());
             gameplay.addEntry(entryBuilder.startBooleanToggle(Text.translatable("bedrockify.options.bedrockCauldron"), settingsCommon.bedrockCauldron).setTooltip(wrapLines(Text.translatable("bedrockify.options.bedrockCauldron.tooltip"))).setDefaultValue(true).setSaveConsumer(newValue -> settingsCommon.bedrockCauldron=newValue).build());
-            gameplay.addEntry(entryBuilder.startBooleanToggle(Text.translatable("bedrockify.options.sheepcolors"), settingsClient.sheepColors).setDefaultValue(true).setSaveConsumer(newValue -> settingsClient.sheepColors=newValue).build());
 
         /*
          *

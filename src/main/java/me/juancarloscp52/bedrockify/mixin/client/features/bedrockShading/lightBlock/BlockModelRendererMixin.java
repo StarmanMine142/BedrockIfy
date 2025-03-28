@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.BitSet;
 import java.util.List;
 /**
  * @author Shaddatic
@@ -24,7 +23,7 @@ import java.util.List;
 public class BlockModelRendererMixin {
     private boolean luminant = false;
     @Inject(method = "renderQuadsFlat",at=@At(value = "INVOKE",target = "Lnet/minecraft/world/BlockRenderView;getBrightness(Lnet/minecraft/util/math/Direction;Z)F",ordinal = 0))
-    private void getLuminant(BlockRenderView world, BlockState state, BlockPos pos, int light, int overlay, boolean useWorldLight, MatrixStack matrices, VertexConsumer vertexConsumer, List<BakedQuad> quads, BitSet flags, CallbackInfo ci){
+    private void getLuminant(BlockRenderView world, BlockState state, BlockPos pos, int light, int overlay, boolean useWorldLight, MatrixStack matrices, VertexConsumer vertexConsumer, List<BakedQuad> quads, BlockModelRenderer.LightmapCache lightmap, CallbackInfo ci){
         this.luminant = state.getLuminance() > 2;
     }
 

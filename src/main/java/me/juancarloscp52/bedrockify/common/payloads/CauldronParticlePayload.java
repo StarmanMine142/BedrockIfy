@@ -60,13 +60,13 @@ public final class CauldronParticlePayload extends AbstractVelocityParticlePaylo
                 if (particle instanceof ParticleEffect generic) {
                     client.execute(() -> {
                         if (null != client.world) {
-                            client.world.addParticle(generic, x, y, z, vx, vy, vz);
+                            client.world.addParticleClient(generic, x, y, z, vx, vy, vz);
                         }
                     });
                 } else if (particle.equals(ParticleTypes.ENTITY_EFFECT)) {
                     client.execute(() -> {
                         if (null != client.world) {
-                            client.world.addParticle(EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, vx, vy, vz), x, y, z, vx, vy, vz);
+                            client.world.addParticleClient(EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, vx, vy, vz), x, y, z, vx, vy, vz);
                         }
                     });
                 }

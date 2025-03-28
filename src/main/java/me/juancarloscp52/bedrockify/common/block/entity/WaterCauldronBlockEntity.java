@@ -126,9 +126,9 @@ public class WaterCauldronBlockEntity extends BlockEntity {
     protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         super.readNbt(nbt, registryLookup);
 
-        this.tintColor = nbt.getInt(KEY_FLUID_TINT);
-        this.fluidId = Identifier.tryParse(nbt.getString(KEY_FLUID_ITEM));
-        this.potionTypeId = Identifier.tryParse(nbt.getString(KEY_POTION_TYPE));
+        this.tintColor = nbt.getInt(KEY_FLUID_TINT).get();
+        this.fluidId = Identifier.tryParse(nbt.getString(KEY_FLUID_ITEM).get());
+        this.potionTypeId = Identifier.tryParse(nbt.getString(KEY_POTION_TYPE).get());
         this.checkExactIds();
         this.updateListeners();
     }

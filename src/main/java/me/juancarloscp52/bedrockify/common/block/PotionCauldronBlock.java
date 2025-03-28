@@ -97,7 +97,7 @@ public class PotionCauldronBlock extends AbstractBECauldronBlock {
             final double x = pos.getX() + 0.45 + random.nextDouble() * 0.2;
             final double y = pos.getY() + offsetY;
             final double z = pos.getZ() + 0.45 + random.nextDouble() * 0.2;
-            world.addParticle(EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, red, green, blue), x, y, z, red, green, blue);
+            world.addParticleClient(EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, red, green, blue), x, y, z, red, green, blue);
         });
     }
 

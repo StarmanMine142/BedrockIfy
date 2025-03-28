@@ -8,7 +8,6 @@ import me.juancarloscp52.bedrockify.client.features.fishingBobber.FishingBobber3
 import me.juancarloscp52.bedrockify.client.features.heldItemTooltips.HeldItemTooltips;
 import me.juancarloscp52.bedrockify.client.features.hudOpacity.HudOpacity;
 import me.juancarloscp52.bedrockify.client.features.reacharoundPlacement.ReachAroundPlacement;
-import me.juancarloscp52.bedrockify.client.features.sheepColors.SheepSkinResource;
 import me.juancarloscp52.bedrockify.client.features.worldColorNoise.WorldColorNoiseSampler;
 import me.juancarloscp52.bedrockify.client.gui.Overlay;
 import me.juancarloscp52.bedrockify.client.gui.SettingsGUI;
@@ -26,14 +25,11 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
-import net.minecraft.resource.ResourceType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
@@ -100,12 +96,6 @@ public class BedrockifyClient implements ClientModInitializer {
             });
         }
 
-        // Register sheared sheep texture dynamically.
-        if (!FabricLoader.getInstance().isModLoaded("optifabric")) {
-            ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SheepSkinResource());
-        }
-
-
         ClientPlayNetworking.registerGlobalReceiver(Bedrockify.EAT_PARTICLE_PAYLOAD.getId(), new EatParticlePayload.EatParticleHandler());
 
         ClientPlayNetworking.registerGlobalReceiver(Bedrockify.CAULDRON_PARTICLE_PAYLOAD.getId(), new CauldronParticlePayload.CauldronParticleHandler());
@@ -116,7 +106,7 @@ public class BedrockifyClient implements ClientModInitializer {
                 client.setScreen(settingsGUI.getConfigScreen(client.currentScreen));
             }
             hudOpacity.tick();
-            bedrockSunGlareShading.tick(client.getRenderTickCounter().getTickDelta(true));
+            bedrockSunGlareShading.tick(client.getRenderTickCounter().getTickProgress(true));
 
             // Stop flying drift
             if(settings.disableFlyingMomentum && null != client.player && client.player.getAbilities().flying){

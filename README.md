@@ -3,7 +3,6 @@ BedrockIfy is a fabric Minecraft Mod that implements some useful Minecraft Bedro
 
 ## Features
 - Bedrock-like loading screens with helpful tips.
-- Sheared Sheep Colors
 - Third person eating animations.
 - Position and "paper doll" overlay.
 - Dynamic Inactive Hud Opacity.
@@ -18,7 +17,7 @@ BedrockIfy is a fabric Minecraft Mod that implements some useful Minecraft Bedro
 - Held item descriptions (enchantments, books and potions).
 - Reach-around block placement.
 - Quick armor swap.
-- Dying and Fallen Trees!
+- Dying Trees!
 - Bedrock Light block shading.
 - Disable flying momentum (Drift) in creative mode.
 - Stop elytra flying by pressing space on air.
@@ -58,7 +57,6 @@ You can find the built JARs inside BedrockIfy/build/libs
 
 Here is a list of other Fabric Mods that can improve your BedrockLike Experience: (Note: some of these might not be updated to the latest version.)
 - [MidnightControls](https://github.com/TeamMidnightDust/MidnightControls) - Enables Controller support and other useful tweaks.
-- [Sheep Consistency](https://github.com/IMS212/sheepconsistency) Let's you see the color of sheared sheep.
 - [BedrockWaters](https://github.com/2Retr0/BedrockWaters) - Ports all Bedrock Edition biome specific water color.
 - [Snowy Leaves](https://github.com/Ashley1227/snowy-leaves) - Leaves will turn white while snowing.
 - [Fade In Chunks](https://github.com/johni0702/fade-in-chunks) Adds a Bedrock Edition style fading in animation for newly loaded chunks.

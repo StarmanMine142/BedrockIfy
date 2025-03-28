@@ -53,7 +53,6 @@ public class BedrockifyClientSettings {
     public boolean pickupAnimations = true;
     public boolean fishingBobber3D = true;
     public int sunlightIntensity = 50;
-    public boolean sheepColors = true;
     public boolean hideEditionBranding = false;
     public boolean hotBarOverhang = true;
     public boolean babyVillagerHeads = true;

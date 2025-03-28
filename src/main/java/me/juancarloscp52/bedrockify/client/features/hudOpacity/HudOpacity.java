@@ -32,7 +32,7 @@ public class HudOpacity {
         }
 
         if(MinecraftClient.getInstance().player!= null){
-            int selectedSlot = MinecraftClient.getInstance().player.getInventory().selectedSlot;
+            int selectedSlot = MinecraftClient.getInstance().player.getInventory().getSelectedSlot();
             if(selectedSlot != previousSelectedSlot){
                 previousSelectedSlot=selectedSlot;
                 resetTicks();

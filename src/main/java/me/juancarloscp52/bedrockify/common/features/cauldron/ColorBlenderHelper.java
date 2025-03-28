@@ -38,8 +38,7 @@ public final class ColorBlenderHelper {
             blendArray = colors;
         }
 
-        boolean showInTooltip = dyedColorComponent == null || dyedColorComponent.showInTooltip();
-        base.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(blendColors(blendArray), showInTooltip));
+        base.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(blendColors(blendArray)));
         return base;
     }
 

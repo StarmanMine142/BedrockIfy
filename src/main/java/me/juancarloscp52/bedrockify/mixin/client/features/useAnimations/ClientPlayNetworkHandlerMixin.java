@@ -46,7 +46,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
     @Inject(method = "onInventory", at = @At("RETURN"))
     private void bedrockify$animateAlwaysInventory(InventoryS2CPacket packet, CallbackInfo ci) {
         final PlayerEntity player = MinecraftClient.getInstance().player;
-        if (packet.getSyncId() != 0 || player == null) {
+        if (packet.syncId() != 0 || player == null) {
             return;
         }
 
