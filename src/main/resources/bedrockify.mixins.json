@@ -8,7 +8,7 @@
     "client.core.bedrockIfyButton.OptionsScreenMixin",
     "client.core.clientRenderTimer.MinecraftClientMixin",
     "client.features.babyVillagerHeads.VillagerResemblingModelMixin",
-    "client.features.bedrockShading.lightBlock.AbstractQuadRendererMixin",
+    "client.features.bedrockShading.lightBlock.AbstractTerrainRenderContextMixin",
     "client.features.bedrockShading.lightBlock.BlockModelRendererMixin",
     "client.features.bedrockShading.lightBlock.FluidRendererMixin",
     "client.features.bedrockShading.sunGlare.ClientWorldMixin",

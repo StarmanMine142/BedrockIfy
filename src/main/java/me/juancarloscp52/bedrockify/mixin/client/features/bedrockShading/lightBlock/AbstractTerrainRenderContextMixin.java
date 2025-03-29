@@ -1,7 +1,7 @@
 package me.juancarloscp52.bedrockify.mixin.client.features.bedrockShading.lightBlock;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
-import net.fabricmc.fabric.impl.client.indigo.renderer.render.AbstractBlockRenderContext;
+import net.fabricmc.fabric.impl.client.indigo.renderer.render.AbstractTerrainRenderContext;
 import net.fabricmc.fabric.impl.client.indigo.renderer.render.BlockRenderInfo;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.BlockRenderView;
@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 /**
  * @author Shaddatic
  */
-@Mixin(AbstractBlockRenderContext.class)
-public class AbstractQuadRendererMixin {
+@Mixin(AbstractTerrainRenderContext.class)
+public class AbstractTerrainRenderContextMixin {
 
     @Shadow @Final protected BlockRenderInfo blockInfo;
 
