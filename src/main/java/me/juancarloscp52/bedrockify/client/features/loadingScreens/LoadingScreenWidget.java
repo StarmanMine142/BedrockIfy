@@ -6,10 +6,12 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.LogoDrawer;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.GameMode;
 
 import java.util.List;
 import java.util.Random;
@@ -19,10 +21,12 @@ import java.util.Set;
 public class LoadingScreenWidget {
 
     private static LoadingScreenWidget instance = null;
-    private static final int TIPS_NUM = 131;
+    private GameMode gameMode = GameMode.SURVIVAL;
+    private static final int TIPS_NUM = 108 +1;
+    private static final int CREATIVE_TIPS_NUM = 23 +1;
     private final Identifier WIDGET_TEXTURE = Identifier.of("bedrockify", "textures/gui/bedrockify_widgets.png");
     private Text tip;
-    private static final Set<Integer> EXCLUDED_TIPS = Sets.newHashSet(15,23,28,29,32,33,34,35,62);
+    private static final Set<Integer> EXCLUDED_TIPS = Sets.newHashSet();
     private long lastTipUpdate = 0;
     private final ExternalLoadingTips externalLoadingTips;
     private final LogoDrawer logoDrawer;
@@ -45,20 +49,45 @@ public class LoadingScreenWidget {
      * @return Text with the current tip.
      */
     private Text getTip() {
-        if (tip == null || System.currentTimeMillis() - lastTipUpdate > 6000) {
+        // Check if gamemode has changed. Force new tooltip if gamemode has changed.
+        if(hasChangedGameMode())
+            tip = null;
 
-            int random = new Random().nextInt(1,TIPS_NUM+1);
-            if((random>TIPS_NUM || externalLoadingTips.alwaysExternalTips)&& externalLoadingTips.externalLoadingTips.length>0){
-                random = new Random().nextInt(externalLoadingTips.externalLoadingTips.length);
-                tip = Text.literal(externalLoadingTips.externalLoadingTips[random]);
-            }else{
-                if(EXCLUDED_TIPS.contains(random))
-                    return getTip();
-                tip = Text.translatable("bedrockify.loadingTips." + random);
+        if (tip == null || System.currentTimeMillis() - lastTipUpdate > 6000) {
+            Random randomGenerator = new Random();
+            IntegratedServer server = MinecraftClient.getInstance().getServer();
+            if(server !=null && server.getDefaultGameMode() == GameMode.CREATIVE){
+                tip = Text.translatable("bedrockify.loadingTips.creative." + randomGenerator.nextInt(1,CREATIVE_TIPS_NUM));
+            }
+            else {
+                int externalTipsLength = externalLoadingTips.length();
+                int random = randomGenerator.nextInt(1,TIPS_NUM + 1 + externalTipsLength);
+                if(externalTipsLength>0 && (random>TIPS_NUM || externalLoadingTips.alwaysExternalTips )){
+                    tip = Text.literal(externalLoadingTips.get(randomGenerator.nextInt(externalTipsLength)));
+                }else{
+                    if(EXCLUDED_TIPS.contains(random))
+                        return getTip();
+
+                    tip = Text.translatable("bedrockify.loadingTips." + random);
+                }
             }
             lastTipUpdate = System.currentTimeMillis();
         }
         return tip;
+    }
+
+    private boolean hasChangedGameMode(){
+        GameMode current = getCurrentGameMode();
+        if(gameMode != current){
+            gameMode = current;
+            return true;
+        }
+        return false;
+    }
+
+    private GameMode getCurrentGameMode(){
+        IntegratedServer server = MinecraftClient.getInstance().getServer();
+        return server == null? GameMode.SURVIVAL : server.getDefaultGameMode();
     }
 
     /**

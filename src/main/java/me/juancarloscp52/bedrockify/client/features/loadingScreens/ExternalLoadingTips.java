@@ -14,6 +14,14 @@ public class ExternalLoadingTips {
 
     String [] externalLoadingTips = new String[]{} ;
 
+    public String get(int index){
+        return externalLoadingTips[index];
+    }
+
+    public int length(){
+        return externalLoadingTips.length;
+    }
+
     public static ExternalLoadingTips loadSettings() {
         ExternalLoadingTips loadingTips = new ExternalLoadingTips();
         File file = new File("./config/bedrockify/bedrockify-ExternalLoadingTips.json");
