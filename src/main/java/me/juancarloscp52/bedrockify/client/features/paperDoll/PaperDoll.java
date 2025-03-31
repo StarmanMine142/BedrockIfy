@@ -138,9 +138,8 @@ public class PaperDoll {
         // Draw the entity.
         EntityRenderDispatcher entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
         entityRenderDispatcher.setRenderShadows(false);
-        VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-        entityRenderDispatcher.render(player, 0, 0, 0, 1.0F, matrixStack, immediate, 0xF000F0);
-        immediate.draw();
+        drawContext.draw(vertexConsumers -> entityRenderDispatcher.render(player, 0.0, 0.0, 0.0, 1.0F, drawContext.getMatrices(), vertexConsumers, 0xF000F0));
+        drawContext.draw();
         entityRenderDispatcher.setRenderShadows(true);
 
         // Restore previous entity rotations.
