@@ -19,7 +19,7 @@ import java.util.Set;
 public class LoadingScreenWidget {
 
     private static LoadingScreenWidget instance = null;
-    private static final int TIPS_NUM = 107;
+    private static final int TIPS_NUM = 131;
     private final Identifier WIDGET_TEXTURE = Identifier.of("bedrockify", "textures/gui/bedrockify_widgets.png");
     private Text tip;
     private static final Set<Integer> EXCLUDED_TIPS = Sets.newHashSet(15,23,28,29,32,33,34,35,62);
@@ -47,7 +47,7 @@ public class LoadingScreenWidget {
     private Text getTip() {
         if (tip == null || System.currentTimeMillis() - lastTipUpdate > 6000) {
 
-            int random = new Random().nextInt(TIPS_NUM+1)+1;
+            int random = new Random().nextInt(1,TIPS_NUM+1);
             if((random>TIPS_NUM || externalLoadingTips.alwaysExternalTips)&& externalLoadingTips.externalLoadingTips.length>0){
                 random = new Random().nextInt(externalLoadingTips.externalLoadingTips.length);
                 tip = Text.literal(externalLoadingTips.externalLoadingTips[random]);
