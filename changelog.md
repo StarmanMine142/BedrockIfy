@@ -1,3 +1,12 @@
+## [1.11.1] - 2025-03-31
+
+Available versions:
+-   Fabric: 1.21.5
+
+### Changed/Fixed
+
+-   Fix PaperDoll Rendering (Fixes compatibility with ImmediatelyFast)(Closes #395)
+
 ## [1.11] - 2025-03-31
 
 Available versions:
