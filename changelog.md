@@ -1,3 +1,17 @@
+## [1.11] - 2025-03-31
+
+Available versions:
+-   Fabric: 1.21.5
+
+### Changed/Fixed
+
+-   Port to 1.21.5
+-   Fixed HudOpacity
+-   Removed Fallen Trees since its been implemented in vanilla.
+-   Removed Sheep Colors since its been implemented in vanilla.
+-   Added Creative specific loading tips that will show when loading/creating creative worlds.
+-   External Loading tips now has the same probability to appear as any other Bedrockify loading tip.
+
 ## [1.10.2] - 2025-02-26
 
 Available versions:
