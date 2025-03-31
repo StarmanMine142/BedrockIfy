@@ -58,7 +58,7 @@ public class MixinFeatureManager {
         if(mixin.contains("worldGeneration") || mixin.contains("workaround")){
             return true;
         }
-        return features.get(mixin);
+        return features.getOrDefault(mixin,false);
     }
 
     public static void loadMixinSettings() {

@@ -45,7 +45,7 @@ public abstract class InGameHudMixin {
         if(texture.equals(Identifier.ofVanilla("hud/hotbar_selection"))){
             original.call(drawContext, function, texture, x, y - screenBorder, width, height);
             if(BedrockifyClient.getInstance().settings.hotBarOverhang)
-                drawContext.fill(x,y + height - screenBorder,x+width,y+height+1 - screenBorder, ColorHelper.getArgb(255,0,0,0));
+                drawContext.fill(x,y + height - screenBorder,x+width,y+height+1 - screenBorder, ColorHelper.getArgb((int)(255 * BedrockifyClient.getInstance().hudOpacity.getHudOpacity(false)),0,0,0));
         }else{
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, BedrockifyClient.getInstance().hudOpacity.getHudOpacity(true));
             original.call(drawContext, function, texture, x, y - screenBorder, width, height);

@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 public abstract class ItemRendererMixin {
     @ModifyVariable(
             method = "renderItem(Lnet/minecraft/item/ItemDisplayContext;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;II[ILjava/util/List;Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/render/item/ItemRenderState$Glint;)V",
-            at = @At("HEAD")
-    )
+            at = @At("HEAD"),
+            argsOnly = true)
     private static RenderLayer bedrockify$applyTranslucencyForBakedItemModel(RenderLayer original) {
         return TexturedRenderLayers.getItemEntityTranslucentCull();
     }
