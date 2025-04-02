@@ -10,7 +10,7 @@
   "bedrockify.options.off": "Tắt",
   "bedrockify.options.withPosition": "Cạnh tọa độ",
   "bedrockify.options.underPosition": "Dưới tọa độ",
-  "bedrockify.options.withBackground": "Dưới nền",
+  "bedrockify.options.withBackground": "Với nền",
   "bedrockify.options.subCategory.bedrockOverlay": "Biểu thị Bedrock...",
   "bedrockify.options.subCategory.bedrockOverlay.description": "Cấu hình biểu thị ở góc trên bên trái và biểu tượng lưu.",
   "bedrockify.options.subCategory.visualImprovements": "Cải thiện trải nghiệm...",
