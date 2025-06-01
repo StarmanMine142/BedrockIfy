@@ -1,7 +1,7 @@
 {
   "bedrockIfy.key.settings": "打开 BedrockIfy 设置",
-  "bedrockify.hud.position": "位置：",
-  "bedrockify.hud.fps": "FPS：",
+  "bedrockify.hud.position": "位置:",
+  "bedrockify.hud.fps": "FPS:",
   "bedrockify.options.categories.gui": "GUI",
   "bedrockify.options.categories.gameplay": "游戏",
   "bedrockify.options.categories.visualImprovements": "视觉改进",
