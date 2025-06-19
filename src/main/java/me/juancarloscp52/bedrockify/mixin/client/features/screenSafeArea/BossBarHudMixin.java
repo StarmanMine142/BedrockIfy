@@ -18,7 +18,7 @@ public abstract class BossBarHudMixin {
         return y + BedrockifyClient.getInstance().settings.getScreenSafeArea();
     }
 
-    @ModifyArg(method = "render", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)I"),index = 3)
+    @ModifyArg(method = "render", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V"),index = 3)
     public int applyScreenBorderToBossName(int y){
         return y + BedrockifyClient.getInstance().settings.getScreenSafeArea();
     }

@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
  * Applies the screen border distance to the subtitles widget.
  */
 public class SubtitlesHudMixin {
-    @ModifyArgs(method = "render", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)I"))
+    @ModifyArgs(method = "render", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;III)V"))
     private void modifyDrawText(Args args){
         int screenBorder = BedrockifyClient.getInstance().settings.getScreenSafeArea();
         int x = args.get(2);
@@ -21,7 +21,7 @@ public class SubtitlesHudMixin {
         args.set(3, y - screenBorder);
     }
 
-    @ModifyArgs(method = "render", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)I"))
+    @ModifyArgs(method = "render", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V"))
     public void modifyDrawText2(Args args){
         int screenBorder = BedrockifyClient.getInstance().settings.getScreenSafeArea();
         int x = args.get(2);

@@ -3,13 +3,14 @@ package me.juancarloscp52.bedrockify.client.features.loadingScreens;
 import com.google.common.collect.Sets;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.LogoDrawer;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameMode;
 
@@ -106,7 +107,7 @@ public class LoadingScreenWidget {
         renderLoadingWidget(drawContext, width, height);
 
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        drawContext.drawText(textRenderer, title, width - textRenderer.getWidth(title) / 2, height - 9 / 2 - 32, 76 + (76 << 8) + (76 << 16),false);
+        drawContext.drawText(textRenderer, title, width - textRenderer.getWidth(title) / 2, height - 9 / 2 - 32, ColorHelper.fullAlpha(76 | (76 << 8) | (76 << 16)),false);
         renderTextBody(drawContext, width, height, message, textRenderer);
 
         if (progress >= 0) {
@@ -115,7 +116,7 @@ public class LoadingScreenWidget {
     }
 
     private void renderLoadingWidget(DrawContext drawContext, int x, int y) {
-        drawContext.drawTexture(RenderLayer::getGuiTextured, WIDGET_TEXTURE, x - 256 / 2, y - 89 / 2, 0, 0, 256, 89, 256, 256);
+        drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, WIDGET_TEXTURE, x - 256 / 2, y - 89 / 2, 0, 0, 256, 89, 256, 256);
     }
 
 
@@ -125,7 +126,7 @@ public class LoadingScreenWidget {
         List<OrderedText> text = textRenderer.wrapLines(message, 230);
         int maxLineWidth = getMaxLineWidth(textRenderer, text);
         for (int i = 0; i < 4 && i < text.size(); i++) {
-            drawContext.drawText(textRenderer, text.get(i), x - maxLineWidth / 2, y - 15 + (i * 9), 16777215,false);
+            drawContext.drawText(textRenderer, text.get(i), x - maxLineWidth / 2, y - 15 + (i * 9), -1,false);
         }
 
     }
@@ -143,9 +144,9 @@ public class LoadingScreenWidget {
 
     private void renderLoadingBar(DrawContext drawContext, int x, int y, int progress) {
         int barProgress = (int) ((MathHelper.clamp(progress,0,100)/100.0f) * 223.0f);
-        drawContext.drawTexture(RenderLayer::getGuiTextured, WIDGET_TEXTURE, x - 111, y + 26, 0, 89, 222, 5, 256, 256);
+        drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, WIDGET_TEXTURE, x - 111, y + 26, 0, 89, 222, 5, 256, 256);
         if (barProgress > 0)
-            drawContext.drawTexture(RenderLayer::getGuiTextured, WIDGET_TEXTURE, x - 111, y + 26, 0, 94, barProgress, 5, 256, 256);
+            drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, WIDGET_TEXTURE, x - 111, y + 26, 0, 94, barProgress, 5, 256, 256);
     }
 
 }

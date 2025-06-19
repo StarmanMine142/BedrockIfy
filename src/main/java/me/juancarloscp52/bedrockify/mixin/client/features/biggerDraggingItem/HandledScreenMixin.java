@@ -1,38 +1,33 @@
 package me.juancarloscp52.bedrockify.mixin.client.features.biggerDraggingItem;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(HandledScreen.class)
 public abstract class HandledScreenMixin {
+    @Unique
+    private static final float MULTIPLIER = 1.3f;
 
-
-    @Shadow protected int x;
-
-    @Shadow protected abstract void drawItem(DrawContext context, ItemStack stack, int x, int y, String amountText);
-
-    @Redirect(method = "render", at= @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawItem(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V"))
-    private void drawBiggerItem(HandledScreen<?> instance, DrawContext drawContext, ItemStack stack, int xPosition, int yPosition, String amountText){
+    @WrapOperation(method = "renderCursorStack", at= @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawItem(Lnet/minecraft/client/gui/DrawContext;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V"))
+    private void drawBiggerItem(HandledScreen<?> instance, DrawContext drawContext, ItemStack stack, int xPosition, int yPosition, String amountText, Operation<Void> original){
         BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
         if(!settings.isBiggerIconsEnabled()){
-            this.drawItem(drawContext,stack, xPosition, yPosition, amountText);
+            original.call(instance, drawContext,stack, xPosition, yPosition, amountText);
             return;
         }
-        MatrixStack matrices = drawContext.getMatrices();
-        matrices.push();
-        float multiplier = 1.3f;
-        matrices.scale(multiplier,multiplier,multiplier);
-        this.drawItem(drawContext, stack, MathHelper.ceil(xPosition/multiplier)-2, MathHelper.ceil(yPosition/multiplier)-2, amountText);
-        matrices.pop();
+        drawContext.getMatrices().pushMatrix();
+        drawContext.getMatrices().scale(MULTIPLIER);
+        original.call(instance, drawContext, stack, MathHelper.ceil(xPosition/ MULTIPLIER)-2, MathHelper.ceil(yPosition/ MULTIPLIER)-2, amountText);
+        drawContext.getMatrices().popMatrix();
     }
 
 }

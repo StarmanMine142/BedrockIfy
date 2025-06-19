@@ -241,11 +241,11 @@ public final class BedrockSunGlareShading {
         this.sunAngleDiff = Math.clamp(clampMin, clampMax, (Math.safeAcos(cameraVec3f.dot(this.sunVector3f)) - 0.15f) * 2.f + sunSetRiseFactor);
     }
 
-    public void updateSunRadiusDelta(float tickDelta){
+    public void updateSunRadiusDelta(float tickProgress){
         if(MinecraftClient.getInstance().world == null)
             return;
 
-        final float rainGradient = MinecraftClient.getInstance().world.getRainGradient(tickDelta);
+        final float rainGradient = MinecraftClient.getInstance().world.getRainGradient(tickProgress);
         if (MathHelper.approximatelyEquals(rainGradient, 1f) || !this.shouldApplyShading()) {
             this.sunRadiusDelta = 1f;
             return;

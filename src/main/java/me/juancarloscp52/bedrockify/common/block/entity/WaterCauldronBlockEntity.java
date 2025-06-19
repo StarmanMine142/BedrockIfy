@@ -1,5 +1,6 @@
 package me.juancarloscp52.bedrockify.common.block.entity;
 
+import me.juancarloscp52.bedrockify.Bedrockify;
 import me.juancarloscp52.bedrockify.common.block.ColoredWaterCauldronBlock;
 import me.juancarloscp52.bedrockify.common.features.cauldron.BedrockCauldronBlocks;
 import me.juancarloscp52.bedrockify.common.features.cauldron.ColorBlenderHelper;
@@ -18,6 +19,8 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import org.jetbrains.annotations.Nullable;
@@ -122,25 +125,55 @@ public class WaterCauldronBlockEntity extends BlockEntity {
         }
     }
 
-    @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        super.readNbt(nbt, registryLookup);
+    @Nullable
+    private static Identifier getIdFromDataView(ReadView view, String key) {
+        try {
+            final String id = view.getString(key, "");
+            return id.isEmpty() ? null : Identifier.tryParse(id);
+        } catch (Exception ex) {
+            Bedrockify.LOGGER.error("getIdFromDataView(): Error when parsing identifier: key = {}", key);
+        }
+        return null;
+    }
 
-        this.tintColor = nbt.getInt(KEY_FLUID_TINT).get();
-        this.fluidId = Identifier.tryParse(nbt.getString(KEY_FLUID_ITEM).get());
-        this.potionTypeId = Identifier.tryParse(nbt.getString(KEY_POTION_TYPE).get());
+    @Override
+    protected void readData(ReadView view) {
+        super.readData(view);
+
+        this.tintColor = view.getInt(KEY_FLUID_TINT, COLOR_WHEN_ERROR);
+        this.fluidId = getIdFromDataView(view, KEY_FLUID_ITEM);
+        this.potionTypeId = getIdFromDataView(view, KEY_POTION_TYPE);
         this.checkExactIds();
         this.updateListeners();
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        nbt.putInt(KEY_FLUID_TINT, this.tintColor);
-        nbt.putString(KEY_FLUID_ITEM, (this.fluidId == null) ? "<NULL>" : this.fluidId.toString());
-        nbt.putString(KEY_POTION_TYPE, (this.potionTypeId == null) ? "<NULL>" : this.potionTypeId.toString());
+    protected void writeData(WriteView view) {
+        view.putInt(KEY_FLUID_TINT, this.tintColor);
+        view.putString(KEY_FLUID_ITEM, (this.fluidId == null) ? "<NULL>" : this.fluidId.toString());
+        view.putString(KEY_POTION_TYPE, (this.potionTypeId == null) ? "<NULL>" : this.potionTypeId.toString());
 
-        super.writeNbt(nbt, registryLookup);
+        super.writeData(view);
     }
+//    @Override
+//    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+//        super.readNbt(nbt, registryLookup);
+//
+//        this.tintColor = nbt.getInt(KEY_FLUID_TINT).get();
+//        this.fluidId = Identifier.tryParse(nbt.getString(KEY_FLUID_ITEM).get());
+//        this.potionTypeId = Identifier.tryParse(nbt.getString(KEY_POTION_TYPE).get());
+//        this.checkExactIds();
+//        this.updateListeners();
+//    }
+//
+//    @Override
+//    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+//        nbt.putInt(KEY_FLUID_TINT, this.tintColor);
+//        nbt.putString(KEY_FLUID_ITEM, (this.fluidId == null) ? "<NULL>" : this.fluidId.toString());
+//        nbt.putString(KEY_POTION_TYPE, (this.potionTypeId == null) ? "<NULL>" : this.potionTypeId.toString());
+//
+//        super.writeNbt(nbt, registryLookup);
+//    }
 
     @Nullable
     @Override

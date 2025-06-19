@@ -38,7 +38,7 @@ public class HeldItemTooltips {
 
     private static final boolean B_DAB_LOADED = FabricLoader.getInstance().isModLoaded("detailab");
 
-    public int drawItemWithCustomTooltips(DrawContext drawContext, TextRenderer fontRenderer, Text text, float x, float y, int color, ItemStack currentStack) {
+    public void drawItemWithCustomTooltips(DrawContext drawContext, TextRenderer fontRenderer, Text text, float x, float y, int color, ItemStack currentStack) {
         final BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
         final int screenBorder = settings.getScreenSafeArea();
         int tooltipOffset = 0;
@@ -46,7 +46,7 @@ public class HeldItemTooltips {
         //Set tooltip position depending on hotbar displayed information
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if(null ==player || null==MinecraftClient.getInstance().interactionManager)
-            return 0;
+            return;
         if(MinecraftClient.getInstance().interactionManager.hasStatusBars()){
             y-=16;
             if(player.getArmor()>0 || (B_DAB_LOADED && PlayerInventory.EQUIPMENT_SLOTS.keySet().intStream().anyMatch(value -> player.getInventory().getStack(value).contains(DataComponentTypes.GLIDER)))){
@@ -92,7 +92,7 @@ public class HeldItemTooltips {
         }
 
         // Render the item name.
-        return drawContext.drawTextWithShadow(fontRenderer, text, (int)x, (int)(y - tooltipOffset - screenBorder), color);
+        drawContext.drawTextWithShadow(fontRenderer, text, (int)x, (int)(y - tooltipOffset - screenBorder), color);
     }
 
     /**

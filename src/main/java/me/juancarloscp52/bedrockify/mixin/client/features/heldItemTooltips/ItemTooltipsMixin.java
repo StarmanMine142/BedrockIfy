@@ -25,9 +25,9 @@ public class ItemTooltipsMixin {
     /**
      * Draw custom tooltips for effects and enchantments before the heldItemTooltip is rendered.
      */
-    @Redirect(method = "renderHeldItemTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithBackground(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;IIII)I"))
-    private int drawCustomTooltips(DrawContext instance, TextRenderer textRenderer, Text text, int x, int y, int width, int color) {
-        return BedrockifyClient.getInstance().heldItemTooltips.drawItemWithCustomTooltips(instance,textRenderer, text, x, MinecraftClient.getInstance().getWindow().getScaledHeight() - 38, color, currentStack);
+    @Redirect(method = "renderHeldItemTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithBackground(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;IIII)V"))
+    private void drawCustomTooltips(DrawContext instance, TextRenderer textRenderer, Text text, int x, int y, int width, int color) {
+        BedrockifyClient.getInstance().heldItemTooltips.drawItemWithCustomTooltips(instance,textRenderer, text, x, MinecraftClient.getInstance().getWindow().getScaledHeight() - 38, color, currentStack);
     }
 
     /**

@@ -38,7 +38,7 @@ public abstract class HandledScreenMixin {
         }
     }
 
-    @ModifyVariable(method = "render", at = @At("STORE"))
+    @ModifyVariable(method = "renderMain", at = @At("STORE"))
     private Slot bedrockify$storeSlotInLoop(Slot slot) {
         this.currentSlot = slot;
         return slot;
@@ -47,7 +47,7 @@ public abstract class HandledScreenMixin {
     /**
      * Draw the current slot in green.
      */
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawSlotHighlightBack(Lnet/minecraft/client/gui/DrawContext;)V"))
+    @Inject(method = "renderMain", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/ingame/HandledScreen;drawSlotHighlightBack(Lnet/minecraft/client/gui/DrawContext;)V"))
     private void bedrockify$customHighlightColor(DrawContext drawContext, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
         if (!settings.isSlotHighlightEnabled() || this.currentSlot == null) {

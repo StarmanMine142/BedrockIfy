@@ -1,7 +1,6 @@
 package me.juancarloscp52.bedrockify.mixin.client.features.bedrockShading.sunGlare;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.features.bedrockShading.BedrockSunGlareShading;
 import net.minecraft.client.render.SkyRendering;
@@ -39,11 +38,11 @@ public abstract class SkyRenderingMixin {
 
         float value = MathHelper.clampedLerp(2.0f, 1.0f, sunGlareShading.getSunRadiusDelta());
 
-        RenderSystem.setShaderColor(value, value, value, 1.0f);
+//        RenderSystem.setShaderColor(value, value, value, 1.0f);
     }
 
     @Inject(method = "renderCelestialBodies", at = @At("RETURN"))
     private void bedrockify$restoreShaderColor(CallbackInfo ci) {
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1.0f);
+//        RenderSystem.setShaderColor(1f, 1f, 1f, 1.0f);
     }
 }

@@ -15,7 +15,7 @@ public abstract class ExtendScreenMixin {
     @Shadow
     protected @Final Text title;
 
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderBackground(Lnet/minecraft/client/gui/DrawContext;IIF)V", shift = At.Shift.AFTER), cancellable = true)
+    @Inject(method = "renderWithTooltip", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/Screen;renderBackground(Lnet/minecraft/client/gui/DrawContext;IIF)V", shift = At.Shift.AFTER), cancellable = true)
     protected void bedrockify$screenRender_AfterRenderBG(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         // Empty body for overridable mixin
     }

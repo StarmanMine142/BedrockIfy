@@ -1,15 +1,11 @@
 package me.juancarloscp52.bedrockify.client.features.paperDoll;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Quaternionf;
@@ -26,15 +22,6 @@ public class PaperDoll {
     private BedrockifyClientSettings settings;
 
     private static final Set<String> TARGET_POSE_NAMES = Sets.newHashSet(EntityPose.GLIDING.name(), EntityPose.SWIMMING.name(), "CRAWLING");
-
-    /**
-     * Uses in method <code>drawPaperDoll</code>; the custom shading vectors.
-     *
-     * @see net.minecraft.client.render.DiffuseLighting#disableGuiDepthLighting
-     * @see RenderSystem#setupGuiFlatDiffuseLighting
-     */
-    private static final Vector3f FLAT_LIT_VEC1 = (new Vector3f(0.2F, 0.5F, -0.7F)).normalize();
-    private static final Vector3f FLAT_LIT_VEC2 = (new Vector3f(-0.2F, 0.5F, 0.7F)).normalize();
 
     public PaperDoll(MinecraftClient client) {
         this.client = client;
@@ -96,9 +83,6 @@ public class PaperDoll {
         if (player == null)
             return;
 
-        MatrixStack matrixStack = drawContext.getMatrices();
-        matrixStack.push();
-
         int renderPosY = posY;
         // If the player is elytra flying, the entity must be manually centered depending on the pitch.
         if (player.getPose().equals(EntityPose.GLIDING))
@@ -111,10 +95,10 @@ public class PaperDoll {
         // Position the entity on screen.
         int posX = 30;
         int safeArea = settings.overlayIgnoresSafeArea? 0 : settings.getScreenSafeArea();
-        matrixStack.translate(posX + safeArea, renderPosY + safeArea, 0);
-        matrixStack.scale((float) size, (float) size, -(float) size);
+//        matrixStack.translate(posX + safeArea, renderPosY + safeArea, 0);
+//        matrixStack.scale((float) size, (float) size, -(float) size);
         Quaternionf quaternion = new Quaternionf().rotateZ((float)Math.PI);
-        matrixStack.multiply(quaternion);
+//        matrixStack.multiply(quaternion);
 
         // Store previous entity rotations.
         float bodyYaw = player.bodyYaw;
@@ -132,25 +116,25 @@ public class PaperDoll {
         }
         player.bodyYaw = angle;
 
+        float scale = 0.0625F;
+        Vector3f translation = new Vector3f(0.0F, player.getHeight() / 2.0F + scale * player.getScale(), 0.0F);
+        Quaternionf rotation = (new Quaternionf()).rotateZ((float)Math.PI).mul(new Quaternionf().rotateY(angle * (float) Math.PI / 180));
+
         // Set up shading.
-        RenderSystem.setupGuiFlatDiffuseLighting(FLAT_LIT_VEC1, FLAT_LIT_VEC2);
+//        RenderSystem.setupGuiFlatDiffuseLighting(FLAT_LIT_VEC1, FLAT_LIT_VEC2);
 
         // Draw the entity.
-        EntityRenderDispatcher entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
-        entityRenderDispatcher.setRenderShadows(false);
-        drawContext.draw(vertexConsumers -> entityRenderDispatcher.render(player, 0.0, 0.0, 0.0, 1.0F, drawContext.getMatrices(), vertexConsumers, 0xF000F0));
-        drawContext.draw();
-        entityRenderDispatcher.setRenderShadows(true);
+        InventoryScreen.drawEntity(drawContext, posX + safeArea, renderPosY + safeArea, posX + safeArea + 49, renderPosY + safeArea + 70, scale, translation, rotation, null, player);
 
         // Restore previous entity rotations.
         player.bodyYaw = bodyYaw;
         player.setYaw(yaw);
         player.headYaw = headYaw;
 
-        matrixStack.pop();
+//        matrixStack.pop();
 
         // Restore shading.
-        DiffuseLighting.enableGuiDepthLighting();
+//        DiffuseLighting.enableGuiDepthLighting();
     }
 
     private float toMaxAngleRatio(float angle) {
