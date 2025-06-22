@@ -2,7 +2,6 @@ package me.juancarloscp52.bedrockify.mixin.client.features.editionBranding;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.LogoDrawer;
 import net.minecraft.util.Identifier;

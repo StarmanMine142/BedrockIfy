@@ -24,12 +24,13 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
+import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
@@ -100,7 +101,7 @@ public class BedrockifyClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(Bedrockify.CAULDRON_PARTICLE_PAYLOAD.getId(), new CauldronParticlePayload.CauldronParticleHandler());
 
-        HudRenderCallback.EVENT.register((drawContext, tickDelta) -> BedrockifyClient.getInstance().overlay.renderOverlay(drawContext));
+        HudElementRegistry.addLast(Identifier.of(Bedrockify.MOD_ID, "overlay"), (context, tickCounter) -> BedrockifyClient.getInstance().overlay.renderOverlay(context));
         ClientTickEvents.END_CLIENT_TICK.register(client-> {
             while (keyBinding.wasPressed()){
                 client.setScreen(settingsGUI.getConfigScreen(client.currentScreen));

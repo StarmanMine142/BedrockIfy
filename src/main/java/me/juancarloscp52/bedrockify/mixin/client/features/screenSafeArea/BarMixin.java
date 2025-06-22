@@ -22,8 +22,8 @@ public interface BarMixin {
             original.call(drawContext, textRenderer, text, x, y-screenBorder, color | ((alpha) << 24),false);
         }
 
-        if(color == 0)
-            return;
-        drawContext.drawTextWithShadow(textRenderer, text, x, y-screenBorder-3, ColorHelper.getArgb(alpha,127, 252, 32));
+        if(color == -8323296) {
+            drawContext.drawTextWithShadow(textRenderer, text, x, y - screenBorder - 3, ColorHelper.getArgb(alpha, 127, 252, 32));
+        }
     }
 }
