@@ -38,11 +38,6 @@ public class InGameHudMixin {
         context.drawGuiTexture(pipeline, sprite, x, y, width, height, hudOpacity.getHudOpacity(false));
     }
 
-//    @Inject(method = "renderHotbar", at = @At("RETURN"))
-//    public void resetShaderColorOpacity(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci){
-////        RenderSystem.setShaderColor(1,1,1,1);
-//    }
-
     @WrapOperation(method = "renderHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIIIIIII)V"))
     public void setAttackIconColorOpacity(DrawContext instance, RenderPipeline pipeline, Identifier sprite, int textureWidth, int textureHeight, int u, int v, int x, int y, int width, int height, Operation<Void> original){
         instance.drawGuiTexture(pipeline, sprite, textureWidth, textureHeight, u, v, x, y, width, height, ColorHelper.getWhite(hudOpacity.getHudOpacity(false)));
@@ -73,20 +68,6 @@ public class InGameHudMixin {
     private void setMountHealthBarColorOpacity(DrawContext instance, RenderPipeline pipeline, Identifier sprite, int x, int y, int width, int height, Operation<Void> original){
         instance.drawGuiTexture(pipeline, sprite, x, y, width, height, ColorHelper.getWhite(hudOpacity.getHudOpacity(false)));
     }
-
-//    @Unique
-//    private void drawGuiTexture(DrawContext context, RenderPipeline pipeline, Identifier sprite, int textureWidth, int textureHeight, int u, int v, int x, int y, int width, int height, int color) {
-//        GuiAtlasManager guiAtlasManager = this.client.getGuiAtlasManager();
-//        Sprite sprite2 = guiAtlasManager.getSprite(sprite);
-//        Scaling scaling = guiAtlasManager.getScaling(sprite2);
-//        if (scaling instanceof Scaling.Stretch) {
-////            context.drawSpriteRegion(renderLayers, sprite2, textureWidth, textureHeight, u, v, x, y, width, height, color);
-//        } else {
-//            context.enableScissor(x, y, x + width, y + height);
-////            context.drawGuiTexture(renderLayers, sprite, x - u, y - v, textureWidth, textureHeight, color);
-//            context.disableScissor();
-//        }
-//    }
     //endregion
 
     //region Status Effects

@@ -26,12 +26,9 @@ public abstract class WorldRendererMixin {
         BedrockifyClient.getInstance().bedrockSunGlareShading.reloadCustomShaderState();
     }
 
-    /**
-     * Calculate the angle difference between Camera and Sun, and Store the delta including the rain factor.
-     */
     @Inject(method = "method_62215", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getSkyColor(Lnet/minecraft/util/math/Vec3d;F)I"))
     private static void bedrockify$updateSunAngleDiff(GpuBufferSlice fog, DimensionEffects.SkyType skyType, float tickProgress, DimensionEffects dimensionEffects, CallbackInfo ci) {
         final BedrockSunGlareShading sunGlareShading = BedrockifyClient.getInstance().bedrockSunGlareShading;
-        sunGlareShading.updateSunRadiusDelta(tickProgress);
+        sunGlareShading.updateSunBrightnessDelta(tickProgress);
     }
 }
