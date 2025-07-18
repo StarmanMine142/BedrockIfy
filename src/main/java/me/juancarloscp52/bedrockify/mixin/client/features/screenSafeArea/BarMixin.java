@@ -20,9 +20,7 @@ public interface BarMixin {
 
         if(!BedrockifyClient.getInstance().settings.isExpTextStyle()){
             original.call(drawContext, textRenderer, text, x, y-screenBorder, color | ((alpha) << 24),false);
-        }
-
-        if(color == -8323296) {
+        } else if(color == -8323296) {
             drawContext.drawTextWithShadow(textRenderer, text, x, y - screenBorder - 3, ColorHelper.getArgb(alpha, 127, 252, 32));
         }
     }
