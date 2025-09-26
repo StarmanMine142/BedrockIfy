@@ -16,8 +16,8 @@ BedrockIfy is a fabric Minecraft Mod that implements some useful Minecraft Bedro
 - Idle hand animations.
 - Held item descriptions (enchantments, books and potions).
 - Reach-around block placement.
-- Quick armor swap.
-- Dying Trees!
+- Quick armor swap.*
+- Dying Trees!*
 - Bedrock Light block shading.
 - Disable flying momentum (Drift) in creative mode.
 - Stop elytra flying by pressing space on air.
@@ -26,6 +26,7 @@ BedrockIfy is a fabric Minecraft Mod that implements some useful Minecraft Bedro
 
 Bedrockify also includes "eye-candy" features like the ability use the rotating title screen background in all option screens instead of the boring vanilla dirt background.
 All Features are customizable through the In-Game BedrockIfy Settings Menu!
+*This/These feature/s got added in vanilla Java in later versions of the game
 #### ScreenShots:
 ![HUD](https://github.com/juancarloscp52/BedrockIfy/blob/master/readme%20images/HUD.png)
 ![Bedrock Cauldrons](https://github.com/juancarloscp52/BedrockIfy/blob/1.19.4/readme%20images/cauldrons.png)
