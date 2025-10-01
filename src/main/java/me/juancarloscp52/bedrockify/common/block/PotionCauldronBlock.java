@@ -117,7 +117,7 @@ public class PotionCauldronBlock extends AbstractBECauldronBlock {
 
         if (!state.contains(LEVEL)) {
             Bedrockify.LOGGER.error(
-                    "[%s] cannot retrieve fluid level".formatted(Bedrockify.class.getSimpleName()),
+                    "[{}] cannot retrieve fluid level", Bedrockify.class.getSimpleName(),
                     new IllegalStateException("BlockState of %s does not have state: %s".formatted(state.getBlock(), LEVEL)));
             return false;
         }
@@ -158,7 +158,7 @@ public class PotionCauldronBlock extends AbstractBECauldronBlock {
     public static int getMaxTippedArrowCount(ItemStack itemStack, BlockState state) {
         if (!state.contains(LEVEL)) {
             Bedrockify.LOGGER.error(
-                    "[%s] cannot retrieve fluid level".formatted(Bedrockify.class.getSimpleName()),
+                    "[{}] cannot retrieve fluid level", Bedrockify.class.getSimpleName(),
                     new IllegalStateException("BlockState of %s does not have the state: LEVEL".formatted(state.getBlock())));
             return 0;
         }

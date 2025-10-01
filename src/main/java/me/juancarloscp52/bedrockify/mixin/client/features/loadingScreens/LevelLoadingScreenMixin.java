@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screen.world.LevelLoadingScreen;
 import net.minecraft.client.world.ClientChunkLoadProgress;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.chunk.ChunkLoadMap;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,7 +37,8 @@ public abstract class LevelLoadingScreenMixin extends Screen {
 
         int xPosition = this.width / 2;
         int yPosition = this.height / 2;
-        LoadingScreenWidget.getInstance().render(context, xPosition, yPosition, Text.translatable("narrator.loading", Text.translatable("loading.progress", (this.chunkLoadProgress.getLoadProgress()*100.0F)).getString()), null, (int)(this.chunkLoadProgress.getLoadProgress()*100.0F));
+        int loadPercent = MathHelper.ceil(this.chunkLoadProgress.getLoadProgress() * 100);
+        LoadingScreenWidget.getInstance().render(context, xPosition, yPosition, Text.translatable("narrator.loading", Text.translatable("loading.progress", loadPercent).getString()), null, loadPercent);
 
         long l = Util.getMeasuringTimeMs();
         if (l - this.lastNarrationTime > 2000L) {

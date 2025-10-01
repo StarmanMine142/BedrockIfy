@@ -11,9 +11,10 @@ public class BedrockBlockShading {
 
     public float getBlockShade (Direction direction){
         MinecraftClient client = MinecraftClient.getInstance();
+        boolean isNether = client.player != null && client.player.getEntityWorld().getRegistryKey() == World.NETHER;
         return switch (direction) {
             case UP -> 1.0f;
-            case DOWN -> client.player.getEntityWorld().getRegistryKey() == World.NETHER ? 0.9f : 0.87f;
+            case DOWN -> isNether ? 0.9f : 0.87f;
             case NORTH, SOUTH -> 0.95f;
             default -> 0.9f;
         };
