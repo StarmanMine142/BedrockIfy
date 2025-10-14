@@ -8,12 +8,9 @@ import me.juancarloscp52.bedrockify.client.features.hudOpacity.HudOpacity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
@@ -21,10 +18,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(InGameHud.class)
+@Mixin(value = InGameHud.class, priority = 500)
 public class InGameHudMixin {
 
-    @Shadow @Final private MinecraftClient client;
     @Unique
     private HudOpacity hudOpacity;
     
@@ -71,14 +67,9 @@ public class InGameHudMixin {
     //endregion
 
     //region Status Effects
-    @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"))
-    public void setStatusEffectOpacityHead(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci){
-//        RenderSystem.setShaderColor(1,1,1, hudOpacity.getHudOpacity(false));
-    }
-
-    @Inject(method = "renderStatusEffectOverlay", at = @At("RETURN"))
-    public void setStatusEffectOpacityReturn(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci){
-//        RenderSystem.setShaderColor(1,1,1, 1);
+    @WrapOperation(method = "renderStatusEffectOverlay", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIII)V"))
+    public void setStatusEffectOpacityHead(DrawContext instance, RenderPipeline pipeline, Identifier sprite, int x, int y, int width, int height, Operation<Void> original){
+        instance.drawGuiTexture(pipeline, sprite, x, y, width, height, ColorHelper.getWhite(hudOpacity.getHudOpacity(false)));
     }
 
     @ModifyConstant(method = "renderStatusEffectOverlay", constant = @Constant(floatValue = 1.f, ordinal = 0))
