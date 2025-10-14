@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
-@Mixin(InGameHud.class)
+@Mixin(value = InGameHud.class, priority = 500)
 public abstract class InGameHudMixin {
     @Unique
     private int screenBorder;
@@ -51,11 +51,9 @@ public abstract class InGameHudMixin {
     private void drawTextureHotbar(DrawContext drawContext, RenderPipeline pipeline, Identifier texture, int i, int j, int k, int l, int x, int y, int width, int height, Operation<Void> original) {
         if((width ==29 && height == 24) || width == 182){
             drawContext.drawGuiTexture(pipeline, texture, i, j, k, l, x, y - screenBorder, width, height, ColorHelper.withAlpha(BedrockifyClient.getInstance().hudOpacity.getHudOpacity(true), -1));
-//            original.call(drawContext, pipeline, texture, i, j, k, l, x, y - screenBorder, width, height);
         }else{
             boolean raisedEnabled = FabricLoader.getInstance().isModLoaded("raised");
             drawContext.drawGuiTexture(pipeline, texture, i, j, k, l, x, y - screenBorder, width, (width  == 24 && !raisedEnabled) ? height+2 : height, ColorHelper.withAlpha(BedrockifyClient.getInstance().hudOpacity.getHudOpacity(true), -1));
-//            original.call(drawContext, pipeline, texture, i, j, k, l, x, y - screenBorder, width, (width  == 24 && !raisedEnabled) ? height+2 : height);
         }
     }
 

@@ -48,6 +48,7 @@
     "client.features.screenSafeArea.ExperienceBarMixin",
     "client.features.screenSafeArea.InGameHudMixin",
     "client.features.screenSafeArea.JumpBarMixin",
+    "client.features.screenSafeArea.LocatorBarMixin",
     "client.features.screenSafeArea.SubtitlesHudMixin",
     "client.features.screenSafeArea.detailArmorBar.ArmorBarRendererMixin",
     "client.features.slotHighlight.HandledScreenMixin",

@@ -11,7 +11,7 @@ import net.minecraft.util.math.ColorHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(Bar.class)
+@Mixin(value = Bar.class, priority = 500)
 public interface BarMixin {
     @WrapOperation(method = "drawExperienceLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawText(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;IIIZ)V"))
     private static void drawExperienceBar(DrawContext drawContext, TextRenderer textRenderer, Text text, int x, int y, int color, boolean shadow, Operation<Void> original) {

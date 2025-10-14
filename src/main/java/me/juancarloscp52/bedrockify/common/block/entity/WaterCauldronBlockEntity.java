@@ -155,25 +155,6 @@ public class WaterCauldronBlockEntity extends BlockEntity {
 
         super.writeData(view);
     }
-//    @Override
-//    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-//        super.readNbt(nbt, registryLookup);
-//
-//        this.tintColor = nbt.getInt(KEY_FLUID_TINT).get();
-//        this.fluidId = Identifier.tryParse(nbt.getString(KEY_FLUID_ITEM).get());
-//        this.potionTypeId = Identifier.tryParse(nbt.getString(KEY_POTION_TYPE).get());
-//        this.checkExactIds();
-//        this.updateListeners();
-//    }
-//
-//    @Override
-//    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-//        nbt.putInt(KEY_FLUID_TINT, this.tintColor);
-//        nbt.putString(KEY_FLUID_ITEM, (this.fluidId == null) ? "<NULL>" : this.fluidId.toString());
-//        nbt.putString(KEY_POTION_TYPE, (this.potionTypeId == null) ? "<NULL>" : this.potionTypeId.toString());
-//
-//        super.writeNbt(nbt, registryLookup);
-//    }
 
     @Nullable
     @Override
