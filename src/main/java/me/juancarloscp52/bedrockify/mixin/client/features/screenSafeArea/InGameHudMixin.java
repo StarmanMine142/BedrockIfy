@@ -3,12 +3,11 @@ package me.juancarloscp52.bedrockify.mixin.client.features.screenSafeArea;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.util.Identifier;
@@ -21,10 +20,8 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.function.Function;
-
 @Environment(EnvType.CLIENT)
-@Mixin(InGameHud.class)
+@Mixin(value = InGameHud.class, priority = 500)
 public abstract class InGameHudMixin {
     @Unique
     private int screenBorder;
@@ -40,27 +37,23 @@ public abstract class InGameHudMixin {
     /**
      * Render the item Hotbar applying the screen border distance and transparency.
      */
-    @WrapOperation(method = "renderHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V"))
-    private void drawTextureHotbar(DrawContext drawContext, Function<?, ?> function, Identifier texture, int x, int y, int width, int height, Operation<Void> original) {
+    @WrapOperation(method = "renderHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIII)V"))
+    private void drawTextureHotbar(DrawContext drawContext, RenderPipeline pipeline, Identifier texture, int x, int y, int width, int height, Operation<Void> original) {
         if(texture.equals(Identifier.ofVanilla("hud/hotbar_selection"))){
-            original.call(drawContext, function, texture, x, y - screenBorder, width, height);
+            original.call(drawContext, pipeline, texture, x, y - screenBorder, width, height);
             if(BedrockifyClient.getInstance().settings.hotBarOverhang)
                 drawContext.fill(x,y + height - screenBorder,x+width,y+height+1 - screenBorder, ColorHelper.getArgb((int)(255 * BedrockifyClient.getInstance().hudOpacity.getHudOpacity(false)),0,0,0));
         }else{
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, BedrockifyClient.getInstance().hudOpacity.getHudOpacity(true));
-            original.call(drawContext, function, texture, x, y - screenBorder, width, height);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, BedrockifyClient.getInstance().hudOpacity.getHudOpacity(false));
+            original.call(drawContext, pipeline, texture, x, y - screenBorder, width, height);
         }
     }
-    @WrapOperation(method = "renderHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIIIIIII)V"))
-    private void drawTextureHotbar(DrawContext drawContext, Function<?, ?> function, Identifier texture, int i, int j, int k, int l, int x, int y, int width, int height, Operation<Void> original) {
+    @WrapOperation(method = "renderHotbar", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIIIIIII)V"))
+    private void drawTextureHotbar(DrawContext drawContext, RenderPipeline pipeline, Identifier texture, int i, int j, int k, int l, int x, int y, int width, int height, Operation<Void> original) {
         if((width ==29 && height == 24) || width == 182){
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, BedrockifyClient.getInstance().hudOpacity.getHudOpacity(true));
-            original.call(drawContext, function, texture, i, j, k, l, x, y - screenBorder, width, height);
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, BedrockifyClient.getInstance().hudOpacity.getHudOpacity(false));
+            drawContext.drawGuiTexture(pipeline, texture, i, j, k, l, x, y - screenBorder, width, height, ColorHelper.withAlpha(BedrockifyClient.getInstance().hudOpacity.getHudOpacity(true), -1));
         }else{
             boolean raisedEnabled = FabricLoader.getInstance().isModLoaded("raised");
-            original.call(drawContext, function, texture, i, j, k, l, x, y - screenBorder, width, (width  == 24 && !raisedEnabled) ? height+2 : height);
+            drawContext.drawGuiTexture(pipeline, texture, i, j, k, l, x, y - screenBorder, width, (width  == 24 && !raisedEnabled) ? height+2 : height, ColorHelper.withAlpha(BedrockifyClient.getInstance().hudOpacity.getHudOpacity(true), -1));
         }
     }
 
@@ -73,53 +66,9 @@ public abstract class InGameHudMixin {
     }
 
     /**
-     * Apply screen border offset to experience bars.
-     */
-    @ModifyArg(method = "renderExperienceBar", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V"),index = 3)
-    public int modifyTextureExperienceBar(int y){
-        return y - screenBorder;
-    }
-
-    @ModifyArg(method = "renderExperienceBar", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIIIIIII)V"),index = 7)
-    public int modifyTextureExperienceBar2(int y){
-        return y - screenBorder;
-    }
-
-    /**
-     * Apply screen border offset to experience bar text.
-     */
-    @WrapOperation(method = "renderExperienceLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/DrawContext;drawText(Lnet/minecraft/client/font/TextRenderer;Ljava/lang/String;IIIZ)I"))
-    private int drawExperienceBar(DrawContext drawContext, TextRenderer textRenderer, String text, int x, int y, int color, boolean shadow, Operation<Integer> original) {
-        int alpha = (int) Math.ceil(BedrockifyClient.getInstance().hudOpacity.getHudOpacity(false)*255);
-
-        if(!BedrockifyClient.getInstance().settings.isExpTextStyle()){
-            return original.call(drawContext, textRenderer, text, x, y-screenBorder, color | ((alpha) << 24),false);
-        }
-
-        if(color == 0)
-            return 0;
-        return drawContext.drawTextWithShadow(textRenderer, text, x, y-screenBorder-3, ColorHelper.getArgb(alpha,127, 252, 32));
-    }
-
-    /**
-     * Apply screen border offset to mount bars.
-     */
-    @ModifyArg(method = "renderMountJumpBar", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIIIIIII)V"),index = 7)
-    public int modifyTextureMountJumpBar(int y){
-        return y-screenBorder;
-    }
-    /**
-     * Apply screen border offset to mount bars.
-     */
-    @ModifyArg(method = "renderMountJumpBar", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V"),index = 3)
-    public int modifyTextureMountJumpBar2(int y){
-        return y-screenBorder;
-    }
-
-    /**
      * Apply screen border offset to mount health bars.
      */
-    @ModifyArg(method = "renderMountHealth", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Ljava/util/function/Function;Lnet/minecraft/util/Identifier;IIII)V"),index = 3)
+    @ModifyArg(method = "renderMountHealth", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawGuiTexture(Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/util/Identifier;IIII)V"),index = 3)
     public int modifyTextureMountHealth(int y){
         return y-screenBorder;
     }
@@ -159,7 +108,7 @@ public abstract class InGameHudMixin {
     }
 
     // Apply screen borders to Titles, subtitles and other messages.
-    @ModifyArg(method = "renderTitleAndSubtitle", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithBackground(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;IIII)I", ordinal = 0),index = 3)
+    @ModifyArg(method = "renderTitleAndSubtitle", at = @At(value = "INVOKE",target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithBackground(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;IIII)V", ordinal = 0),index = 3)
     public int modifyOverlayMessage(int y){
         return y-screenBorder;
     }

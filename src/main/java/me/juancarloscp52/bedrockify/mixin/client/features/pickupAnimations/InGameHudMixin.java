@@ -8,9 +8,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import org.joml.Matrix3x2f;
+import org.joml.Matrix3x2fStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,15 +30,12 @@ public abstract class InGameHudMixin{
     private void captureItemStack(DrawContext context, int x, int y, RenderTickCounter tickCounter, PlayerEntity player, ItemStack stack, int seed, CallbackInfo ci){
         pickedItemCooldownLeft = stack.getBobbingAnimationTime()-tickCounter.getTickProgress(true);
     }
-    @WrapOperation(method = "renderHotbarItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;scale(FFF)V"))
-    private void applyAnimation(MatrixStack matrixStack, float x, float y, float z, Operation<Void> original){
-        if(!BedrockifyClient.getInstance().settings.isPickupAnimationsEnabled()){
-            original.call(matrixStack, x,y,z);
-            return;
-        }
-        if(pickedItemCooldownLeft >0.0f){
+    @WrapOperation(method = "renderHotbarItem", at = @At(value = "INVOKE", target = "Lorg/joml/Matrix3x2fStack;scale(FF)Lorg/joml/Matrix3x2f;"))
+    private Matrix3x2f applyAnimation(Matrix3x2fStack instance, float x, float y, Operation<Matrix3x2f> original){
+        if(BedrockifyClient.getInstance().settings.isPickupAnimationsEnabled() && pickedItemCooldownLeft >0.0f){
             float animation = 1.0f + pickedItemCooldownLeft / 12.5f;
-            original.call(matrixStack, animation, animation, 1.0f);
+            return original.call(instance, animation, animation);
         }
+        return original.call(instance, x,y);
     }
 }

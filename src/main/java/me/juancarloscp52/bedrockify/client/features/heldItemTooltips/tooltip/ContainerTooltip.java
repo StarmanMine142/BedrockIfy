@@ -1,20 +1,28 @@
 package me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip;
 
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.PotionItem;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
 public class ContainerTooltip extends Tooltip {
-    String translationKey;
+    Text itemName;
 
-    public ContainerTooltip(ItemStack item){
-        this.translationKey = item.getItem().getTranslationKey();
-        this.primaryValue = item.getCount();
+    public ContainerTooltip(ItemStack itemStack){
+        this.primaryValue = itemStack.getCount();
+
+        Item item = itemStack.getItem();
+        if (item instanceof PotionItem potionItem) {
+            this.itemName = potionItem.getName(itemStack);
+        } else {
+            this.itemName = Text.translatable(item.getTranslationKey());
+        }
     }
 
     @Override
     public MutableText getTooltipText() {
-        MutableText tooltip = Text.translatable(translationKey);
+        MutableText tooltip = this.itemName.copy();
         tooltip.append(" x").append(String.valueOf(primaryValue));
         return tooltip;
     }

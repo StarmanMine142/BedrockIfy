@@ -32,15 +32,18 @@ public final class BedrockSunGlareShading {
         }));
     });
     private static final List<ClassMethodHolder> METHOD_INVOCATION_FAILED_LIST = new ArrayList<>();
+    private static final float DELTA_CLAMP_MIN = 0f;
+    private static final float DELTA_CLAMP_MAX = 1f;
 
     private ShaderState shaderState = ShaderState.UNSPECIFIED;
-    private float skyAttenuation;
+    private float sunIntensityDelta;
     private float sunAngleDiff;
-    private float sunRadiusDelta;
+    private float sunBrightnessDelta;
     private final Vector3f sunVector3f;
     private final MinecraftClient client;
 
     public BedrockSunGlareShading() {
+        this.onSunlightIntensityChanged();
         this.sunVector3f = new Vector3f();
         this.client = MinecraftClient.getInstance();
     }
@@ -111,7 +114,7 @@ public final class BedrockSunGlareShading {
     public boolean shouldApplyShading() {
         return this.shaderState == ShaderState.VANILLA &&
                 BedrockifyClient.getInstance().settings.bedrockShading &&
-                this.skyAttenuation < 1f;
+                this.sunIntensityDelta > 0f;
     }
 
     public void reloadCustomShaderState() {
@@ -217,16 +220,13 @@ public final class BedrockSunGlareShading {
     /**
      * Helper method that updates the angle difference between Camera and Sun.<br>
      * The result will be stored to {@link BedrockSunGlareShading#sunAngleDiff};
-     * a dot product of camera vector and sun vector including some factors, clamped between <code>0.0 - 1.0</code>.
-     *
-     * @see BedrockSunGlareShading#getSunAngleDiff
+     * a dot product of camera vector and sun vector including some factors, clamped between <code>0.0 - 1.0</code>.<br><br>
+     * 0.0 -&gt; Closest.<br>
+     * 1.0 -&gt; Farthest.
      */
-    public void updateAngleDiff() {
-        final float clampMax = 1f;
-        final float clampMin = 0f;
-
+    private void updateAngleDiff() {
         if (this.client == null || this.client.world == null || this.client.gameRenderer == null || !this.shouldApplyShading()) {
-            this.sunAngleDiff = clampMax;
+            this.sunAngleDiff = DELTA_CLAMP_MAX;
             return;
         }
 
@@ -238,37 +238,43 @@ public final class BedrockSunGlareShading {
         final Camera camera = this.client.gameRenderer.getCamera();
         final Vector3f cameraVec3f = new Vector3f(0, 0, -1).rotate(camera.getRotation()).normalize();
 
-        this.sunAngleDiff = Math.clamp(clampMin, clampMax, (Math.safeAcos(cameraVec3f.dot(this.sunVector3f)) - 0.15f) * 2.f + sunSetRiseFactor);
+        this.sunAngleDiff = Math.clamp(DELTA_CLAMP_MIN, DELTA_CLAMP_MAX, (Math.safeAcos(cameraVec3f.dot(this.sunVector3f)) - 0.15f) * 2.f + sunSetRiseFactor);
     }
 
-    public void updateSunRadiusDelta(float tickDelta){
+    /**
+     * Calculates the angle difference between Camera and Sun, and Stores the delta including the rain factor.<br><br>
+     * 0.0 -&gt; Bright.<br>
+     * 1.0 -&gt; Normal.
+     */
+    public void updateSunBrightnessDelta(float tickProgress){
         if(MinecraftClient.getInstance().world == null)
             return;
 
-        final float rainGradient = MinecraftClient.getInstance().world.getRainGradient(tickDelta);
+        final float rainGradient = MinecraftClient.getInstance().world.getRainGradient(tickProgress);
         if (MathHelper.approximatelyEquals(rainGradient, 1f) || !this.shouldApplyShading()) {
-            this.sunRadiusDelta = 1f;
+            this.sunBrightnessDelta = DELTA_CLAMP_MAX;
             return;
         }
 
         this.updateAngleDiff();
-        this.sunRadiusDelta = this.getSunAngleDiff() + rainGradient;
+        this.sunBrightnessDelta = Math.clamp(DELTA_CLAMP_MIN, DELTA_CLAMP_MAX, this.sunAngleDiff + rainGradient);
     }
 
-    public float getSunRadiusDelta() {
-        return this.sunRadiusDelta;
+    /**
+     * @see BedrockSunGlareShading#updateSunBrightnessDelta(float)
+     */
+    public float getSunBrightnessDelta() {
+        return this.sunBrightnessDelta;
     }
 
-    public float getSunAngleDiff() {
-        return this.sunAngleDiff;
+    public float getSunIntensityDelta() {
+        return this.sunIntensityDelta;
     }
 
-    public float getSkyAttenuation() {
-        return getSkyAttenuation(false);
-    }
-
-    public float getSkyAttenuation(boolean darker) {
-        this.skyAttenuation = MathHelper.clampedLerp(1f, darker? 0.40f:0.60f, BedrockifyClient.getInstance().settings.sunlightIntensity / 100f);
-        return this.skyAttenuation;
+    /**
+     * Recalculates intensity to detect if shading should be applied.
+     */
+    public void onSunlightIntensityChanged() {
+        this.sunIntensityDelta = Math.clamp(DELTA_CLAMP_MIN, DELTA_CLAMP_MAX, BedrockifyClient.getInstance().settings.sunlightIntensity / 100f);
     }
 }

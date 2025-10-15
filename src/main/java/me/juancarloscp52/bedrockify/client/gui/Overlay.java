@@ -1,6 +1,5 @@
 package me.juancarloscp52.bedrockify.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
 import me.juancarloscp52.bedrockify.client.features.paperDoll.PaperDoll;
@@ -59,7 +58,7 @@ public class Overlay {
             position.append(" ").append(fps);
         int positionWidth = client.textRenderer.getWidth(position);
         float opacity = BedrockifyClient.getInstance().hudOpacity.getHudOpacity(false);
-        RenderSystem.setShaderColor(1,1,1,1);
+//        RenderSystem.setShaderColor(1,1,1,1);
         drawContext.fill(textPosX + screenBorder, posY + screenBorder, textPosX + positionWidth + 6 + screenBorder, posY + 12 + screenBorder, MathHelper.ceil((255.0D * client.options.getTextBackgroundOpacity().getValue()) * opacity)<<24);
         int alpha = (int) Math.ceil(opacity*255);
         drawContext.drawTextWithShadow(client.textRenderer, position, textPosX + 3 + screenBorder, posY + 3 + screenBorder, 16777215 | ((alpha) << 24));
@@ -74,7 +73,7 @@ public class Overlay {
             return;
         int fpsCounterWidth = client.textRenderer.getWidth(fps);
         float opacity = BedrockifyClient.getInstance().hudOpacity.getHudOpacity(false);
-        RenderSystem.setShaderColor(1,1,1,1);
+//        RenderSystem.setShaderColor(1,1,1,1);
         drawContext.fill(textPosX + screenBorder, posY + (positionEnabled ? 10 : 0) + screenBorder, textPosX + fpsCounterWidth + 6 + screenBorder, posY + (positionEnabled ? 10 : 0) + 10 + screenBorder, MathHelper.ceil((255.0D * client.options.getTextBackgroundOpacity().getValue()) * opacity)<<24);
         int alpha = (int) Math.ceil(opacity*255);
         drawContext.drawTextWithShadow(client.textRenderer, fps, textPosX + 3 + screenBorder, posY + 1 + (positionEnabled ? 10 : 0) + screenBorder, 16777215 | ((alpha) << 24));

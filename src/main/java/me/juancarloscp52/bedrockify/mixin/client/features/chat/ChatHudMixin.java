@@ -103,7 +103,7 @@ public abstract class ChatHudMixin {
         this.bottomY = (float) (48 - this.client.getWindow().getScaledHeight() + shownHeight) + this.bedrockify$calcChatHudTopOffset();
     }
 
-    @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/math/MatrixStack;translate(FFF)V", ordinal = 0))
+    @ModifyArgs(method = "render", at = @At(value = "INVOKE", target = "Lorg/joml/Matrix3x2fStack;translate(FF)Lorg/joml/Matrix3x2f;", ordinal = 0))
     private void bedrockify$moveChatHud(Args args) {
         args.set(0, (float) args.get(0) + this.bedrockify$getSafeArea());
         if (settings.isBedrockChatEnabled() && !client.inGameHud.getDebugHud().shouldShowDebugHud()) {
@@ -121,10 +121,10 @@ public abstract class ChatHudMixin {
         return this.bedrockify$applyHudOpacity(color);
     }
 
-    @ModifyArg(method = "render",
+    @ModifyArg(method = "method_71991",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/OrderedText;III)I",
+                    target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/OrderedText;III)V",
                     ordinal = 0
             ),
             index = 4
@@ -136,7 +136,7 @@ public abstract class ChatHudMixin {
     @ModifyArg(method = "render",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)I",
+                    target = "Lnet/minecraft/client/gui/DrawContext;drawTextWithShadow(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/text/Text;III)V",
                     ordinal = 0
             ),
             index = 4

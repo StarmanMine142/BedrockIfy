@@ -137,7 +137,10 @@ public class SettingsGUI {
                 settingsClient.bedrockShading=newValue;
                 MinecraftClient.getInstance().worldRenderer.reload();
             }).build());
-            visualImprovements.addEntry(entryBuilder.startIntSlider(Text.translatable("bedrockify.options.sunlightIntensity"), settingsClient.sunlightIntensity,0,100).setTooltip(wrapLines(Text.translatable("bedrockify.options.sunlightIntensity.tooltip"))).setDefaultValue(50).setSaveConsumer(newValue -> settingsClient.sunlightIntensity = newValue).build());
+            visualImprovements.addEntry(entryBuilder.startIntSlider(Text.translatable("bedrockify.options.sunlightIntensity"), settingsClient.sunlightIntensity,0,100).setTooltip(wrapLines(Text.translatable("bedrockify.options.sunlightIntensity.tooltip"))).setDefaultValue(50).setSaveConsumer(newValue -> {
+                settingsClient.sunlightIntensity = newValue;
+                BedrockifyClient.getInstance().bedrockSunGlareShading.onSunlightIntensityChanged();
+            }).build());
 
         /*
          *

@@ -1,15 +1,12 @@
 package me.juancarloscp52.bedrockify.client.features.paperDoll;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
+import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.DiffuseLighting;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Quaternionf;
@@ -21,20 +18,11 @@ import java.util.Set;
 public class PaperDoll {
     private final MinecraftClient client;
     private final int size = 20;
-    private int posY = 60;
     private long lastTimeShown = 0;
-    private BedrockifyClientSettings settings;
+    private final BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
 
     private static final Set<String> TARGET_POSE_NAMES = Sets.newHashSet(EntityPose.GLIDING.name(), EntityPose.SWIMMING.name(), "CRAWLING");
-
-    /**
-     * Uses in method <code>drawPaperDoll</code>; the custom shading vectors.
-     *
-     * @see net.minecraft.client.render.DiffuseLighting#disableGuiDepthLighting
-     * @see RenderSystem#setupGuiFlatDiffuseLighting
-     */
-    private static final Vector3f FLAT_LIT_VEC1 = (new Vector3f(0.2F, 0.5F, -0.7F)).normalize();
-    private static final Vector3f FLAT_LIT_VEC2 = (new Vector3f(-0.2F, 0.5F, 0.7F)).normalize();
+    private static final float SCREEN_PIXEL_TO_GL_SCALE = 0.0625f;
 
     public PaperDoll(MinecraftClient client) {
         this.client = client;
@@ -45,20 +33,11 @@ public class PaperDoll {
      * The player will be rendered only when the player is not riding another entity, and it is sneaking, running, using elytra, using an item, underwater, or using a shield.
      */
     public void renderPaperDoll(DrawContext drawContext) {
-        settings = BedrockifyClient.getInstance().settings;
         if (!settings.isShowPaperDollEnabled())
             return;
 
-        //Determine the position of the doll depending on the position of the overlay text.
-        int textPosY = settings.getPositionHUDHeight();
-        if (textPosY >= 2 * size + 10) {
-            posY = textPosY - 5;
-        } else {
-            posY = textPosY + size * 2 + 5;
-            if (settings.getFPSHUDoption()==2)
-                posY += 10;
-            if (settings.isShowPositionHUDEnabled())
-                posY += 10;
+        if (this.client.currentScreen instanceof InventoryScreen || this.client.currentScreen instanceof CreativeInventoryScreen) {
+            return;
         }
 
         if (client.player != null) {
@@ -96,25 +75,39 @@ public class PaperDoll {
         if (player == null)
             return;
 
-        MatrixStack matrixStack = drawContext.getMatrices();
-        matrixStack.push();
+        // Position the entity on screen.
+        int posX = 10;
+        int offsetX = -7;
+        int renderBottomPosY;
+        int offsetY = 2;
 
-        int renderPosY = posY;
-        // If the player is elytra flying, the entity must be manually centered depending on the pitch.
-        if (player.getPose().equals(EntityPose.GLIDING))
-            renderPosY = posY - MathHelper.ceil(size * 2 * toMaxAngleRatio(player.getPitch()));
-        // If the player is swimming, the entity must also be centered in the Y axis.
-        else if (player.isSwimming()) {
-            renderPosY = posY - size;
+        // Determine the position of the doll depending on the position of the overlay text.
+        int textPosY = settings.getPositionHUDHeight();
+        if (textPosY >= 2 * size + 10) {
+            renderBottomPosY = textPosY;
+        } else {
+            renderBottomPosY = textPosY + size * 2 + 5;
+            if (settings.getFPSHUDoption()==2)
+                renderBottomPosY += 10;
+            if (settings.isShowPositionHUDEnabled())
+                renderBottomPosY += 10;
         }
 
-        // Position the entity on screen.
-        int posX = 30;
+        // If the player is elytra flying, the entity must be manually centered depending on the pitch.
+        if (player.getPose().equals(EntityPose.GLIDING)) {
+            posX = 0;
+            offsetY = 15 - MathHelper.ceil(size * 2 * toMaxAngleRatio(player.getPitch()));
+        }
+        // If the player is swimming, the entity must also be centered in the Y axis.
+        else if (player.isSwimming()) {
+            offsetY = -2;
+        }
         int safeArea = settings.overlayIgnoresSafeArea? 0 : settings.getScreenSafeArea();
-        matrixStack.translate(posX + safeArea, renderPosY + safeArea, 0);
-        matrixStack.scale((float) size, (float) size, -(float) size);
-        Quaternionf quaternion = new Quaternionf().rotateZ((float)Math.PI);
-        matrixStack.multiply(quaternion);
+        int x1 = posX + safeArea;
+        int y2 = renderBottomPosY + safeArea;
+        int x2 = x1 + MathHelper.ceil(size * 3.25f);
+        int y1 = Math.max(safeArea,  y2 - size * 3);
+        drawContext.enableScissor(x1, y1, x2, y2);
 
         // Store previous entity rotations.
         float bodyYaw = player.bodyYaw;
@@ -132,25 +125,18 @@ public class PaperDoll {
         }
         player.bodyYaw = angle;
 
-        // Set up shading.
-        RenderSystem.setupGuiFlatDiffuseLighting(FLAT_LIT_VEC1, FLAT_LIT_VEC2);
+        Vector3f translation = new Vector3f(offsetX * SCREEN_PIXEL_TO_GL_SCALE, player.getHeight() * 0.5f + offsetY * SCREEN_PIXEL_TO_GL_SCALE, 0.0F);
+        Quaternionf rotation = new Quaternionf().rotateZ((float)Math.PI);
 
         // Draw the entity.
-        EntityRenderDispatcher entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
-        entityRenderDispatcher.setRenderShadows(false);
-        drawContext.draw(vertexConsumers -> entityRenderDispatcher.render(player, 0.0, 0.0, 0.0, 1.0F, drawContext.getMatrices(), vertexConsumers, 0xF000F0));
-        drawContext.draw();
-        entityRenderDispatcher.setRenderShadows(true);
+        InventoryScreen.drawEntity(drawContext, x1, y1, x2, y2, this.size / player.getScale(), translation, rotation, null, player);
 
         // Restore previous entity rotations.
         player.bodyYaw = bodyYaw;
         player.setYaw(yaw);
         player.headYaw = headYaw;
 
-        matrixStack.pop();
-
-        // Restore shading.
-        DiffuseLighting.enableGuiDepthLighting();
+        drawContext.disableScissor();
     }
 
     private float toMaxAngleRatio(float angle) {
