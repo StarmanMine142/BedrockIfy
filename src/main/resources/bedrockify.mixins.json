@@ -35,7 +35,6 @@
     "client.features.idleHandAnimations.HeldItemRendererMixin",
     "client.features.loadingScreens.ConnectScreenMixin",
     "client.features.loadingScreens.DisconnectedScreenMixin",
-    "client.features.loadingScreens.DownloadingTerrainScreenMixin",
     "client.features.loadingScreens.ExtendScreenMixin",
     "client.features.loadingScreens.LevelLoadingScreenMixin",
     "client.features.loadingScreens.ProgressScreenMixin",
@@ -58,9 +57,9 @@
     "client.features.worldColorNoise.BiomeColorsMixin"
   ],
   "mixins": [
-    "common.features.animalEatingParticles.AnimalEntityMixin",
     "common.features.animalEatingParticles.AxolotlEntityMixin",
     "common.features.animalEatingParticles.HorseEntityMixin",
+    "common.features.animalEatingParticles.MobEntityMixin",
     "common.features.animalEatingParticles.WolfEntityMixin",
     "common.features.cauldron.ArmorDyeRecipeMixin",
     "common.features.cauldron.CauldronBehaviorMixin",

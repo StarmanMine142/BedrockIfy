@@ -5,9 +5,10 @@ import me.juancarloscp52.bedrockify.client.features.loadingScreens.LoadingScreen
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.LevelLoadingScreen;
-import net.minecraft.server.WorldGenerationProgressTracker;
+import net.minecraft.client.world.ClientChunkLoadProgress;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
+import net.minecraft.world.chunk.ChunkLoadMap;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LevelLoadingScreen.class)
 public abstract class LevelLoadingScreenMixin extends Screen {
-    @Shadow @Final private WorldGenerationProgressTracker progressProvider;
+    @Shadow @Final private ClientChunkLoadProgress chunkLoadProgress;
 
     @Shadow private long lastNarrationTime;
 
@@ -35,7 +36,7 @@ public abstract class LevelLoadingScreenMixin extends Screen {
 
         int xPosition = this.width / 2;
         int yPosition = this.height / 2;
-        LoadingScreenWidget.getInstance().render(context, xPosition, yPosition, Text.translatable("narrator.loading", Text.translatable("loading.progress", this.progressProvider.getProgressPercentage()).getString()), null, this.progressProvider.getProgressPercentage());
+        LoadingScreenWidget.getInstance().render(context, xPosition, yPosition, Text.translatable("narrator.loading", Text.translatable("loading.progress", (this.chunkLoadProgress.getLoadProgress()*100.0F)).getString()), null, (int)(this.chunkLoadProgress.getLoadProgress()*100.0F));
 
         long l = Util.getMeasuringTimeMs();
         if (l - this.lastNarrationTime > 2000L) {
@@ -43,8 +44,9 @@ public abstract class LevelLoadingScreenMixin extends Screen {
             this.narrateScreenIfNarrationEnabled(true);
         }
 
-        if (BedrockifyClient.getInstance().settings.isShowChunkMapEnabled())
-            LevelLoadingScreen.drawChunkMap(context, this.progressProvider, xPosition, yPosition + yPosition / 2 + 89 / 4, 1, 0);
+        ChunkLoadMap chunkLoadMap = chunkLoadProgress.getChunkLoadMap();
+        if (BedrockifyClient.getInstance().settings.isShowChunkMapEnabled() && chunkLoadProgress.hasProgress() && chunkLoadMap !=null )
+            LevelLoadingScreen.drawChunkMap(context, xPosition, yPosition + yPosition / 2 + 89 / 4, 1, 0, chunkLoadMap);
 
         info.cancel();
     }

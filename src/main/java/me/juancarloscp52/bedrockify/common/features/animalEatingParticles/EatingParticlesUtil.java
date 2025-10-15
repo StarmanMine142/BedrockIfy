@@ -12,7 +12,7 @@ import net.minecraft.util.math.Vec3d;
 public class EatingParticlesUtil {
 
     public static void spawnItemParticles(PlayerEntity player, ItemStack stack, AnimalEntity entity) {
-        if (player.getWorld().isClient)
+        if (player.getEntityWorld().isClient())
             return;
         int count = 16;
         for (int i = 0; i < count; ++i) {
@@ -28,7 +28,7 @@ public class EatingParticlesUtil {
             particlePayload.setPosition(vec3d2);
             particlePayload.setVelocity(vec3d);
             particlePayload.setItemStack(stack);
-            PlayerLookup.world((ServerWorld) player.getWorld()).forEach(serverPlayerEntity ->
+            PlayerLookup.world((ServerWorld) player.getEntityWorld()).forEach(serverPlayerEntity ->
                     ServerPlayNetworking.send(serverPlayerEntity, particlePayload));
         }
     }

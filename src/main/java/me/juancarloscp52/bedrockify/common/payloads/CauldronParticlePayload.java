@@ -5,9 +5,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.particle.EntityEffectParticleEffect;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.particle.TintedParticleEffect;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 
@@ -66,7 +66,7 @@ public final class CauldronParticlePayload extends AbstractVelocityParticlePaylo
                 } else if (particle.equals(ParticleTypes.ENTITY_EFFECT)) {
                     client.execute(() -> {
                         if (null != client.world) {
-                            client.world.addParticleClient(EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, vx, vy, vz), x, y, z, vx, vy, vz);
+                            client.world.addParticleClient(TintedParticleEffect.create(ParticleTypes.ENTITY_EFFECT, vx, vy, vz), x, y, z, vx, vy, vz);
                         }
                     });
                 }

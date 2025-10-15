@@ -32,7 +32,7 @@ public class CandleBlockMixin {
         if(FireAspectLightHelper.canLitWith(itemStack)){
             if(!CandleBlock.isLitCandle(state) && CandleBlock.canBeLit(state)){
                 if(world.setBlockState(pos, state.with(Properties.LIT, true), Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD)){
-                    itemStack.damage(1, player, LivingEntity.getSlotForHand(hand));
+                    itemStack.damage(1, player, hand);
                     world.playSound(player, pos, SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.BLOCKS, 1.0F, world.getRandom().nextFloat() * 0.4F + 0.8F);
                     world.emitGameEvent(player, GameEvent.BLOCK_PLACE, pos);
                     return ActionResult.SUCCESS;

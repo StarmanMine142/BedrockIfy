@@ -6,6 +6,8 @@ import me.juancarloscp52.bedrockify.client.features.paperDoll.PaperDoll;
 import me.juancarloscp52.bedrockify.client.features.savingOverlay.SavingOverlay;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.hud.DebugHud;
+import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
@@ -41,7 +43,7 @@ public class Overlay {
      * Renders the text components for the player position and client fps.
      */
     private void renderText(DrawContext drawContext) {
-        fps = Text.translatable("bedrockify.hud.fps").append(" " + this.client.fpsDebugString.split(" fps")[0].trim());
+        fps = Text.translatable("bedrockify.hud.fps").append(String.valueOf(client.getCurrentFps()));
         renderPositionText(drawContext);
         renderFpsText(drawContext);
     }

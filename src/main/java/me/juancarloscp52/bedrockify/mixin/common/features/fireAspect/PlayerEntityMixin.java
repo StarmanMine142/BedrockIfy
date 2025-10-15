@@ -26,8 +26,8 @@ public class PlayerEntityMixin {
             ItemStack itemStack = $this.getStackInHand(hand);
             if(!tntMinecart.isPrimed() && (FireAspectLightHelper.canLitWith(itemStack) || (itemStack.isOf(Items.FLINT_AND_STEEL) || itemStack.isOf(Items.FIRE_CHARGE)))){
                 tntMinecart.prime($this.getDamageSources().explosion(entity,$this));
-                itemStack.damage(1, $this, LivingEntity.getSlotForHand(hand));
-                $this.getWorld().playSound($this, $this.getBlockPos(), SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.BLOCKS, 1.0F, $this.getWorld().getRandom().nextFloat() * 0.4F + 0.8F);
+                itemStack.damage(1, $this, hand);
+                $this.getEntityWorld().playSound($this, $this.getBlockPos(), SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.BLOCKS, 1.0F, $this.getEntityWorld().getRandom().nextFloat() * 0.4F + 0.8F);
                 return ActionResult.SUCCESS;
             }
         }

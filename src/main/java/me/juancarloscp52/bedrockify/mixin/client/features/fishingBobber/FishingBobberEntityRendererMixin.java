@@ -5,10 +5,11 @@ import me.juancarloscp52.bedrockify.client.features.fishingBobber.FishingBobber3
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.FishingBobberEntityRenderer;
 import net.minecraft.client.render.entity.state.FishingBobberEntityState;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Colors;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,16 +37,16 @@ public abstract class FishingBobberEntityRendererMixin {
         ci.cancel();
     }
 
-    @Inject(method = "render", at = @At("RETURN"))
-    private void bedrockify$render3DBobber(FishingBobberEntityState fishingBobberEntityState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, CallbackInfo ci) {
+    @Inject(method = "render(Lnet/minecraft/client/render/entity/state/FishingBobberEntityState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;Lnet/minecraft/client/render/state/CameraRenderState;)V", at = @At("RETURN"))
+    private void bedrockify$render3DBobber(FishingBobberEntityState fishingBobberEntityState, MatrixStack matrixStack, OrderedRenderCommandQueue orderedRenderCommandQueue, CameraRenderState cameraRenderState, CallbackInfo ci) {
         if (!BedrockifyClient.getInstance().settings.fishingBobber3D) {
             return;
         }
 
         matrixStack.push();
         matrixStack.translate(0f, -0.0075f, 0f);
-        VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(FishingBobber3DModel.RENDER_LAYER);
-        this.bobberModel.render(matrixStack, vertexConsumer, light, OverlayTexture.DEFAULT_UV, Colors.WHITE);
+        //TODO: is white/ too bright
+        orderedRenderCommandQueue.submitModel(bobberModel, fishingBobberEntityState, matrixStack, FishingBobber3DModel.RENDER_LAYER, fishingBobberEntityState.light, OverlayTexture.DEFAULT_UV, Colors.WHITE, null);
         matrixStack.pop();
     }
 }

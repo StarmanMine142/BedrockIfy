@@ -8,6 +8,7 @@ import net.minecraft.block.*;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -40,7 +41,7 @@ public class ColoredWaterCauldronBlock extends AbstractBECauldronBlock {
     }
 
     @Override
-    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+    public int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
         return (int) Math.ceil((float) state.get(LEVEL) / MAX_LEVEL * LeveledCauldronBlock.MAX_LEVEL);
     }
 

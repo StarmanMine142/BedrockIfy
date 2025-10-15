@@ -61,7 +61,7 @@ public interface BedrockCauldronBehavior {
         }
 
         final WaterCauldronBlockEntity blockEntity = entity.get();
-        if (!world.isClient) {
+        if (!world.isClient()) {
             ColoredWaterCauldronBlock.decrementWhenDye(state, world, pos);
             player.incrementStat(Stats.USE_CAULDRON);
             player.setStackInHand(hand, ColorBlenderHelper.blendColors(stack, blockEntity.getTintColor()));
@@ -99,7 +99,7 @@ public interface BedrockCauldronBehavior {
             level = ColoredWaterCauldronBlock.getLevelFromWaterCauldronState(state);
         }
 
-        if (!world.isClient) {
+        if (!world.isClient()) {
             BlockState newState = BedrockCauldronBlocks.COLORED_WATER_CAULDRON.getDefaultState()
                     .with(ColoredWaterCauldronBlock.LEVEL, level);
             world.setBlockState(pos, newState);
@@ -144,7 +144,7 @@ public interface BedrockCauldronBehavior {
             nextLevel = Blocks.WATER_CAULDRON.getDefaultState().get(LeveledCauldronBlock.LEVEL);
         }
 
-        if (!world.isClient) {
+        if (!world.isClient()) {
             // Replace with Water Cauldron.
             player.incrementStat(Stats.USE_CAULDRON);
             player.incrementStat(Stats.USED.getOrCreateStat(stack.getItem()));
@@ -180,7 +180,7 @@ public interface BedrockCauldronBehavior {
         final Potion potion = optionalPotion.get();
         RegistryEntry<Potion> potionEntry = Registries.POTION.getEntry(potion);
         final Item potionType = blockEntity.getPotionType();
-        if (!world.isClient) {
+        if (!world.isClient()) {
             if (!PotionCauldronBlock.tryPickFluid(state, world, pos)) {
                 return ActionResult.SUCCESS_SERVER;
             }
@@ -260,7 +260,7 @@ public interface BedrockCauldronBehavior {
         }
 
         final ItemStack processing = stack.copy();
-        if (!world.isClient) {
+        if (!world.isClient()) {
             player.incrementStat(Stats.USE_CAULDRON);
             player.incrementStat(Stats.USED.getOrCreateStat(stack.getItem()));
             player.setStackInHand(hand, ItemUsage.exchangeStack(stack, player, new ItemStack(Items.GLASS_BOTTLE)));
@@ -303,7 +303,7 @@ public interface BedrockCauldronBehavior {
 
         final Potion potion = optionalPotion.get();
         RegistryEntry<Potion> potionEntry = Registries.POTION.getEntry(potion);
-        if (!world.isClient) {
+        if (!world.isClient()) {
             // Determine arrow count and fluid level to decrease.
             final int tippedArrowCount = PotionCauldronBlock.getMaxTippedArrowCount(stack, state);
             if (tippedArrowCount <= 0) {
@@ -353,7 +353,7 @@ public interface BedrockCauldronBehavior {
     };
 
     CauldronBehavior PICK_COLORED_WATER = (state, world, pos, player, hand, stack) -> {
-        if (!world.isClient) {
+        if (!world.isClient()) {
             if (!ColoredWaterCauldronBlock.tryPickFluid(state, world, pos)) {
                 return ActionResult.SUCCESS_SERVER;
             }
@@ -431,7 +431,7 @@ public interface BedrockCauldronBehavior {
      * Empties the cauldron by spawning particles and sound.
      */
     static ActionResult evaporateCauldron(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, ItemStack current, ItemStack after) {
-        if (!world.isClient) {
+        if (!world.isClient()) {
             final Identifier particleId = Registries.PARTICLE_TYPE.getId(ParticleTypes.POOF);
             for (int i = 0; i < 10; ++i) {
                 CauldronParticlePayload particlePayload = new CauldronParticlePayload();
@@ -451,7 +451,7 @@ public interface BedrockCauldronBehavior {
      * Spawns particles after interacting with a potion.
      */
     static void addPotionParticle(BlockState state, World world, BlockPos pos, int color) {
-        if (world.isClient) {
+        if (world.isClient()) {
             return;
         }
 

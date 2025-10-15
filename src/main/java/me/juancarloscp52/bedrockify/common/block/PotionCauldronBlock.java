@@ -7,11 +7,12 @@ import me.juancarloscp52.bedrockify.common.features.cauldron.BedrockCauldronBloc
 import me.juancarloscp52.bedrockify.common.features.cauldron.BedrockCauldronProperties;
 import net.minecraft.block.*;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particle.EntityEffectParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.particle.TintedParticleEffect;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
@@ -55,7 +56,7 @@ public class PotionCauldronBlock extends AbstractBECauldronBlock {
     }
 
     @Override
-    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+    public int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
         return (int) Math.ceil((float) state.get(LEVEL) / MAX_LEVEL * LeveledCauldronBlock.MAX_LEVEL);
     }
 
@@ -97,7 +98,7 @@ public class PotionCauldronBlock extends AbstractBECauldronBlock {
             final double x = pos.getX() + 0.45 + random.nextDouble() * 0.2;
             final double y = pos.getY() + offsetY;
             final double z = pos.getZ() + 0.45 + random.nextDouble() * 0.2;
-            world.addParticleClient(EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, red, green, blue), x, y, z, red, green, blue);
+            world.addParticleClient(TintedParticleEffect.create(ParticleTypes.ENTITY_EFFECT, red, green, blue), x, y, z, red, green, blue);
         });
     }
 
@@ -110,7 +111,7 @@ public class PotionCauldronBlock extends AbstractBECauldronBlock {
      * @return <code>true</code> if it can be taken out.
      */
     public static boolean tryPickFluid(BlockState state, World world, BlockPos pos) {
-        if (world.isClient) {
+        if (world.isClient()) {
             return false;
         }
 

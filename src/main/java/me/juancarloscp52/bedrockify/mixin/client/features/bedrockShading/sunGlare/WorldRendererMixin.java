@@ -1,10 +1,7 @@
 package me.juancarloscp52.bedrockify.mixin.client.features.bedrockShading.sunGlare;
 
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
-import me.juancarloscp52.bedrockify.client.features.bedrockShading.BedrockSunGlareShading;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.DimensionEffects;
 import net.minecraft.client.render.WorldRenderer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,9 +23,4 @@ public abstract class WorldRendererMixin {
         BedrockifyClient.getInstance().bedrockSunGlareShading.reloadCustomShaderState();
     }
 
-    @Inject(method = "method_62215", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getSkyColor(Lnet/minecraft/util/math/Vec3d;F)I"))
-    private static void bedrockify$updateSunAngleDiff(GpuBufferSlice fog, DimensionEffects.SkyType skyType, float tickProgress, DimensionEffects dimensionEffects, CallbackInfo ci) {
-        final BedrockSunGlareShading sunGlareShading = BedrockifyClient.getInstance().bedrockSunGlareShading;
-        sunGlareShading.updateSunBrightnessDelta(tickProgress);
-    }
 }

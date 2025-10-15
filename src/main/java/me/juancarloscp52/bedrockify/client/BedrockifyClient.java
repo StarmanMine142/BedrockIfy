@@ -43,6 +43,8 @@ import java.util.Optional;
 
 public class BedrockifyClient implements ClientModInitializer {
 
+    private static final KeyBinding.Category BEDROCKIFY_CATEGORY = KeyBinding.Category.create(Identifier.of("bedrockify","bedrockify"));
+
     private static BedrockifyClient instance;
     public static final Logger LOGGER = LogManager.getLogger();
     public ReachAroundPlacement reachAroundPlacement;
@@ -75,7 +77,7 @@ public class BedrockifyClient implements ClientModInitializer {
         bedrockBlockShading = new BedrockBlockShading();
         bedrockSunGlareShading = new BedrockSunGlareShading();
         hudOpacity = new HudOpacity();
-        keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding("bedrockIfy.key.settings", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, "BedrockIfy"));
+        keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding("bedrockIfy.key.settings", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, BEDROCKIFY_CATEGORY));
 
         // Register 3D Bobber Entity.
         EntityModelLayerRegistry.registerModelLayer(FishingBobber3DModel.MODEL_LAYER, FishingBobber3DModel::generateModel);

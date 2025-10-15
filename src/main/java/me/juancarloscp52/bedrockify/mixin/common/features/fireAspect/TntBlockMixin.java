@@ -37,7 +37,7 @@ public abstract class TntBlockMixin {
         if(FireAspectLightHelper.canLitWith(itemStack)){
             primeTnt(world,pos);
             world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
-            itemStack.damage(1, player, LivingEntity.getSlotForHand(hand));
+            itemStack.damage(1, player, hand);
             world.playSound(player, pos, SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.BLOCKS, 1.0F, world.getRandom().nextFloat() * 0.4F + 0.8F);
             return ActionResult.SUCCESS;
         }

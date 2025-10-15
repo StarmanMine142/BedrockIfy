@@ -13,12 +13,15 @@ import me.juancarloscp52.bedrockify.client.features.bedrockShading.BedrockSunGla
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.state.SkyRenderState;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.BufferAllocator;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import org.joml.Vector3f;
@@ -51,7 +54,7 @@ public abstract class SkyRenderingMixin {
     @Inject(method = "<init>", at = @At("RETURN"))
     private void bedrockify$SkyRenderingCtor(CallbackInfo ci) {
         // Allocate buffer.
-        try (BufferAllocator bufferAllocator = BufferAllocator.method_72201(4 * VertexFormats.POSITION_TEXTURE_COLOR.getVertexSize())) {
+        try (BufferAllocator bufferAllocator = BufferAllocator.fixedSized(4 * VertexFormats.POSITION_TEXTURE_COLOR.getVertexSize())) {
             BufferBuilder bufferBuilder = new BufferBuilder(bufferAllocator, VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 
             Matrix4f matrix4f = new Matrix4f();
@@ -67,8 +70,8 @@ public abstract class SkyRenderingMixin {
         }
     }
 
-    @WrapOperation(method = "renderCelestialBodies", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/SkyRendering;renderSun(FLnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/util/math/MatrixStack;)V"))
-    private void bedrockify$modifySunIntensity(SkyRendering instance, float alpha, VertexConsumerProvider provider, MatrixStack matrices, Operation<Void> original) {
+    @WrapOperation(method = "renderCelestialBodies", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/SkyRendering;renderSun(FLnet/minecraft/client/util/math/MatrixStack;)V"))
+    private void bedrockify$modifySunIntensity(SkyRendering instance, float alpha, MatrixStack matrices, Operation<Void> original) {
         final float intensity = MathHelper.lerp(sunGlareShading.getSunBrightnessDelta(), 1.5f + sunGlareShading.getSunIntensityDelta() * 0.5f, 1.0f);
         final float scale = MathHelper.lerp(sunGlareShading.getSunBrightnessDelta(), 1.3f, 1f);
 
@@ -103,6 +106,12 @@ public abstract class SkyRenderingMixin {
         }
 
         modelView.popMatrix();
+    }
+
+    @Inject(method = "updateRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;getSkyColor(Lnet/minecraft/util/math/Vec3d;F)I"))
+    private static void bedrockify$updateSunAngleDiff(ClientWorld world, float f, Vec3d pos, SkyRenderState state, CallbackInfo ci) {
+        final BedrockSunGlareShading sunGlareShading = BedrockifyClient.getInstance().bedrockSunGlareShading;
+        sunGlareShading.updateSunBrightnessDelta(f);
     }
 
     @Inject(method = "close", at = @At("HEAD"))
