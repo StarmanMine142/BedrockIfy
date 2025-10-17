@@ -38,7 +38,7 @@
     "java":">=21"
   },
   "suggests": {
-    "modmenu": ">=13.0.0"
+    "modmenu": ">=16.0.0"
   },
   "conflicts": {
     "held-item-info": "*"

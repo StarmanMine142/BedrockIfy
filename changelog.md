@@ -1,3 +1,13 @@
+## [1.11.3] - 2025-10-17
+
+Available versions:
+-   Fabric: 1.21.9, 1.21.10
+
+### Changed/Fixed
+
+-   Port to 1.21.9-1.21.10
+-   Updated vi_vn, zh_cn, uk_ua, pt_br
+
 ## [1.11.2] - 2025-10-15
 
 Available versions:
