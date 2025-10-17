@@ -2,8 +2,6 @@ package me.juancarloscp52.bedrockify.mixin.client.features.idleHandAnimations;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Arm;
@@ -23,7 +21,7 @@ public class HeldItemRendererMixin {
     private static final double ONE_CYCLE = 2 * Math.PI;
 
     @Inject(method = "renderItem(FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;Lnet/minecraft/client/network/ClientPlayerEntity;I)V", at = @At("HEAD"))
-    private void bedrockify$updateSwayDelta(float tickProgress, MatrixStack matrices, OrderedRenderCommandQueue orderedRenderCommandQueue, ClientPlayerEntity player, int light, CallbackInfo ci) {
+    private void bedrockify$updateSwayDelta(CallbackInfo ci) {
         if (MinecraftClient.getInstance().isPaused()) {
             return;
         }

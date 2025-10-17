@@ -58,8 +58,9 @@
   ],
   "mixins": [
     "common.features.animalEatingParticles.AxolotlEntityMixin",
+    "common.features.animalEatingParticles.ExtendMobEntityMixin",
     "common.features.animalEatingParticles.HorseEntityMixin",
-    "common.features.animalEatingParticles.MobEntityMixin",
+    "common.features.animalEatingParticles.AnimalEntityMixin",
     "common.features.animalEatingParticles.WolfEntityMixin",
     "common.features.cauldron.ArmorDyeRecipeMixin",
     "common.features.cauldron.CauldronBehaviorMixin",
