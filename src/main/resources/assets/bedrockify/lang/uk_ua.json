@@ -46,7 +46,7 @@
   "bedrockify.options.inventoryHighlight": "Підсвічування слотів інвентаря",
   "bedrockify.options.inventoryHighlight.color1": "Задній план підсвічування слоту",
   "bedrockify.options.inventoryHighlight.color2": "Передній план підсвічування слоту",
-  "bedrockify.options.idleAnimation": "Швидкість анімації недіючої руки",
+  "bedrockify.options.idleAnimation": "Швидкість анімації неативної руки",
   "bedrockify.options.showBedrockIfyButton": "Кнопка налаштувань BedrockIfy",
   "bedrockify.options.showBedrockIfyButton.tooltip": "Показує кнопку «Налаштування BedrockIfy» у меню налаштувань гри. Якщо вимкнено, ви можете відкрити налаштування BedrockIfy через Mod Menu, або натисканням клавіші §a[B]§r після завантаження світу.",
   "bedrockify.options.button.hidden": "Приховано",
