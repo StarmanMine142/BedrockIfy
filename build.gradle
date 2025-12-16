@@ -1,10 +1,11 @@
 plugins {
-	id 'fabric-loom' version '1.11-SNAPSHOT'
+	id 'fabric-loom' version "${fabric_loom_version}"
 	id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_21
-targetCompatibility = JavaVersion.VERSION_21
+// sourceCompatibility = JavaVersion.VERSION_21
+// targetCompatibility = JavaVersion.VERSION_21
+def jdkVersion = JavaVersion.VERSION_21
 
 base.archivesName = project.archives_base_name
 version = "${project.mod_version}+mc${project.minecraft_version}"
@@ -95,6 +96,11 @@ tasks.withType(JavaCompile).configureEach {
 task sourcesJar(type: Jar, dependsOn: classes) {
 //	classifier = "sources"
 	from sourceSets.main.allSource
+}
+
+java {
+	sourceCompatibility = jdkVersion
+    targetCompatibility = jdkVersion
 }
 
 jar {
