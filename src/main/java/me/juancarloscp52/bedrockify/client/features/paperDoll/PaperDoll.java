@@ -7,7 +7,11 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.entity.EntityRenderManager;
+import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.entity.EntityPose;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -129,7 +133,14 @@ public class PaperDoll {
         Quaternionf rotation = new Quaternionf().rotateZ((float)Math.PI);
 
         // Draw the entity.
-        InventoryScreen.drawEntity(drawContext, x1, y1, x2, y2, this.size / player.getScale(), translation, rotation, null, player);
+        EntityRenderManager entityRenderManager = MinecraftClient.getInstance().getEntityRenderDispatcher();
+        EntityRenderer<? super LivingEntity, ?> entityRenderer = entityRenderManager.getRenderer(player);
+        EntityRenderState entityRenderState = entityRenderer.getAndUpdateRenderState(player, 1.0F);
+        entityRenderState.light = 15728880;
+        entityRenderState.shadowPieces.clear();
+        entityRenderState.outlineColor = 0;
+
+        drawContext.addEntity(entityRenderState, (float)size, translation, rotation, null, x1, y1, x2, y2);
 
         // Restore previous entity rotations.
         player.bodyYaw = bodyYaw;

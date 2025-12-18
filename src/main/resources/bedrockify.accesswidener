@@ -4,3 +4,6 @@ accessible method net/minecraft/world/gen/treedecorator/TreeDecoratorType regist
 accessible method net/minecraft/block/CandleCakeBlock isHittingCandle (Lnet/minecraft/util/hit/BlockHitResult;)Z
 accessible class net/minecraft/client/render/block/BlockModelRenderer$LightmapCache
 accessible method net/minecraft/client/gui/DrawContext drawSpriteRegion (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/texture/Sprite;IIIIIIIII)V  #HudOpacity InGameHudMixin
+accessible field net/minecraft/client/render/WorldRenderer worldRenderState Lnet/minecraft/client/render/state/WorldRenderState; # SunGlare
+accessible class net/minecraft/client/gui/hud/ChatHud$OpacityRule   # ChatHud
+accessible class net/minecraft/client/gui/hud/ChatHud$LineConsumer  # ChatHud

@@ -213,8 +213,8 @@ public final class BedrockSunGlareShading {
             return;
         }
 
-        final float skyAngleRadian = (float) (this.client.world.getSkyAngle(tickDelta) * 2f * Math.PI);
-        this.sunVector3f.set(new Vector3f(-Math.sin(skyAngleRadian), Math.cos(skyAngleRadian), 0).normalize());
+        final float sunAngle = this.client.worldRenderer.worldRenderState.skyRenderState.sunAngle;
+        this.sunVector3f.set(new Vector3f(-Math.sin(sunAngle), Math.cos(sunAngle), 0).normalize());
     }
 
     /**

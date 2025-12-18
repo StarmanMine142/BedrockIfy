@@ -3,6 +3,7 @@ package me.juancarloscp52.bedrockify.client.features.fishingBobber;
 import me.juancarloscp52.bedrockify.Bedrockify;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.render.entity.state.FishingBobberEntityState;
@@ -12,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public class FishingBobber3DModel<T extends FishingBobberEntityState> extends EntityModel<T> {
     public static final EntityModelLayer MODEL_LAYER = new EntityModelLayer(Identifier.of(Bedrockify.MOD_ID, "fishing_hook"), "main");
     public static final Identifier TEXTURE = Identifier.of(Bedrockify.MOD_ID, "textures/entity/fishing_hook.png");
-    public static final RenderLayer RENDER_LAYER = RenderLayer.getEntityTranslucent(TEXTURE);
+    public static final RenderLayer RENDER_LAYER = RenderLayers.entityTranslucent(TEXTURE);
 
     private static final String NAME_HEAD_X = "head_axis_x";
     private static final String NAME_HEAD_Z = "head_axis_z";
