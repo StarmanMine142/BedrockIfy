@@ -70,7 +70,8 @@ dependencies {
 	}
 	modCompileOnly  "maven.modrinth:detail-armor-bar:${project.dab_version}"
 
-	testImplementation 'org.junit.jupiter:junit-jupiter:5.8.1'
+	testImplementation "org.junit.jupiter:junit-jupiter:${project.jupiter_version}"
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	modTestImplementation "maven.modrinth:iris:${project.iris_version}"
 }
 
