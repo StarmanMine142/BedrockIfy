@@ -27,15 +27,11 @@ public abstract class ChatHudMixin {
     @Shadow private int scrolledLines;
     @Shadow public abstract int getVisibleLineCount();
     @Shadow protected abstract int getLineHeight();
-    @Shadow abstract int forEachVisibleLine(ChatHud.OpacityRule opacityRule, ChatHud.LineConsumer lineConsumer);
-    @Shadow abstract int getWidth();
 
     @Unique
     private double bottomY;
     @Unique
     BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
-    @Unique
-    private static final String DRAW_CONTEXT_FILL_METHOD_SIGNATURE = "Lnet/minecraft/client/gui/DrawContext;fill(IIIII)V";
 
     @Unique
     private int bedrockify$getSafeArea() {

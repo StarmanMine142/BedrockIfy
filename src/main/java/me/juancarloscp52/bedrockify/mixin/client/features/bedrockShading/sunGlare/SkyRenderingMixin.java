@@ -34,7 +34,7 @@ public abstract class SkyRenderingMixin {
     @ModifyExpressionValue(method = "renderSun", at = @At(value = "NEW", target = "org/joml/Vector4f"))
     private Vector4f bedrockify$modifySunBrightness(Vector4f original) {
         final float brightness = MathHelper.lerp(sunGlareShading.getSunBrightnessDelta(), 1.5f + sunGlareShading.getSunIntensityDelta() * 0.5f, 1.0f);
-        return original.mul(brightness, brightness, brightness, 1);
+        return original.mul(brightness, brightness, brightness, original.w);
     }
 
     @ModifyVariable(method = "renderTopSky", at = @At("HEAD"))
