@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(CloudRenderer.class)
 public abstract class CloudRendererMixin {
     @ModifyVariable(method = "renderClouds", at = @At("HEAD"), ordinal = 0)
-    private int bedrockify$(int original) {
+    private int bedrockify$modifyCloudColor(int original) {
         BedrockSunGlareShading sunGlareShading = BedrockifyClient.getInstance().bedrockSunGlareShading;
         Vector3f color = ColorHelper.toRgbVector(original);
         color.mul(MathHelper.clampedLerp(0.8f, 1.0f, sunGlareShading.getSunBrightnessDelta()));
