@@ -71,12 +71,12 @@ public abstract class HandledScreenMixin {
             expandStartY = expandEndY = 4;
         } else if ($this instanceof LoomScreen && currentSlot.id == 3) {
             expandStartX = expandEndX = 4;
-            expandStartY = 5;
-            expandEndY = 3;
+            expandStartY = 4;
+            expandEndY = 4;
         } else if ($this instanceof MerchantScreen && currentSlot.id == 2) {
             expandStartX = expandEndX = 4;
-            expandStartY = 3;
-            expandEndY = 5;
+            expandStartY = 4;
+            expandEndY = 4;
         } else {
             expandStartX = expandEndX = expandStartY = expandEndY = 0;
         }
