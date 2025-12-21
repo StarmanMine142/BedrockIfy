@@ -17,7 +17,7 @@ public abstract class CloudRendererMixin {
     private int bedrockify$modifyCloudColor(int original) {
         BedrockSunGlareShading sunGlareShading = BedrockifyClient.getInstance().bedrockSunGlareShading;
         Vector3f color = ColorHelper.toRgbVector(original);
-        color.mul(MathHelper.clampedLerp(0.8f, 1.0f, sunGlareShading.getSunBrightnessDelta()));
+        color.mul(MathHelper.lerp(sunGlareShading.getSunBrightnessDelta(), 0.8f, 1f));
         return ColorHelper.getArgb(new Vec3d(color.x, color.y, color.z));
     }
 }
