@@ -1,3 +1,14 @@
+## [1.11.5] - 2025-12-25
+
+Available versions:
+-   Fabric: 1.21.11
+
+### Changed/Fixed
+Thanks to lonefelidae16 for this update :)
+
+-   Added option to spin the main screen panorama counter-clockwise like on bedrock.
+-   Improvements to idle hand animation functionality.
+
 ## [1.11.4] - 2025-12-23
 
 Available versions:
