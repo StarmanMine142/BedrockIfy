@@ -122,6 +122,7 @@ public class SettingsGUI {
             }).build());
             gui.addEntry(entryBuilder.startEnumSelector(Text.translatable("bedrockify.options.showBedrockIfyButton"), BedrockifyClientSettings.ButtonPosition.class, settingsClient.bedrockIfyButtonPosition).setTooltip(wrapLines(Text.translatable("bedrockify.options.showBedrockIfyButton.tooltip"))).setEnumNameProvider(anEnum -> Text.translatable(((BedrockifyClientSettings.ButtonPosition)anEnum).text)).setDefaultValue(BedrockifyClientSettings.ButtonPosition.BELOW_SLIDERS).setSaveConsumer(buttonPosition -> settingsClient.bedrockIfyButtonPosition =buttonPosition).build());
             gui.addEntry(entryBuilder.startBooleanToggle(Text.translatable("bedrockify.options.editionBranding"), settingsClient.hideEditionBranding).setDefaultValue(false).setSaveConsumer(newValue -> settingsClient.hideEditionBranding =newValue).build());
+            gui.addEntry(entryBuilder.startBooleanToggle(Text.translatable("bedrockify.options.bedrockCubeMap"), settingsClient.bedrockCubeMap).setDefaultValue(false).setSaveConsumer(newValue -> settingsClient.bedrockCubeMap = newValue).build());
 
 
         /*

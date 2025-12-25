@@ -56,6 +56,7 @@ public class BedrockifyClientSettings {
     public boolean hideEditionBranding = false;
     public boolean hotBarOverhang = true;
     public boolean babyVillagerHeads = true;
+    public boolean bedrockCubeMap = false;
 
     public boolean isPickupAnimationsEnabled() {
         return pickupAnimations;

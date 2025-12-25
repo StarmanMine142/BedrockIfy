@@ -18,7 +18,7 @@ public class HeldItemRendererMixin {
     @Unique
     float timer = 0;
     @Unique
-    private static final double ONE_CYCLE = 2 * Math.PI;
+    private static final float ONE_CYCLE = 2 * MathHelper.PI;
 
     @Inject(method = "renderItem(FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;Lnet/minecraft/client/network/ClientPlayerEntity;I)V", at = @At("HEAD"))
     private void bedrockify$updateSwayDelta(CallbackInfo ci) {
@@ -28,7 +28,7 @@ public class HeldItemRendererMixin {
         timer += BedrockifyClient.getInstance().deltaTime * 0.000000002f;
         if (timer > ONE_CYCLE) {
             // Prevents float overflow
-            timer = (float) MathHelper.floorMod(timer, ONE_CYCLE);
+            timer -= ONE_CYCLE;
         }
     }
 
