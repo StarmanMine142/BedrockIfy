@@ -14,17 +14,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 public abstract class MinecraftServerMixin {
 
-    @Shadow public abstract boolean isDedicated();
+    @Shadow public abstract boolean isDedicatedServer();
 
-    @Inject(method = "save", at= @At("HEAD"))
+    @Inject(method = "saveAllChunks", at= @At("HEAD"))
     private void startSaving(CallbackInfoReturnable<Boolean> info){
-        if(!this.isDedicated() && BedrockifyClient.getInstance().settings.isSavingOverlayEnabled())
+        if(!this.isDedicatedServer() && BedrockifyClient.getInstance().settings.isSavingOverlayEnabled())
             BedrockifyClient.getInstance().overlay.savingOverlay.setSaving(true);
     }
 
-    @Inject(method = "save", at= @At("RETURN"))
+    @Inject(method = "saveAllChunks", at= @At("RETURN"))
     private void stopSaving(CallbackInfoReturnable<Boolean> info){
-        if(!this.isDedicated() && BedrockifyClient.getInstance().settings.isSavingOverlayEnabled())
+        if(!this.isDedicatedServer() && BedrockifyClient.getInstance().settings.isSavingOverlayEnabled())
             BedrockifyClient.getInstance().overlay.savingOverlay.setSaving(false);
     }
 }

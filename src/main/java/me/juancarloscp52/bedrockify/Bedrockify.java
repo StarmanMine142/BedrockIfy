@@ -35,8 +35,8 @@ public class Bedrockify implements ModInitializer {
         loadSettings();
         instance = this;
         DyingTrees.registerTrees();
-        PayloadTypeRegistry.playS2C().register(Bedrockify.EAT_PARTICLE_PAYLOAD.getId(), EatParticlePayload.CODEC);
-        PayloadTypeRegistry.playS2C().register(Bedrockify.CAULDRON_PARTICLE_PAYLOAD.getId(), CauldronParticlePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(Bedrockify.EAT_PARTICLE_PAYLOAD.type(), EatParticlePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(Bedrockify.CAULDRON_PARTICLE_PAYLOAD.type(), CauldronParticlePayload.CODEC);
         if (MixinFeatureManager.features.get(MixinFeatureManager.FEAT_CAULDRON)) {
             BedrockCauldronBlocks.register();
             ServerLifecycleEvents.SERVER_STARTED.register(server -> BedrockCauldronBehavior.registerBehavior());

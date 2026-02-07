@@ -1,18 +1,18 @@
 package me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip;
 
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 public class PotionTooltip extends Tooltip {
 
-    Text tooltip;
+    Component tooltip;
 
-    public PotionTooltip (Text tooltip){
+    public PotionTooltip (Component tooltip){
         this.tooltip = tooltip;
     }
 
     @Override
-    public MutableText getTooltipText() {
-        return (MutableText) this.tooltip;
+    public MutableComponent getTooltipText() {
+        return (MutableComponent) this.tooltip;
     }
 }

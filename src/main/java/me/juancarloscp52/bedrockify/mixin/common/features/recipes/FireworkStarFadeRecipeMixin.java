@@ -5,15 +5,15 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import me.juancarloscp52.bedrockify.Bedrockify;
 import me.juancarloscp52.bedrockify.common.features.recipes.DyeHelper;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.FireworkExplosionComponent;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.FireworkStarFadeRecipe;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.input.CraftingRecipeInput;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.world.World;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.FireworkExplosion;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.FireworkStarFadeRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,22 +21,22 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(FireworkStarFadeRecipe.class)
 public class FireworkStarFadeRecipeMixin {
-    @Shadow @Final private static Ingredient INPUT_STAR;
+    @Shadow @Final private static Ingredient STAR_INGREDIENT;
 
-    @ModifyReturnValue(method = "matches(Lnet/minecraft/recipe/input/CraftingRecipeInput;Lnet/minecraft/world/World;)Z", at = @At("RETURN"))
-    public boolean matches(boolean original, CraftingRecipeInput craftingRecipeInput, World world) {
+    @ModifyReturnValue(method = "matches(Lnet/minecraft/world/item/crafting/CraftingInput;Lnet/minecraft/world/level/Level;)Z", at = @At("RETURN"))
+    public boolean matches(boolean original, CraftingInput craftingRecipeInput, Level world) {
         if(!Bedrockify.getInstance().settings.isBedrockRecipesEnabled())
             return original;
         boolean bl = false;
         boolean bl2 = false;
 
         for(int i = 0; i < craftingRecipeInput.size(); ++i) {
-            ItemStack itemStack = craftingRecipeInput.getStackInSlot(i);
+            ItemStack itemStack = craftingRecipeInput.getItem(i);
             if (!itemStack.isEmpty()) {
                 if (DyeHelper.isDyeableItem(itemStack.getItem())) {
                     bl = true;
                 } else {
-                    if (!INPUT_STAR.test(itemStack)) {
+                    if (!STAR_INGREDIENT.test(itemStack)) {
                         return original;
                     }
 
@@ -52,26 +52,26 @@ public class FireworkStarFadeRecipeMixin {
         return original || (bl2 && bl);
     }
 
-    @ModifyReturnValue(method = "craft(Lnet/minecraft/recipe/input/CraftingRecipeInput;Lnet/minecraft/registry/RegistryWrapper$WrapperLookup;)Lnet/minecraft/item/ItemStack;", at = @At("RETURN"))
-    public ItemStack craft(ItemStack original, CraftingRecipeInput craftingRecipeInput, RegistryWrapper.WrapperLookup wrapperLookup) {
+    @ModifyReturnValue(method = "assemble(Lnet/minecraft/world/item/crafting/CraftingInput;Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/world/item/ItemStack;", at = @At("RETURN"))
+    public ItemStack craft(ItemStack original, CraftingInput craftingRecipeInput, HolderLookup.Provider wrapperLookup) {
         if(!Bedrockify.getInstance().settings.isBedrockRecipesEnabled())
             return original;
         IntList list = new IntArrayList();
         ItemStack itemStack = null;
 
         for(int i = 0; i < craftingRecipeInput.size(); ++i) {
-            ItemStack itemStack2 = craftingRecipeInput.getStackInSlot(i);
+            ItemStack itemStack2 = craftingRecipeInput.getItem(i);
             Item item = itemStack2.getItem();
             if (DyeHelper.isDyeableItem(item)) {
-                list.add(DyeHelper.getDyeItem(item).getColor().getFireworkColor());
-            } else if (INPUT_STAR.test(itemStack2)) {
+                list.add(DyeHelper.getDyeItem(item).getDyeColor().getFireworkColor());
+            } else if (STAR_INGREDIENT.test(itemStack2)) {
                 itemStack = itemStack2.copy();
                 itemStack.setCount(1);
             }
         }
 
         if (itemStack != null && !list.isEmpty()) {
-            itemStack.apply(DataComponentTypes.FIREWORK_EXPLOSION, FireworkExplosionComponent.DEFAULT, list, FireworkExplosionComponent::withFadeColors);
+            itemStack.update(DataComponents.FIREWORK_EXPLOSION, FireworkExplosion.DEFAULT, list, FireworkExplosion::withFadeColors);
             return itemStack;
         } else {
             return ItemStack.EMPTY;

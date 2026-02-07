@@ -1,53 +1,53 @@
 package me.juancarloscp52.bedrockify.client.features.reacharoundPlacement;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public class ReachAroundPlacement {
-    private final MinecraftClient client;
+    private final Minecraft client;
 
-    public ReachAroundPlacement(MinecraftClient client) {
+    public ReachAroundPlacement(Minecraft client) {
         this.client = client;
     }
 
-    public void renderIndicator(DrawContext drawContext) {
-        if (BedrockifyClient.getInstance().settings.isReacharoundIndicatorEnabled() && BedrockifyClient.getInstance().settings.isReacharoundEnabled() && (client.isInSingleplayer() || BedrockifyClient.getInstance().settings.isReacharoundMultiplayerEnabled()) && this.canReachAround() ) {
-            drawContext.fill((client.getWindow().getScaledWidth() / 2) - 5, (client.getWindow().getScaledHeight() / 2) + 5, (client.getWindow().getScaledWidth() / 2) + 4, (client.getWindow().getScaledHeight() / 2) + 6, (100 << 24) + (255 << 8));
+    public void renderIndicator(GuiGraphics drawContext) {
+        if (BedrockifyClient.getInstance().settings.isReacharoundIndicatorEnabled() && BedrockifyClient.getInstance().settings.isReacharoundEnabled() && (client.isLocalServer() || BedrockifyClient.getInstance().settings.isReacharoundMultiplayerEnabled()) && this.canReachAround() ) {
+            drawContext.fill((client.getWindow().getGuiScaledWidth() / 2) - 5, (client.getWindow().getGuiScaledHeight() / 2) + 5, (client.getWindow().getGuiScaledWidth() / 2) + 4, (client.getWindow().getGuiScaledHeight() / 2) + 6, (100 << 24) + (255 << 8));
         }
     }
 
     public boolean canReachAround() {
-        if (client.player == null || client.world == null || client.crosshairTarget == null)
+        if (client.player == null || client.level == null || client.hitResult == null)
             return false;
 
         // crosshairTarget must be MISS.
-        if (!client.crosshairTarget.getType().equals(HitResult.Type.MISS)) {
+        if (!client.hitResult.getType().equals(HitResult.Type.MISS)) {
             return false;
         }
 
-        final ClientPlayerEntity player = client.player;
+        final LocalPlayer player = client.player;
         final BlockPos targetPos = getFacingSteppingBlockPos(player);
 
         // Not sneaking and must sneak in settings.
-        if (!player.isSneaking() && BedrockifyClient.getInstance().settings.isReacharoundSneakingEnabled()) {
+        if (!player.isShiftKeyDown() && BedrockifyClient.getInstance().settings.isReacharoundSneakingEnabled()) {
             return false;
         }
         // Player may be flying, climbing the ladder or vines, or on the Fluid with sneaking.
-        if (!player.isOnGround()) {
+        if (!player.onGround()) {
             return false;
         }
         // There is a non-replaceable block at the ReachAround target position.
-        if (!client.world.getBlockState(targetPos).isReplaceable()) {
+        if (!client.level.getBlockState(targetPos).canBeReplaced()) {
             return false;
         }
 
@@ -60,7 +60,7 @@ public class ReachAroundPlacement {
      * @return The position of the block to be placed.
      */
     public static BlockPos getFacingSteppingBlockPos(@NotNull Entity player) {
-        return player.getSteppingPos().offset(player.getHorizontalFacing());
+        return player.getOnPos().relative(player.getDirection());
     }
 
     /**
@@ -68,10 +68,10 @@ public class ReachAroundPlacement {
      * @return The position of the intersection between the raycast and the surface of the target block.
      * @author axialeaa
      */
-    private Optional<Vec3d> getRaycastIntersection(@NotNull ClientPlayerEntity player) {
-        Vec3d rayStartPos = player.getEyePos();
-        Vec3d rayEndPos = player.getRotationVec(1.0F).multiply(player.getBlockInteractionRange()).add(rayStartPos);
+    private Optional<Vec3> getRaycastIntersection(@NotNull LocalPlayer player) {
+        Vec3 rayStartPos = player.getEyePosition();
+        Vec3 rayEndPos = player.getViewVector(1.0F).scale(player.blockInteractionRange()).add(rayStartPos);
 
-        return new Box(getFacingSteppingBlockPos(player)).raycast(rayStartPos, rayEndPos);
+        return new AABB(getFacingSteppingBlockPos(player)).clip(rayStartPos, rayEndPos);
     }
 }

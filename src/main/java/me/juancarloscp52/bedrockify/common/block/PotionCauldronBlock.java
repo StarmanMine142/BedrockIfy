@@ -5,26 +5,31 @@ import me.juancarloscp52.bedrockify.Bedrockify;
 import me.juancarloscp52.bedrockify.common.block.cauldron.BedrockCauldronBehavior;
 import me.juancarloscp52.bedrockify.common.features.cauldron.BedrockCauldronBlocks;
 import me.juancarloscp52.bedrockify.common.features.cauldron.BedrockCauldronProperties;
-import net.minecraft.block.*;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.particle.TintedParticleEffect;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.IntProperty;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.world.level.block.AbstractCauldronBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 /**
  * Allows to keep the potion fluid.
  */
 public class PotionCauldronBlock extends AbstractBECauldronBlock {
 
-    public static final MapCodec<PotionCauldronBlock> CODEC = PotionCauldronBlock.createCodec(PotionCauldronBlock::new);
-    public static final IntProperty LEVEL = BedrockCauldronProperties.LEVEL_8;
+    public static final MapCodec<PotionCauldronBlock> CODEC = PotionCauldronBlock.simpleCodec(PotionCauldronBlock::new);
+    public static final IntegerProperty LEVEL = BedrockCauldronProperties.LEVEL_8;
     public static final int MAX_LEVEL = BedrockCauldronProperties.MAX_LEVEL_8;
     /**
      * The level to increase/decrease using a Glass Bottle.
@@ -40,43 +45,43 @@ public class PotionCauldronBlock extends AbstractBECauldronBlock {
      */
     private static final int ARROW_TIP_STEP = 4;
 
-    public PotionCauldronBlock(Settings settings) {
+    public PotionCauldronBlock(Properties settings) {
         super(settings, BedrockCauldronBehavior.POTION_CAULDRON_BEHAVIOR);
-        this.setDefaultState(this.getStateManager().getDefaultState().with(LEVEL, 2));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(LEVEL, 2));
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(LEVEL);
     }
 
     @Override
     public boolean isFull(BlockState state) {
-        return state.get(LEVEL) == MAX_LEVEL;
+        return state.getValue(LEVEL) == MAX_LEVEL;
     }
 
     @Override
-    public int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
-        return (int) Math.ceil((float) state.get(LEVEL) / MAX_LEVEL * LeveledCauldronBlock.MAX_LEVEL);
+    public int getAnalogOutputSignal(BlockState state, Level world, BlockPos pos, Direction direction) {
+        return (int) Math.ceil((float) state.getValue(LEVEL) / MAX_LEVEL * LayeredCauldronBlock.MAX_FILL_LEVEL);
     }
 
     @Override
-    protected MapCodec<? extends AbstractCauldronBlock> getCodec() {
+    protected MapCodec<? extends AbstractCauldronBlock> codec() {
         return CODEC;
     }
 
     @Override
-    public double getFluidHeight(BlockState state) {
-        return MathHelper.lerp((float) state.get(LEVEL) / MAX_LEVEL, 0.375, 0.9375);
+    public double getContentHeight(BlockState state) {
+        return Mth.lerp((float) state.getValue(LEVEL) / MAX_LEVEL, 0.375, 0.9375);
     }
 
     @Override
-    public boolean hasRandomTicks(BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return true;
     }
 
     @Override
-    public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+    public void animateTick(BlockState state, Level world, BlockPos pos, RandomSource random) {
         if (world == null || pos == null || state == null) {
             return;
         }
@@ -91,14 +96,14 @@ public class PotionCauldronBlock extends AbstractBECauldronBlock {
             final float blue = (effectColor & 0xff) / 255.f;
             final double offsetY;
             if (state.getBlock() instanceof PotionCauldronBlock potionCauldronBlock) {
-                offsetY = potionCauldronBlock.getFluidHeight(state);
+                offsetY = potionCauldronBlock.getContentHeight(state);
             } else {
                 offsetY = 0.5;
             }
             final double x = pos.getX() + 0.45 + random.nextDouble() * 0.2;
             final double y = pos.getY() + offsetY;
             final double z = pos.getZ() + 0.45 + random.nextDouble() * 0.2;
-            world.addParticleClient(TintedParticleEffect.create(ParticleTypes.ENTITY_EFFECT, red, green, blue), x, y, z, red, green, blue);
+            world.addParticle(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, red, green, blue), x, y, z, red, green, blue);
         });
     }
 
@@ -106,31 +111,31 @@ public class PotionCauldronBlock extends AbstractBECauldronBlock {
      * Tries to take out the fluid. If succeeded, the {@link BlockState} will be changed.
      *
      * @param state The BlockState that contains the state of {@link PotionCauldronBlock}.
-     * @param world The instance of {@link World}.
+     * @param world The instance of {@link Level}.
      * @param pos   Target block position.
      * @return <code>true</code> if it can be taken out.
      */
-    public static boolean tryPickFluid(BlockState state, World world, BlockPos pos) {
-        if (world.isClient()) {
+    public static boolean tryPickFluid(BlockState state, Level world, BlockPos pos) {
+        if (world.isClientSide()) {
             return false;
         }
 
-        if (!state.contains(LEVEL)) {
+        if (!state.hasProperty(LEVEL)) {
             Bedrockify.LOGGER.error(
                     "[{}] cannot retrieve fluid level", Bedrockify.class.getSimpleName(),
                     new IllegalStateException("BlockState of %s does not have state: %s".formatted(state.getBlock(), LEVEL)));
             return false;
         }
 
-        final int currentLevel = state.get(LEVEL);
+        final int currentLevel = state.getValue(LEVEL);
         if (currentLevel < MAX_LEVEL - BOTTLE_LEVEL * 2) {
             return false;
         }
 
         final int nextLevel = currentLevel - BOTTLE_LEVEL;
-        final BlockState blockState = (nextLevel <= 0) ? Blocks.CAULDRON.getDefaultState() : state.with(LEVEL, nextLevel);
-        world.setBlockState(pos, blockState);
-        world.emitGameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Emitter.of(blockState));
+        final BlockState blockState = (nextLevel <= 0) ? Blocks.CAULDRON.defaultBlockState() : state.setValue(LEVEL, nextLevel);
+        world.setBlockAndUpdate(pos, blockState);
+        world.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(blockState));
 
         return true;
     }
@@ -156,14 +161,14 @@ public class PotionCauldronBlock extends AbstractBECauldronBlock {
      * @see PotionCauldronBlock#getArrowTipStepCount
      */
     public static int getMaxTippedArrowCount(ItemStack itemStack, BlockState state) {
-        if (!state.contains(LEVEL)) {
+        if (!state.hasProperty(LEVEL)) {
             Bedrockify.LOGGER.error(
                     "[{}] cannot retrieve fluid level", Bedrockify.class.getSimpleName(),
                     new IllegalStateException("BlockState of %s does not have the state: LEVEL".formatted(state.getBlock())));
             return 0;
         }
 
-        final int mul = (int) Math.floor((float) state.get(LEVEL) / ARROW_TIP_LEVEL_PER_STEP);
+        final int mul = (int) Math.floor((float) state.getValue(LEVEL) / ARROW_TIP_LEVEL_PER_STEP);
         return Math.min(getArrowTipStepCount(itemStack) * mul, itemStack.getCount());
     }
 
@@ -198,13 +203,13 @@ public class PotionCauldronBlock extends AbstractBECauldronBlock {
 
     /**
      * Returns the step count.<br>
-     * The count will be divided by {@link #ARROW_TIP_STEP} for the maximum number that can retrieve by {@link ItemStack#getMaxCount}.<br>
+     * The count will be divided by {@link #ARROW_TIP_STEP} for the maximum number that can retrieve by {@link ItemStack#getMaxStackSize}.<br>
      * Default return value is <code>16</code>.
      *
      * @param itemStack Target item stack.
      * @return Divided by {@link #ARROW_TIP_STEP}.
      */
     private static int getArrowTipStepCount(ItemStack itemStack) {
-        return (int) Math.ceil((float) itemStack.getMaxCount() / ARROW_TIP_STEP);
+        return (int) Math.ceil((float) itemStack.getMaxStackSize() / ARROW_TIP_STEP);
     }
 }

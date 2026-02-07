@@ -1,14 +1,14 @@
 package me.juancarloscp52.bedrockify.client.features.eatingAnimations;
 
-import net.minecraft.util.Hand;
+import net.minecraft.world.InteractionHand;
 
 import java.util.Optional;
 
 public interface IEatingState {
-    default void setEatingHand(Hand hand) {
+    default void setEatingHand(InteractionHand hand) {
     }
 
-    default Optional<Hand> getEatingHand() {
+    default Optional<InteractionHand> getEatingHand() {
         return Optional.empty();
     }
 }

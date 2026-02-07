@@ -1,8 +1,8 @@
 package me.juancarloscp52.bedrockify.client.features.hudOpacity;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
 
 public class HudOpacity {
 
@@ -26,13 +26,13 @@ public class HudOpacity {
         if(inactiveTicks< maxInactiveTicks)
             inactiveTicks++;
 
-        if(MinecraftClient.getInstance().currentScreen!=null) {
+        if(Minecraft.getInstance().screen !=null) {
             resetTicks();
             currentOpacity = 1;
         }
 
-        if(MinecraftClient.getInstance().player!= null){
-            int selectedSlot = MinecraftClient.getInstance().player.getInventory().getSelectedSlot();
+        if(Minecraft.getInstance().player!= null){
+            int selectedSlot = Minecraft.getInstance().player.getInventory().getSelectedSlot();
             if(selectedSlot != previousSelectedSlot){
                 previousSelectedSlot=selectedSlot;
                 resetTicks();
@@ -51,6 +51,6 @@ public class HudOpacity {
     }
 
     private void clampOpacity(float minimum) {
-        currentOpacity = MathHelper.clamp(currentOpacity, minimum, 1f);
+        currentOpacity = Mth.clamp(currentOpacity, minimum, 1f);
     }
 }

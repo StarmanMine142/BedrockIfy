@@ -1,20 +1,20 @@
 package me.juancarloscp52.bedrockify.client.features.worldColorNoise;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.noise.OctaveSimplexNoiseSampler;
-import net.minecraft.util.math.random.CheckedRandom;
-import net.minecraft.util.math.random.ChunkRandom;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
 
 public class WorldColorNoiseSampler {
-    OctaveSimplexNoiseSampler noiseSampler;
+    PerlinSimplexNoise noiseSampler;
     public WorldColorNoiseSampler(){
-        noiseSampler = new OctaveSimplexNoiseSampler(new ChunkRandom(new CheckedRandom(98756L)), ImmutableList.of(-1, 0, 1));
+        noiseSampler = new PerlinSimplexNoise(new WorldgenRandom(new LegacyRandomSource(98756L)), ImmutableList.of(-1, 0, 1));
     }
 
     public double getSample (double x, double z, float scale){
-        return noiseSampler.sample(x/scale,z/scale, true);
+        return noiseSampler.getValue(x/scale,z/scale, true);
     }
 
     public int applyNoise(BlockPos pos, int previousColor, float scale, float intensity){
@@ -41,7 +41,7 @@ public class WorldColorNoiseSampler {
         final float[] rgb1 = getAlphaColorArray(color1);
         final float[] rgb2 = getAlphaColorArray(0);
         final float negative = 1-ratio;
-        return toIntColor(new float[]{MathHelper.clamp(rgb2[0] * ratio + rgb1[0] * negative,0,1), MathHelper.clamp(rgb2[1] * ratio + rgb1[1] * negative,0,1), MathHelper.clamp(rgb2[2] * ratio + rgb1[2] * negative,0,1), MathHelper.clamp(rgb2[3] * ratio + rgb1[3] * negative,0,1)});
+        return toIntColor(new float[]{Mth.clamp(rgb2[0] * ratio + rgb1[0] * negative,0,1), Mth.clamp(rgb2[1] * ratio + rgb1[1] * negative,0,1), Mth.clamp(rgb2[2] * ratio + rgb1[2] * negative,0,1), Mth.clamp(rgb2[3] * ratio + rgb1[3] * negative,0,1)});
     }
 
 }

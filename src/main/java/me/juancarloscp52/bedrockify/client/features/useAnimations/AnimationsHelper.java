@@ -1,7 +1,7 @@
 package me.juancarloscp52.bedrockify.client.features.useAnimations;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public final class AnimationsHelper {
     public static final int ANIMATION_TIME = 5;
@@ -24,7 +24,7 @@ public final class AnimationsHelper {
             return;
         }
 
-        target.setBobbingAnimationTime(AnimationsHelper.ANIMATION_TIME);
+        target.setPopTime(AnimationsHelper.ANIMATION_TIME);
     }
 
     /**

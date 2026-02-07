@@ -8,25 +8,29 @@ import me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip.Enc
 import me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip.PotionTooltip;
 import me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip.Tooltip;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffectUtil;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.*;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.TippedArrowItem;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffectUtil;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.core.Holder;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,18 +42,18 @@ public class HeldItemTooltips {
 
     private static final boolean B_DAB_LOADED = FabricLoader.getInstance().isModLoaded("detailab");
 
-    public void drawItemWithCustomTooltips(DrawContext drawContext, TextRenderer fontRenderer, Text text, float x, float y, int color, ItemStack currentStack) {
+    public void drawItemWithCustomTooltips(GuiGraphics drawContext, Font fontRenderer, Component text, float x, float y, int color, ItemStack currentStack) {
         final BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
         final int screenBorder = settings.getScreenSafeArea();
         int tooltipOffset = 0;
 
         //Set tooltip position depending on hotbar displayed information
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        if(null ==player || null==MinecraftClient.getInstance().interactionManager)
+        LocalPlayer player = Minecraft.getInstance().player;
+        if(null ==player || null== Minecraft.getInstance().gameMode)
             return;
-        if(MinecraftClient.getInstance().interactionManager.hasStatusBars()){
+        if(Minecraft.getInstance().gameMode.canHurtPlayer()){
             y-=16;
-            if(player.getArmor()>0 || (B_DAB_LOADED && PlayerInventory.EQUIPMENT_SLOTS.keySet().intStream().anyMatch(value -> player.getInventory().getStack(value).contains(DataComponentTypes.GLIDER)))){
+            if(player.getArmorValue()>0 || (B_DAB_LOADED && Inventory.EQUIPMENT_SLOT_MAPPING.keySet().intStream().anyMatch(value -> player.getInventory().getItem(value).has(DataComponents.GLIDER)))){
                 y-=10;
             }
             if(player.getAbsorptionAmount()>0){
@@ -62,7 +66,7 @@ public class HeldItemTooltips {
         // Draw item tooltips if the option is enabled.
         if(settings.heldItemTooltips) {
             // Get the current held item tooltips and convert to Text.
-            final List<Text> tooltips = Lists.newArrayList();
+            final List<Component> tooltips = Lists.newArrayList();
             for (Tooltip tooltip : getTooltips(currentStack)) {
                 tooltips.add(tooltip.getTooltipText());
             }
@@ -74,7 +78,7 @@ public class HeldItemTooltips {
                 // Trim tooltips.
                 tooltips.subList(TOOLTIP_SIZE - 1, tooltips.size()).clear();
                 // Add the "and x more..." tooltip.
-                tooltips.add(Text.translatable("item.container.more_items", xMore).formatted(Formatting.GRAY));
+                tooltips.add(Component.translatable("item.container.more_items", xMore).withStyle(ChatFormatting.GRAY));
             }
 
             tooltipOffset = 12 * tooltips.size();
@@ -84,15 +88,15 @@ public class HeldItemTooltips {
 
 
             int i = tooltips.size() - 1;
-            for (Text elem : tooltips) {
+            for (Component elem : tooltips) {
                 // Render the tooltip.
-                renderTooltip(drawContext, fontRenderer, y - screenBorder - (12 * i), color, ((MutableText)elem).formatted(Formatting.GRAY));
+                renderTooltip(drawContext, fontRenderer, y - screenBorder - (12 * i), color, ((MutableComponent)elem).withStyle(ChatFormatting.GRAY));
                 --i;
             }
         }
 
         // Render the item name.
-        drawContext.drawTextWithShadow(fontRenderer, text, (int)x, (int)(y - tooltipOffset - screenBorder), color);
+        drawContext.drawString(fontRenderer, text, (int)x, (int)(y - tooltipOffset - screenBorder), color);
     }
 
     /**
@@ -103,30 +107,30 @@ public class HeldItemTooltips {
     public static List<Tooltip> getTooltips(ItemStack currentStack) {
         final Item item = currentStack.getItem();
         final List<Tooltip> result = Lists.newArrayList();
-        if (item == Items.ENCHANTED_BOOK || currentStack.hasEnchantments()) {
-            var enchantmentsComponent = EnchantmentHelper.getEnchantments(currentStack);
-            enchantmentsComponent.getEnchantments().forEach(enchantment -> result.add(new EnchantmentTooltip(enchantment.value(), enchantmentsComponent.getLevel(enchantment))));
+        if (item == Items.ENCHANTED_BOOK || currentStack.isEnchanted()) {
+            var enchantmentsComponent = EnchantmentHelper.getEnchantmentsForCrafting(currentStack);
+            enchantmentsComponent.keySet().forEach(enchantment -> result.add(new EnchantmentTooltip(enchantment.value(), enchantmentsComponent.getLevel(enchantment))));
 
         } else if (item instanceof PotionItem || item instanceof TippedArrowItem) {
             result.addAll(generateTooltipsForPotion(currentStack));
 
         } else if (item == Items.OMINOUS_BOTTLE) {
-            var ominousComponent = currentStack.getComponents().get(DataComponentTypes.OMINOUS_BOTTLE_AMPLIFIER);
+            var ominousComponent = currentStack.getComponents().get(DataComponents.OMINOUS_BOTTLE_AMPLIFIER);
             if (ominousComponent != null) {
-                List<StatusEffectInstance> list = List.of(new StatusEffectInstance(StatusEffects.BAD_OMEN, 120000, ominousComponent.value(), false, false, true));
+                List<MobEffectInstance> list = List.of(new MobEffectInstance(MobEffects.BAD_OMEN, 120000, ominousComponent.value(), false, false, true));
                 result.addAll(generateTooltipsForPotion(currentStack, list));
             }
 
-        } else if(currentStack.getComponents().contains(DataComponentTypes.CONTAINER)){
-            var container = currentStack.get(DataComponentTypes.CONTAINER);
+        } else if(currentStack.getComponents().has(DataComponents.CONTAINER)){
+            var container = currentStack.get(DataComponents.CONTAINER);
             if(container != null){
-                generateTooltipsFromContainer(container.stream().toList(), result);
+                generateTooltipsFromContainer(container.nonEmptyItemCopyStream().toList(), result);
             }
 
-        } else if (currentStack.getComponents().contains(DataComponentTypes.BUNDLE_CONTENTS)){
-            var container = currentStack.getComponents().get(DataComponentTypes.BUNDLE_CONTENTS);
+        } else if (currentStack.getComponents().has(DataComponents.BUNDLE_CONTENTS)){
+            var container = currentStack.getComponents().get(DataComponents.BUNDLE_CONTENTS);
             if(container != null){
-                generateTooltipsFromContainer(container.stream().toList(), result);
+                generateTooltipsFromContainer(container.itemCopyStream().toList(), result);
             }
         }
 
@@ -150,49 +154,49 @@ public class HeldItemTooltips {
         }
     }
 
-    private static List<PotionTooltip> generateTooltipsForPotion(ItemStack stack, Iterable<StatusEffectInstance> effects){
+    private static List<PotionTooltip> generateTooltipsForPotion(ItemStack stack, Iterable<MobEffectInstance> effects){
         List<PotionTooltip> tooltips = new ArrayList<>();
-        for (StatusEffectInstance statusEffectInstance : effects) {
-            RegistryEntry<StatusEffect> registryEntry = statusEffectInstance.getEffectType();
+        for (MobEffectInstance statusEffectInstance : effects) {
+            Holder<MobEffect> registryEntry = statusEffectInstance.getEffect();
             int i = statusEffectInstance.getAmplifier();
-            MutableText mutableText = PotionContentsComponent.getEffectText(registryEntry, i);
-            if (!statusEffectInstance.isDurationBelow(20)) {
-                mutableText = Text.translatable("potion.withDuration", mutableText, StatusEffectUtil.getDurationText(statusEffectInstance, stack.getComponents().getOrDefault(DataComponentTypes.POTION_DURATION_SCALE, 1.0F), MinecraftClient.getInstance().world.getTickManager().getTickRate()));
+            MutableComponent mutableText = PotionContents.getPotionDescription(registryEntry, i);
+            if (!statusEffectInstance.endsWithin(20)) {
+                mutableText = Component.translatable("potion.withDuration", mutableText, MobEffectUtil.formatDuration(statusEffectInstance, stack.getComponents().getOrDefault(DataComponents.POTION_DURATION_SCALE, 1.0F), Minecraft.getInstance().level.tickRateManager().tickrate()));
             }
 
-            tooltips.add(new PotionTooltip(mutableText.formatted(registryEntry.value().getCategory().getFormatting())));
+            tooltips.add(new PotionTooltip(mutableText.withStyle(registryEntry.value().getCategory().getTooltipFormatting())));
         }
 
         if (tooltips.isEmpty()) {
-            tooltips.add(new PotionTooltip(Text.translatable("effect.none")));
+            tooltips.add(new PotionTooltip(Component.translatable("effect.none")));
         }
         return tooltips;
     }
 
     private static List<PotionTooltip> generateTooltipsForPotion(ItemStack stack) {
-        return generateTooltipsForPotion(stack, stack.get(DataComponentTypes.POTION_CONTENTS).getEffects());
+        return generateTooltipsForPotion(stack, stack.get(DataComponents.POTION_CONTENTS).getAllEffects());
     }
 
-    private void renderBackground(DrawContext drawContext, float y, int screenBorder, int tooltipOffset, int maxLength, int alpha) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        int background = MathHelper.lerp(alpha / 255f, 0, MathHelper.ceil((255.0D * BedrockifyClient.getInstance().settings.heldItemTooltipBackground))) << 24;
-        drawContext.fill(MathHelper.ceil((client.getWindow().getScaledWidth()-maxLength)/2f-3),MathHelper.ceil(y - tooltipOffset -5- screenBorder), MathHelper.ceil((client.getWindow().getScaledWidth()+maxLength)/2f+1),MathHelper.ceil(y - tooltipOffset -4- screenBorder),background);
-        drawContext.fill(MathHelper.ceil((client.getWindow().getScaledWidth()-maxLength)/2f-3),MathHelper.ceil(y+12-screenBorder), MathHelper.ceil((client.getWindow().getScaledWidth()+maxLength)/2f+1),MathHelper.ceil(y+13-screenBorder),background);
-        drawContext.fill(MathHelper.ceil((client.getWindow().getScaledWidth()-maxLength)/2f-4), MathHelper.ceil(y - tooltipOffset -4- screenBorder),MathHelper.ceil((client.getWindow().getScaledWidth()+maxLength)/2f+2), MathHelper.ceil(y+12-screenBorder),background);
+    private void renderBackground(GuiGraphics drawContext, float y, int screenBorder, int tooltipOffset, int maxLength, int alpha) {
+        Minecraft client = Minecraft.getInstance();
+        int background = Mth.lerpInt(alpha / 255f, 0, Mth.ceil((255.0D * BedrockifyClient.getInstance().settings.heldItemTooltipBackground))) << 24;
+        drawContext.fill(Mth.ceil((client.getWindow().getGuiScaledWidth()-maxLength)/2f-3), Mth.ceil(y - tooltipOffset -5- screenBorder), Mth.ceil((client.getWindow().getGuiScaledWidth()+maxLength)/2f+1), Mth.ceil(y - tooltipOffset -4- screenBorder),background);
+        drawContext.fill(Mth.ceil((client.getWindow().getGuiScaledWidth()-maxLength)/2f-3), Mth.ceil(y+12-screenBorder), Mth.ceil((client.getWindow().getGuiScaledWidth()+maxLength)/2f+1), Mth.ceil(y+13-screenBorder),background);
+        drawContext.fill(Mth.ceil((client.getWindow().getGuiScaledWidth()-maxLength)/2f-4), Mth.ceil(y - tooltipOffset -4- screenBorder), Mth.ceil((client.getWindow().getGuiScaledWidth()+maxLength)/2f+2), Mth.ceil(y+12-screenBorder),background);
     }
 
     /**
      * Renders an item tooltip with the given text and height in screen.
      */
-    private void renderTooltip(DrawContext drawContext, TextRenderer fontRenderer, float y, int color, Text text) {
-        int enchantX = (MinecraftClient.getInstance().getWindow().getScaledWidth() - fontRenderer.getWidth(text)) / 2;
-        drawContext.drawTextWithShadow(fontRenderer, text, enchantX, (int)y, color);
+    private void renderTooltip(GuiGraphics drawContext, Font fontRenderer, float y, int color, Component text) {
+        int enchantX = (Minecraft.getInstance().getWindow().getGuiScaledWidth() - fontRenderer.width(text)) / 2;
+        drawContext.drawString(fontRenderer, text, enchantX, (int)y, color);
     }
 
-    private int getMaxTooltipLength(List<Text> tooltips, TextRenderer textRenderer, ItemStack itemStack){
-        int maxLength=textRenderer.getWidth(itemStack.getName());
-        for(Text elem : tooltips){
-            int tipLength = textRenderer.getWidth(elem);
+    private int getMaxTooltipLength(List<Component> tooltips, Font textRenderer, ItemStack itemStack){
+        int maxLength=textRenderer.width(itemStack.getHoverName());
+        for(Component elem : tooltips){
+            int tipLength = textRenderer.width(elem);
             if(maxLength<tipLength)
                 maxLength=tipLength;
         }

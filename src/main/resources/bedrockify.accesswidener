@@ -1,7 +1,7 @@
-accessWidener v1 named
+accessWidener v1 official
 
-accessible method net/minecraft/world/gen/treedecorator/TreeDecoratorType register (Ljava/lang/String;Lcom/mojang/serialization/MapCodec;)Lnet/minecraft/world/gen/treedecorator/TreeDecoratorType;
-accessible method net/minecraft/block/CandleCakeBlock isHittingCandle (Lnet/minecraft/util/hit/BlockHitResult;)Z
-accessible class net/minecraft/client/render/block/BlockModelRenderer$LightmapCache
-accessible method net/minecraft/client/gui/DrawContext drawSpriteRegion (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/texture/Sprite;IIIIIIIII)V  #HudOpacity InGameHudMixin
-accessible field net/minecraft/client/render/WorldRenderer worldRenderState Lnet/minecraft/client/render/state/WorldRenderState; # SunGlare
+accessible method net/minecraft/world/level/levelgen/feature/treedecorators/TreeDecoratorType register (Ljava/lang/String;Lcom/mojang/serialization/MapCodec;)Lnet/minecraft/world/level/levelgen/feature/treedecorators/TreeDecoratorType;
+accessible method net/minecraft/world/level/block/CandleCakeBlock candleHit (Lnet/minecraft/world/phys/BlockHitResult;)Z
+accessible class net/minecraft/client/renderer/block/ModelBlockRenderer$CommonRenderStorage
+accessible method net/minecraft/client/gui/GuiGraphics blitSprite (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIII)V  #HudOpacity InGameHudMixin
+accessible field net/minecraft/client/renderer/LevelRenderer levelRenderState Lnet/minecraft/client/renderer/state/LevelRenderState; # SunGlare

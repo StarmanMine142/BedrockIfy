@@ -2,38 +2,39 @@ package me.juancarloscp52.bedrockify.common.block;
 
 import me.juancarloscp52.bedrockify.Bedrockify;
 import me.juancarloscp52.bedrockify.common.block.entity.WaterCauldronBlockEntity;
-import net.minecraft.block.AbstractCauldronBlock;
-import net.minecraft.block.BlockEntityProvider;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.cauldron.CauldronBehavior;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import net.minecraft.world.level.block.AbstractCauldronBlock;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class AbstractBECauldronBlock extends AbstractCauldronBlock implements BlockEntityProvider {
-    public AbstractBECauldronBlock(Settings settings, CauldronBehavior.CauldronBehaviorMap behaviorMap) {
+public abstract class AbstractBECauldronBlock extends AbstractCauldronBlock implements EntityBlock {
+    public AbstractBECauldronBlock(Properties settings, CauldronInteraction.InteractionMap behaviorMap) {
         super(settings, behaviorMap);
     }
 
     @Override
-    public ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public InteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!Bedrockify.getInstance().settings.bedrockCauldron) {
-            return ActionResult.FAIL;
+            return InteractionResult.FAIL;
         }
 
-        return super.onUseWithItem(stack, state, world, pos, player, hand, hit);
+        return super.useItemOn(stack, state, world, pos, player, hand, hit);
     }
 
     @Override
-    protected ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state, boolean includeData) {
+    protected ItemStack getCloneItemStack(LevelReader world, BlockPos pos, BlockState state, boolean includeData) {
         return new ItemStack(Blocks.CAULDRON);
     }
 
@@ -42,7 +43,7 @@ public abstract class AbstractBECauldronBlock extends AbstractCauldronBlock impl
      */
     @Nullable
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new WaterCauldronBlockEntity(pos, state);
     }
 }

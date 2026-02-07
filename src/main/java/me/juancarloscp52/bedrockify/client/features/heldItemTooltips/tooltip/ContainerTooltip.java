@@ -1,13 +1,13 @@
 package me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip;
 
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.PotionItem;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.PotionItem;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 public class ContainerTooltip extends Tooltip {
-    Text itemName;
+    Component itemName;
 
     public ContainerTooltip(ItemStack itemStack){
         this.primaryValue = itemStack.getCount();
@@ -16,13 +16,13 @@ public class ContainerTooltip extends Tooltip {
         if (item instanceof PotionItem potionItem) {
             this.itemName = potionItem.getName(itemStack);
         } else {
-            this.itemName = Text.translatable(item.getTranslationKey());
+            this.itemName = Component.translatable(item.getDescriptionId());
         }
     }
 
     @Override
-    public MutableText getTooltipText() {
-        MutableText tooltip = this.itemName.copy();
+    public MutableComponent getTooltipText() {
+        MutableComponent tooltip = this.itemName.copy();
         tooltip.append(" x").append(String.valueOf(primaryValue));
         return tooltip;
     }

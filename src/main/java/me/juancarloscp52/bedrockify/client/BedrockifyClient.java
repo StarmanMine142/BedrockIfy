@@ -19,18 +19,17 @@ import me.juancarloscp52.bedrockify.common.payloads.EatParticlePayload;
 import me.juancarloscp52.bedrockify.mixin.featureManager.MixinFeatureManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
+import net.minecraft.resources.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
@@ -43,7 +42,7 @@ import java.util.Optional;
 
 public class BedrockifyClient implements ClientModInitializer {
 
-    private static final KeyBinding.Category BEDROCKIFY_CATEGORY = KeyBinding.Category.create(Identifier.of("bedrockify","bedrockify"));
+    private static final KeyMapping.Category BEDROCKIFY_CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("bedrockify","bedrockify"));
 
     private static BedrockifyClient instance;
     public static final Logger LOGGER = LogManager.getLogger();
@@ -57,7 +56,7 @@ public class BedrockifyClient implements ClientModInitializer {
     public HudOpacity hudOpacity;
     public long deltaTime = 0;
     private int timeFlying = 0;
-    private static KeyBinding keyBinding;
+    private static KeyMapping keyBinding;
 
     public BedrockifyClientSettings settings;
 
@@ -69,21 +68,22 @@ public class BedrockifyClient implements ClientModInitializer {
         instance = this;
         loadSettings();
         LOGGER.info("Initializing BedrockIfy Client.");
-        overlay = new Overlay((MinecraftClient.getInstance()));
-        reachAroundPlacement = new ReachAroundPlacement(MinecraftClient.getInstance());
+        overlay = new Overlay((Minecraft.getInstance()));
+        reachAroundPlacement = new ReachAroundPlacement(Minecraft.getInstance());
         heldItemTooltips = new HeldItemTooltips();
         settingsGUI=new SettingsGUI();
         worldColorNoiseSampler = new WorldColorNoiseSampler();
         bedrockBlockShading = new BedrockBlockShading();
         bedrockSunGlareShading = new BedrockSunGlareShading();
         hudOpacity = new HudOpacity();
-        keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding("bedrockIfy.key.settings", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, BEDROCKIFY_CATEGORY));
+        keyBinding = KeyMappingHelper.registerKeyMapping(new KeyMapping("bedrockIfy.key.settings", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, BEDROCKIFY_CATEGORY));
 
         // Register 3D Bobber Entity.
-        EntityModelLayerRegistry.registerModelLayer(FishingBobber3DModel.MODEL_LAYER, FishingBobber3DModel::generateModel);
+        ModelLayerRegistry.registerModelLayer(FishingBobber3DModel.MODEL_LAYER, FishingBobber3DModel::generateModel);
 
         // Register the Color Tint of Potion-filled and Colored Cauldron Block if enabled.
         if (MixinFeatureManager.features.get(MixinFeatureManager.FEAT_CAULDRON)) {
+            // TODO: BlockColorRegistry.register(); ??
             ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
                 if (world == null || pos == null) {
                     return -1;
@@ -99,36 +99,36 @@ public class BedrockifyClient implements ClientModInitializer {
             });
         }
 
-        ClientPlayNetworking.registerGlobalReceiver(Bedrockify.EAT_PARTICLE_PAYLOAD.getId(), new EatParticlePayload.EatParticleHandler());
+        ClientPlayNetworking.registerGlobalReceiver(Bedrockify.EAT_PARTICLE_PAYLOAD.type(), new EatParticlePayload.EatParticleHandler());
 
-        ClientPlayNetworking.registerGlobalReceiver(Bedrockify.CAULDRON_PARTICLE_PAYLOAD.getId(), new CauldronParticlePayload.CauldronParticleHandler());
+        ClientPlayNetworking.registerGlobalReceiver(Bedrockify.CAULDRON_PARTICLE_PAYLOAD.type(), new CauldronParticlePayload.CauldronParticleHandler());
 
-        HudElementRegistry.addLast(Identifier.of(Bedrockify.MOD_ID, "overlay"), (context, tickCounter) -> BedrockifyClient.getInstance().overlay.renderOverlay(context));
+        HudElementRegistry.addLast(Identifier.fromNamespaceAndPath(Bedrockify.MOD_ID, "overlay"), (context, tickCounter) -> BedrockifyClient.getInstance().overlay.renderOverlay(context));
         ClientTickEvents.END_CLIENT_TICK.register(client-> {
-            while (keyBinding.wasPressed()){
-                client.setScreen(settingsGUI.getConfigScreen(client.currentScreen));
+            while (keyBinding.consumeClick()){
+                client.setScreen(settingsGUI.getConfigScreen(client.screen));
             }
             hudOpacity.tick();
-            bedrockSunGlareShading.tick(client.getRenderTickCounter().getTickProgress(true));
+            bedrockSunGlareShading.tick(client.getDeltaTracker().getGameTimeDeltaPartialTick(true));
 
             // Stop flying drift
             if(settings.disableFlyingMomentum && null != client.player && client.player.getAbilities().flying){
-                if(!(client.options.leftKey.isPressed() || client.options.backKey.isPressed() ||client.options.rightKey.isPressed() ||client.options.forwardKey.isPressed())){
-                    client.player.setVelocity(0,client.player.getVelocity().getY(),0);
+                if(!(client.options.keyLeft.isDown() || client.options.keyDown.isDown() ||client.options.keyRight.isDown() ||client.options.keyUp.isDown())){
+                    client.player.setDeltaMovement(0,client.player.getDeltaMovement().y(),0);
                 }
-                if(!(client.options.sneakKey.isPressed()|| client.options.jumpKey.isPressed())){
-                    client.player.setVelocity(client.player.getVelocity().getX(), 0,client.player.getVelocity().getZ());
+                if(!(client.options.keyShift.isDown()|| client.options.keyJump.isDown())){
+                    client.player.setDeltaMovement(client.player.getDeltaMovement().x(), 0,client.player.getDeltaMovement().z());
 
                 }
             }
 
             // Stop elytra flying by pressing space
-            if(null != client.player && settings.elytraStop && client.player.getPose().equals(EntityPose.GLIDING) && timeFlying > 10 && client.options.jumpKey.isPressed()){
+            if(null != client.player && settings.elytraStop && client.player.getPose().equals(Pose.FALL_FLYING) && timeFlying > 10 && client.options.keyJump.isDown()){
                 client.player.getAbilities().flying = false;
-                client.player.sendAbilitiesUpdate();
-                client.player.networkHandler.sendPacket(new ClientCommandC2SPacket(client.player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
+                client.player.onUpdateAbilities();
+                client.player.connection.send(new ServerboundPlayerCommandPacket(client.player, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
             }
-            if(null != client.player && client.player.getPose().equals(EntityPose.GLIDING) && !client.options.jumpKey.isPressed())
+            if(null != client.player && client.player.getPose().equals(Pose.FALL_FLYING) && !client.options.keyJump.isDown())
                 timeFlying++;
             else
                 timeFlying = 0;

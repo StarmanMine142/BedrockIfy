@@ -2,23 +2,24 @@ package me.juancarloscp52.bedrockify.common.payloads;
 
 import me.juancarloscp52.bedrockify.Bedrockify;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.particle.ParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.particle.TintedParticleEffect;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
+import net.minecraft.resources.Identifier;
 
 import java.util.Objects;
 
 public final class CauldronParticlePayload extends AbstractVelocityParticlePayload {
     private Identifier particleType;
 
-    public static final PacketCodec<RegistryByteBuf, CauldronParticlePayload> CODEC = new PacketCodec<>() {
+    public static final StreamCodec<RegistryFriendlyByteBuf, CauldronParticlePayload> CODEC = new StreamCodec<>() {
         @Override
-        public CauldronParticlePayload decode(RegistryByteBuf buf) {
+        public CauldronParticlePayload decode(RegistryFriendlyByteBuf buf) {
             CauldronParticlePayload result = new CauldronParticlePayload();
             result.particleType = buf.readIdentifier();
             OptionalCodec.decode(buf, result);
@@ -26,15 +27,15 @@ public final class CauldronParticlePayload extends AbstractVelocityParticlePaylo
         }
 
         @Override
-        public void encode(RegistryByteBuf buf, CauldronParticlePayload value) {
+        public void encode(RegistryFriendlyByteBuf buf, CauldronParticlePayload value) {
             buf.writeIdentifier(value.particleType);
             OptionalCodec.encode(buf, value);
         }
     };
 
     @Override
-    public Id<CauldronParticlePayload> getId() {
-        return new Id<>(Identifier.of(Bedrockify.MOD_ID, "cauldron_particles"));
+    public Type<CauldronParticlePayload> type() {
+        return new Type<>(Identifier.fromNamespaceAndPath(Bedrockify.MOD_ID, "cauldron_particles"));
     }
 
     public void setParticleType(Identifier particleType) {
@@ -47,9 +48,9 @@ public final class CauldronParticlePayload extends AbstractVelocityParticlePaylo
             if (payload == null || context == null) {
                 return;
             }
-            final MinecraftClient client = context.client();
+            final Minecraft client = context.client();
             try {
-                var particle = Objects.requireNonNull(Registries.PARTICLE_TYPE.get(payload.particleType));
+                var particle = Objects.requireNonNull(BuiltInRegistries.PARTICLE_TYPE.getValue(payload.particleType));
                 double x = payload.position.x;
                 double y = payload.position.y;
                 double z = payload.position.z;
@@ -57,16 +58,16 @@ public final class CauldronParticlePayload extends AbstractVelocityParticlePaylo
                 float vy = (float) payload.velocity.y;
                 float vz = (float) payload.velocity.z;
 
-                if (particle instanceof ParticleEffect generic) {
+                if (particle instanceof ParticleOptions generic) {
                     client.execute(() -> {
-                        if (null != client.world) {
-                            client.world.addParticleClient(generic, x, y, z, vx, vy, vz);
+                        if (null != client.level) {
+                            client.level.addParticle(generic, x, y, z, vx, vy, vz);
                         }
                     });
                 } else if (particle.equals(ParticleTypes.ENTITY_EFFECT)) {
                     client.execute(() -> {
-                        if (null != client.world) {
-                            client.world.addParticleClient(TintedParticleEffect.create(ParticleTypes.ENTITY_EFFECT, vx, vy, vz), x, y, z, vx, vy, vz);
+                        if (null != client.level) {
+                            client.level.addParticle(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, vx, vy, vz), x, y, z, vx, vy, vz);
                         }
                     });
                 }

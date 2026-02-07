@@ -1,7 +1,7 @@
 package me.juancarloscp52.bedrockify.client;
 
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class BedrockifyClientSettings {
 
@@ -79,7 +79,7 @@ public class BedrockifyClientSettings {
     }
 
     public boolean isShowPositionHUDEnabled() {
-        return showPositionHUD && !MinecraftClient.getInstance().hasReducedDebugInfo();
+        return showPositionHUD && !Minecraft.getInstance().showOnlyReducedInfo();
     }
 
     public boolean isExpTextStyle() {

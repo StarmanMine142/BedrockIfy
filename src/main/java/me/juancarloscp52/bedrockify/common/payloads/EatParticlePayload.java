@@ -2,38 +2,39 @@ package me.juancarloscp52.bedrockify.common.payloads;
 
 import me.juancarloscp52.bedrockify.Bedrockify;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.particle.ItemStackParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.Identifier;
 
 import java.util.Objects;
 
 public final class EatParticlePayload extends AbstractVelocityParticlePayload {
     private ItemStack itemStack;
 
-    public static final PacketCodec<RegistryByteBuf, EatParticlePayload> CODEC = new PacketCodec<>() {
+    public static final StreamCodec<RegistryFriendlyByteBuf, EatParticlePayload> CODEC = new StreamCodec<>() {
         @Override
-        public EatParticlePayload decode(RegistryByteBuf buf) {
+        public EatParticlePayload decode(RegistryFriendlyByteBuf buf) {
             EatParticlePayload result = new EatParticlePayload();
-            result.itemStack = ItemStack.OPTIONAL_PACKET_CODEC.decode(buf);
+            result.itemStack = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
             OptionalCodec.decode(buf, result);
             return result;
         }
 
         @Override
-        public void encode(RegistryByteBuf buf, EatParticlePayload value) {
-            ItemStack.OPTIONAL_PACKET_CODEC.encode(buf, value.itemStack);
+        public void encode(RegistryFriendlyByteBuf buf, EatParticlePayload value) {
+            ItemStack.OPTIONAL_STREAM_CODEC.encode(buf, value.itemStack);
             OptionalCodec.encode(buf, value);
         }
     };
 
     @Override
-    public Id<EatParticlePayload> getId() {
-        return new Id<>(Identifier.of(Bedrockify.MOD_ID, "eat-particles"));
+    public Type<EatParticlePayload> type() {
+        return new Type<>(Identifier.fromNamespaceAndPath(Bedrockify.MOD_ID, "eat-particles"));
     }
 
     public void setItemStack(ItemStack itemStack) {
@@ -46,7 +47,7 @@ public final class EatParticlePayload extends AbstractVelocityParticlePayload {
             if (payload == null || context == null) {
                 return;
             }
-            final MinecraftClient client = context.client();
+            final Minecraft client = context.client();
             try {
                 ItemStack stack = Objects.requireNonNull(payload.itemStack);
                 double x = payload.position.x;
@@ -57,8 +58,8 @@ public final class EatParticlePayload extends AbstractVelocityParticlePayload {
                 double velz = payload.velocity.z;
 
                 client.execute(() -> {
-                    if (null != client.world)
-                        client.world.addParticleClient(new ItemStackParticleEffect(ParticleTypes.ITEM, stack), x, y, z, velx, vely, velz);
+                    if (null != client.level)
+                        client.level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack), x, y, z, velx, vely, velz);
                 });
             } catch (Exception ignored) {
             }

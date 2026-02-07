@@ -1,12 +1,12 @@
 package me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip;
 
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 public class EnchantmentTooltip extends Tooltip {
     boolean showLevels=true;
-    MutableText text;
+    MutableComponent text;
 
     public EnchantmentTooltip(Enchantment enchantment, int level){
         this.text = enchantment.description().copy();
@@ -16,10 +16,10 @@ public class EnchantmentTooltip extends Tooltip {
     }
 
     @Override
-    public MutableText getTooltipText(){
-        MutableText tooltip =text;
+    public MutableComponent getTooltipText(){
+        MutableComponent tooltip =text;
         if(showLevels)
-            tooltip.append(" ").append(Text.translatable("enchantment.level." + primaryValue));
+            tooltip.append(" ").append(Component.translatable("enchantment.level." + primaryValue));
         return tooltip;
     }
 }

@@ -1,11 +1,11 @@
 package me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip;
 
-import net.minecraft.text.MutableText;
+import net.minecraft.network.chat.MutableComponent;
 
 public abstract class Tooltip {
     public int primaryValue;
 
-    public abstract MutableText getTooltipText();
+    public abstract MutableComponent getTooltipText();
 
     /**
      * Overrides the original equals method to compare easier.

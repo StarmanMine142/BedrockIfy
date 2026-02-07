@@ -4,10 +4,10 @@ import com.google.common.collect.Maps;
 import me.juancarloscp52.bedrockify.Bedrockify;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.Camera;
 import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Math;
 import org.joml.Vector3f;
@@ -40,12 +40,12 @@ public final class BedrockSunGlareShading {
     private float sunAngleDiff;
     private float sunBrightnessDelta;
     private final Vector3f sunVector3f;
-    private final MinecraftClient client;
+    private final Minecraft client;
 
     public BedrockSunGlareShading() {
         this.onSunlightIntensityChanged();
         this.sunVector3f = new Vector3f();
-        this.client = MinecraftClient.getInstance();
+        this.client = Minecraft.getInstance();
     }
 
     /**
@@ -205,7 +205,7 @@ public final class BedrockSunGlareShading {
             return;
         }
 
-        if (this.client == null || this.client.world == null) {
+        if (this.client == null || this.client.level == null) {
             return;
         }
 
@@ -213,7 +213,7 @@ public final class BedrockSunGlareShading {
             return;
         }
 
-        final float sunAngle = this.client.worldRenderer.worldRenderState.skyRenderState.sunAngle;
+        final float sunAngle = this.client.levelRenderer.levelRenderState.skyRenderState.sunAngle;
         this.sunVector3f.set(new Vector3f(-Math.sin(sunAngle), Math.cos(sunAngle), 0).normalize());
     }
 
@@ -225,7 +225,7 @@ public final class BedrockSunGlareShading {
      * 1.0 -&gt; Farthest.
      */
     private void updateAngleDiff() {
-        if (this.client == null || this.client.world == null || this.client.gameRenderer == null || !this.shouldApplyShading()) {
+        if (this.client == null || this.client.level == null || this.client.gameRenderer == null || !this.shouldApplyShading()) {
             this.sunAngleDiff = DELTA_CLAMP_MAX;
             return;
         }
@@ -235,8 +235,8 @@ public final class BedrockSunGlareShading {
         }
 
         final float sunSetRiseFactor = (this.sunVector3f.y < 0) ? this.sunVector3f.y * -5f : 0;
-        final Camera camera = this.client.gameRenderer.getCamera();
-        final Vector3f cameraVec3f = new Vector3f(0, 0, -1).rotate(camera.getRotation()).normalize();
+        final Camera camera = this.client.gameRenderer.getMainCamera();
+        final Vector3f cameraVec3f = new Vector3f(0, 0, -1).rotate(camera.rotation()).normalize();
 
         this.sunAngleDiff = Math.clamp(DELTA_CLAMP_MIN, DELTA_CLAMP_MAX, (Math.safeAcos(cameraVec3f.dot(this.sunVector3f)) - 0.15f) * 2.f + sunSetRiseFactor);
     }
@@ -247,11 +247,11 @@ public final class BedrockSunGlareShading {
      * 1.0 -&gt; Normal.
      */
     public void updateSunBrightnessDelta(float tickProgress){
-        if(MinecraftClient.getInstance().world == null)
+        if(Minecraft.getInstance().level == null)
             return;
 
-        final float rainGradient = MinecraftClient.getInstance().world.getRainGradient(tickProgress);
-        if (MathHelper.approximatelyEquals(rainGradient, 1f) || !this.shouldApplyShading()) {
+        final float rainGradient = Minecraft.getInstance().level.getRainLevel(tickProgress);
+        if (Mth.equal(rainGradient, 1f) || !this.shouldApplyShading()) {
             this.sunBrightnessDelta = DELTA_CLAMP_MAX;
             return;
         }

@@ -1,8 +1,8 @@
 package me.juancarloscp52.bedrockify.client.features.bedrockShading;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 
 /**
  * @author Shaddatic
@@ -10,8 +10,8 @@ import net.minecraft.world.World;
 public class BedrockBlockShading {
 
     public float getBlockShade (Direction direction){
-        MinecraftClient client = MinecraftClient.getInstance();
-        boolean isNether = client.player != null && client.player.getEntityWorld().getRegistryKey() == World.NETHER;
+        Minecraft client = Minecraft.getInstance();
+        boolean isNether = client.player != null && client.player.level().dimension() == Level.NETHER;
         return switch (direction) {
             case UP -> 1.0f;
             case DOWN -> isNether ? 0.9f : 0.87f;

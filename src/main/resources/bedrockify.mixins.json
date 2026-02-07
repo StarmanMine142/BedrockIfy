@@ -1,4 +1,4 @@
-{
+  {
   "required": true,
   "minVersion": "0.8",
   "package": "me.juancarloscp52.bedrockify.mixin",
@@ -15,7 +15,7 @@
     "client.features.bedrockShading.sunGlare.SkyRenderingMixin",
     "client.features.bedrockShading.sunGlare.WorldRendererMixin",
     "client.features.bedrockCubeMap.RotatingCubeMapRendererMixin",
-    "client.features.biggerDraggingItem.HandledScreenMixin",
+    "client.features.biggerDraggingItem.AbstractContainerScreenMixin",
     "client.features.chat.ChatHudMixin",
     "client.features.eatingAnimations.PlayerEntityModelMixin",
     "client.features.eatingAnimations.PlayerEntityRendererMixin",
@@ -51,7 +51,7 @@
     "client.features.screenSafeArea.LocatorBarMixin",
     "client.features.screenSafeArea.SubtitlesHudMixin",
     "client.features.screenSafeArea.detailArmorBar.ArmorBarRendererMixin",
-    "client.features.slotHighlight.HandledScreenMixin",
+    "client.features.slotHighlight.AbstractContainerScreenMixin",
     "client.features.useAnimations.ClientPlayerEntityMixin",
     "client.features.useAnimations.ClientPlayerInteractionManagerMixin",
     "client.features.useAnimations.ClientPlayNetworkHandlerMixin",

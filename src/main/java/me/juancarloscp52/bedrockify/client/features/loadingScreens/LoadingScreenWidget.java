@@ -1,18 +1,18 @@
 package me.juancarloscp52.bedrockify.client.features.loadingScreens;
 
 import com.google.common.collect.Sets;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.LogoDrawer;
-import net.minecraft.server.integrated.IntegratedServer;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.ColorHelper;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.GameMode;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.LogoRenderer;
+import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.GameType;
 
 import java.util.List;
 import java.util.Random;
@@ -22,20 +22,20 @@ import java.util.Set;
 public class LoadingScreenWidget {
 
     private static LoadingScreenWidget instance = null;
-    private GameMode gameMode = GameMode.SURVIVAL;
+    private GameType gameMode = GameType.SURVIVAL;
     private static final int TIPS_NUM = 108 +1;
     private static final int CREATIVE_TIPS_NUM = 23 +1;
-    private final Identifier WIDGET_TEXTURE = Identifier.of("bedrockify", "textures/gui/bedrockify_widgets.png");
-    private Text tip;
+    private final Identifier WIDGET_TEXTURE = Identifier.fromNamespaceAndPath("bedrockify", "textures/gui/bedrockify_widgets.png");
+    private Component tip;
     private static final Set<Integer> EXCLUDED_TIPS = Sets.newHashSet();
     private long lastTipUpdate = 0;
     private final ExternalLoadingTips externalLoadingTips;
-    private final LogoDrawer logoDrawer;
+    private final LogoRenderer logoDrawer;
 
     private LoadingScreenWidget() {
         externalLoadingTips = ExternalLoadingTips.loadSettings();
         externalLoadingTips.saveSettings();
-        logoDrawer = new LogoDrawer(false);
+        logoDrawer = new LogoRenderer(false);
     }
 
     public static LoadingScreenWidget getInstance() {
@@ -49,27 +49,27 @@ public class LoadingScreenWidget {
      * Retrieve a loading screen tip. This tip will change every 6 seconds.
      * @return Text with the current tip.
      */
-    private Text getTip() {
+    private Component getTip() {
         // Check if gamemode has changed. Force new tooltip if gamemode has changed.
         if(hasChangedGameMode())
             tip = null;
 
         if (tip == null || System.currentTimeMillis() - lastTipUpdate > 6000) {
             Random randomGenerator = new Random();
-            IntegratedServer server = MinecraftClient.getInstance().getServer();
-            if(server !=null && server.getDefaultGameMode() == GameMode.CREATIVE){
-                tip = Text.translatable("bedrockify.loadingTips.creative." + randomGenerator.nextInt(1,CREATIVE_TIPS_NUM));
+            IntegratedServer server = Minecraft.getInstance().getSingleplayerServer();
+            if(server !=null && server.getDefaultGameType() == GameType.CREATIVE){
+                tip = Component.translatable("bedrockify.loadingTips.creative." + randomGenerator.nextInt(1,CREATIVE_TIPS_NUM));
             }
             else {
                 int externalTipsLength = externalLoadingTips.length();
                 int random = randomGenerator.nextInt(1,TIPS_NUM + 1 + externalTipsLength);
                 if(externalTipsLength>0 && (random>TIPS_NUM || externalLoadingTips.alwaysExternalTips )){
-                    tip = Text.literal(externalLoadingTips.get(randomGenerator.nextInt(externalTipsLength)));
+                    tip = Component.literal(externalLoadingTips.get(randomGenerator.nextInt(externalTipsLength)));
                 }else{
                     if(EXCLUDED_TIPS.contains(random))
                         return getTip();
 
-                    tip = Text.translatable("bedrockify.loadingTips." + random);
+                    tip = Component.translatable("bedrockify.loadingTips." + random);
                 }
             }
             lastTipUpdate = System.currentTimeMillis();
@@ -78,7 +78,7 @@ public class LoadingScreenWidget {
     }
 
     private boolean hasChangedGameMode(){
-        GameMode current = getCurrentGameMode();
+        GameType current = getCurrentGameMode();
         if(gameMode != current){
             gameMode = current;
             return true;
@@ -86,9 +86,9 @@ public class LoadingScreenWidget {
         return false;
     }
 
-    private GameMode getCurrentGameMode(){
-        IntegratedServer server = MinecraftClient.getInstance().getServer();
-        return server == null? GameMode.SURVIVAL : server.getDefaultGameMode();
+    private GameType getCurrentGameMode(){
+        IntegratedServer server = Minecraft.getInstance().getSingleplayerServer();
+        return server == null? GameType.SURVIVAL : server.getDefaultGameType();
     }
 
     /**
@@ -100,14 +100,14 @@ public class LoadingScreenWidget {
      * @param message Message of the loading screen. Set to null to use a random tip.
      * @param progress Loading screen progress. Set to -1 is the screen has no progress bar.
      */
-    public void render(DrawContext drawContext, int width, int height, Text title, Text message, int progress) {
-        MinecraftClient client = MinecraftClient.getInstance();
+    public void render(GuiGraphics drawContext, int width, int height, Component title, Component message, int progress) {
+        Minecraft client = Minecraft.getInstance();
 
-        logoDrawer.draw(drawContext,client.getWindow().getScaledWidth(),1,(height/2) - (89 / 2));
+        logoDrawer.renderLogo(drawContext,client.getWindow().getGuiScaledWidth(),1,(height/2) - (89 / 2));
         renderLoadingWidget(drawContext, width, height);
 
-        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        drawContext.drawText(textRenderer, title, width - textRenderer.getWidth(title) / 2, height - 9 / 2 - 32, ColorHelper.fullAlpha(76 | (76 << 8) | (76 << 16)),false);
+        Font textRenderer = Minecraft.getInstance().font;
+        drawContext.drawString(textRenderer, title, width - textRenderer.width(title) / 2, height - 9 / 2 - 32, ARGB.opaque(76 | (76 << 8) | (76 << 16)),false);
         renderTextBody(drawContext, width, height, message, textRenderer);
 
         if (progress >= 0) {
@@ -115,26 +115,26 @@ public class LoadingScreenWidget {
         }
     }
 
-    private void renderLoadingWidget(DrawContext drawContext, int x, int y) {
-        drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, WIDGET_TEXTURE, x - 256 / 2, y - 89 / 2, 0, 0, 256, 89, 256, 256);
+    private void renderLoadingWidget(GuiGraphics drawContext, int x, int y) {
+        drawContext.blit(RenderPipelines.GUI_TEXTURED, WIDGET_TEXTURE, x - 256 / 2, y - 89 / 2, 0, 0, 256, 89, 256, 256);
     }
 
 
-    private void renderTextBody(DrawContext drawContext, int x, int y, Text message, TextRenderer textRenderer) {
+    private void renderTextBody(GuiGraphics drawContext, int x, int y, Component message, Font textRenderer) {
         if (message == null)
             message = getTip();
-        List<OrderedText> text = textRenderer.wrapLines(message, 230);
+        List<FormattedCharSequence> text = textRenderer.split(message, 230);
         int maxLineWidth = getMaxLineWidth(textRenderer, text);
         for (int i = 0; i < 4 && i < text.size(); i++) {
-            drawContext.drawText(textRenderer, text.get(i), x - maxLineWidth / 2, y - 15 + (i * 9), -1,false);
+            drawContext.drawString(textRenderer, text.get(i), x - maxLineWidth / 2, y - 15 + (i * 9), -1,false);
         }
 
     }
 
-    private int getMaxLineWidth(TextRenderer textRenderer, List<OrderedText> text) {
+    private int getMaxLineWidth(Font textRenderer, List<FormattedCharSequence> text) {
         int maxLineWidth = 0;
         for (int i = 0; i < 4 && i < text.size(); i++) {
-            int lineWidth = textRenderer.getWidth(text.get(i));
+            int lineWidth = textRenderer.width(text.get(i));
             if (lineWidth > maxLineWidth)
                 maxLineWidth = lineWidth;
         }
@@ -142,11 +142,11 @@ public class LoadingScreenWidget {
     }
 
 
-    private void renderLoadingBar(DrawContext drawContext, int x, int y, int progress) {
-        int barProgress = (int) ((MathHelper.clamp(progress,0,100)/100.0f) * 223.0f);
-        drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, WIDGET_TEXTURE, x - 111, y + 26, 0, 89, 222, 5, 256, 256);
+    private void renderLoadingBar(GuiGraphics drawContext, int x, int y, int progress) {
+        int barProgress = (int) ((Mth.clamp(progress,0,100)/100.0f) * 223.0f);
+        drawContext.blit(RenderPipelines.GUI_TEXTURED, WIDGET_TEXTURE, x - 111, y + 26, 0, 89, 222, 5, 256, 256);
         if (barProgress > 0)
-            drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, WIDGET_TEXTURE, x - 111, y + 26, 0, 94, barProgress, 5, 256, 256);
+            drawContext.blit(RenderPipelines.GUI_TEXTURED, WIDGET_TEXTURE, x - 111, y + 26, 0, 94, barProgress, 5, 256, 256);
     }
 
 }

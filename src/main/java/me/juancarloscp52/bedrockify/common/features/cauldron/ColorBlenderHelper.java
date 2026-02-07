@@ -1,10 +1,10 @@
 package me.juancarloscp52.bedrockify.common.features.cauldron;
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.DyedColorComponent;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.tags.ItemTags;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +17,7 @@ public final class ColorBlenderHelper {
     }
 
     /**
-     * The mostly same as {@link DyedColorComponent#setColor(ItemStack, List)}.<br>
+     * The mostly same as {@link DyedItemColor#applyDyes(ItemStack, List)}.<br>
      * Blend the color, and set it as the {@link ItemStack} color.
      *
      * @param base   The base stack of DyeableItem.
@@ -25,25 +25,25 @@ public final class ColorBlenderHelper {
      * @return Blended item stack.
      */
     public static ItemStack blendColors(ItemStack base, int... colors) {
-        if (!base.isIn(ItemTags.DYEABLE)) {
+        if (!base.is(ItemTags.DYEABLE)) {
             return base;
         }
-        DyedColorComponent dyedColorComponent = base.get(DataComponentTypes.DYED_COLOR);
+        DyedItemColor dyedColorComponent = base.get(DataComponents.DYED_COLOR);
 
         final int[] blendArray;
         if (dyedColorComponent != null) {
             blendArray = Arrays.copyOf(colors, colors.length + 1);
-            blendArray[blendArray.length - 1] = DyedColorComponent.getColor(base, 0xFFA06540);
+            blendArray[blendArray.length - 1] = DyedItemColor.getOrDefault(base, 0xFFA06540);
         } else {
             blendArray = colors;
         }
 
-        base.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(blendColors(blendArray)));
+        base.set(DataComponents.DYED_COLOR, new DyedItemColor(blendColors(blendArray)));
         return base;
     }
 
     /**
-     * This logic is based on {@link DyedColorComponent#setColor(ItemStack, List)}.
+     * This logic is based on {@link DyedItemColor#applyDyes(ItemStack, List)}.
      *
      * @param blender Target colors to mix.
      * @return The blended color.
@@ -77,6 +77,6 @@ public final class ColorBlenderHelper {
     }
 
     public static int fromDyeItem(DyeItem item) {
-        return item.getColor().getEntityColor();
+        return item.getDyeColor().getTextureDiffuseColor();
     }
 }

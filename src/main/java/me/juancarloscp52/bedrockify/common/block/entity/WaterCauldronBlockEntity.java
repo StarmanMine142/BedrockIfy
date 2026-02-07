@@ -4,25 +4,25 @@ import me.juancarloscp52.bedrockify.Bedrockify;
 import me.juancarloscp52.bedrockify.common.block.ColoredWaterCauldronBlock;
 import me.juancarloscp52.bedrockify.common.features.cauldron.BedrockCauldronBlocks;
 import me.juancarloscp52.bedrockify.common.features.cauldron.ColorBlenderHelper;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.resources.Identifier;
+import net.minecraft.core.BlockPos;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -55,15 +55,15 @@ public class WaterCauldronBlockEntity extends BlockEntity {
     }
 
     public Item getPotionType() {
-        Item item = Registries.ITEM.get(this.potionTypeId);
-        if (Objects.equals(Registries.ITEM.getId(item), Registries.ITEM.getDefaultId())) {
+        Item item = BuiltInRegistries.ITEM.getValue(this.potionTypeId);
+        if (Objects.equals(BuiltInRegistries.ITEM.getKey(item), BuiltInRegistries.ITEM.getDefaultKey())) {
             item = Items.POTION;
         }
         return item;
     }
 
     public void setPotion(ItemStack potionItem) {
-        final var component = potionItem.get(DataComponentTypes.POTION_CONTENTS);
+        final var component = potionItem.get(DataComponents.POTION_CONTENTS);
         if (component == null) {
             return;
         }
@@ -72,17 +72,17 @@ public class WaterCauldronBlockEntity extends BlockEntity {
             return;
         }
         var potion = optionalPotion.get();
-        this.potionTypeId = Registries.ITEM.getId(potionItem.getItem());
-        this.fluidId = Registries.POTION.getId(potion.value());
+        this.potionTypeId = BuiltInRegistries.ITEM.getKey(potionItem.getItem());
+        this.fluidId = BuiltInRegistries.POTION.getKey(potion.value());
         this.setTintColor(component.getColor());
     }
 
     public void setDyeColor(int itemColor) {
         final int resultColor;
-        if (Objects.equals(this.fluidId, Registries.BLOCK.getId(BedrockCauldronBlocks.COLORED_WATER_CAULDRON))) {
+        if (Objects.equals(this.fluidId, BuiltInRegistries.BLOCK.getKey(BedrockCauldronBlocks.COLORED_WATER_CAULDRON))) {
             resultColor = ColorBlenderHelper.blendColors(this.getTintColor(), itemColor);
         } else {
-            this.fluidId = Registries.BLOCK.getId(BedrockCauldronBlocks.COLORED_WATER_CAULDRON);
+            this.fluidId = BuiltInRegistries.BLOCK.getKey(BedrockCauldronBlocks.COLORED_WATER_CAULDRON);
             resultColor = itemColor;
         }
         this.setTintColor(resultColor);
@@ -90,7 +90,7 @@ public class WaterCauldronBlockEntity extends BlockEntity {
 
     private void setTintColor(int tintColor) {
         this.tintColor = tintColor;
-        this.markDirty();
+        this.setChanged();
         this.updateListeners();
     }
 
@@ -102,16 +102,16 @@ public class WaterCauldronBlockEntity extends BlockEntity {
         // These branches could be simpler, but please do not simplify them.
         // Reason: To maintain forward compatibility from Bedrockify v1.7
         // Check commit e37f57564d736d455e4a06dcdce259ea0be377de
-        if (Registries.ITEM.get(this.getFluidId()) instanceof DyeItem dyeItem) {
+        if (BuiltInRegistries.ITEM.getValue(this.getFluidId()) instanceof DyeItem dyeItem) {
             this.setDyeColor(ColorBlenderHelper.fromDyeItem(dyeItem));
             valid = true;
-        } else if (Registries.BLOCK.get(this.getFluidId()) instanceof ColoredWaterCauldronBlock) {
+        } else if (BuiltInRegistries.BLOCK.getValue(this.getFluidId()) instanceof ColoredWaterCauldronBlock) {
             valid = true;
         } else {
-            var potionEntry = Registries.POTION.getEntry(this.getFluidId());
+            var potionEntry = BuiltInRegistries.POTION.get(this.getFluidId());
             if (potionEntry.isPresent()) {
                 valid = true;
-                this.setTintColor(Objects.requireNonNull(PotionContentsComponent.createStack(Items.GLASS_BOTTLE, potionEntry.get()).get(DataComponentTypes.POTION_CONTENTS)).getColor());
+                this.setTintColor(Objects.requireNonNull(PotionContents.createItemStack(Items.GLASS_BOTTLE, potionEntry.get()).get(DataComponents.POTION_CONTENTS)).getColor());
             }
         }
         if (!valid) {
@@ -120,15 +120,15 @@ public class WaterCauldronBlockEntity extends BlockEntity {
     }
 
     private void updateListeners() {
-        if (this.world != null) {
-            this.world.updateListeners(this.getPos(), this.getCachedState(), this.getCachedState(), Block.NOTIFY_LISTENERS);
+        if (this.level != null) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
         }
     }
 
     @Nullable
-    private static Identifier getIdFromDataView(ReadView view, String key) {
+    private static Identifier getIdFromDataView(ValueInput view, String key) {
         try {
-            final String id = view.getString(key, "");
+            final String id = view.getStringOr(key, "");
             return id.isEmpty() ? null : Identifier.tryParse(id);
         } catch (Exception ex) {
             Bedrockify.LOGGER.error("getIdFromDataView(): Error when parsing identifier: key = {}", key);
@@ -137,10 +137,10 @@ public class WaterCauldronBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void readData(ReadView view) {
-        super.readData(view);
+    protected void loadAdditional(ValueInput view) {
+        super.loadAdditional(view);
 
-        this.tintColor = view.getInt(KEY_FLUID_TINT, COLOR_WHEN_ERROR);
+        this.tintColor = view.getIntOr(KEY_FLUID_TINT, COLOR_WHEN_ERROR);
         this.fluidId = getIdFromDataView(view, KEY_FLUID_ITEM);
         this.potionTypeId = getIdFromDataView(view, KEY_POTION_TYPE);
         this.checkExactIds();
@@ -148,22 +148,22 @@ public class WaterCauldronBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void writeData(WriteView view) {
+    protected void saveAdditional(ValueOutput view) {
         view.putInt(KEY_FLUID_TINT, this.tintColor);
         view.putString(KEY_FLUID_ITEM, (this.fluidId == null) ? "<NULL>" : this.fluidId.toString());
         view.putString(KEY_POTION_TYPE, (this.potionTypeId == null) ? "<NULL>" : this.potionTypeId.toString());
 
-        super.writeData(view);
+        super.saveAdditional(view);
     }
 
     @Nullable
     @Override
-    public Packet<ClientPlayPacketListener> toUpdatePacket() {
-        return BlockEntityUpdateS2CPacket.create(this);
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registryLookup) {
-        return createNbt(registryLookup);
+    public CompoundTag getUpdateTag(HolderLookup.Provider registryLookup) {
+        return saveWithoutMetadata(registryLookup);
     }
 }

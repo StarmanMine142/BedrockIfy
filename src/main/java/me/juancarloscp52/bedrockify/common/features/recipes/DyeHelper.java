@@ -1,9 +1,9 @@
 package me.juancarloscp52.bedrockify.common.features.recipes;
 
-import net.minecraft.item.BoneMealItem;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 public class DyeHelper {
 
@@ -21,7 +21,7 @@ public class DyeHelper {
             return (DyeItem) Items.BLUE_DYE;
         if(item.equals(Items.COCOA_BEANS))
             return (DyeItem) Items.BROWN_DYE;
-        return (DyeItem)Items.WHITE_DYE;
+        return (DyeItem) Items.WHITE_DYE;
     }
 
 }

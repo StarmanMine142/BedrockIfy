@@ -1,8 +1,8 @@
 package me.juancarloscp52.bedrockify.common.features.fireAspectLight;
 
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.ItemStack;
 
 public final class FireAspectLightHelper {
     public static boolean canLitWith(ItemStack itemStack) {
@@ -14,6 +14,6 @@ public final class FireAspectLightHelper {
             return false;
         }
 
-        return EnchantmentHelper.getEnchantments(itemStack).getEnchantments().stream().anyMatch(e -> e.matchesId(Enchantments.FIRE_ASPECT.getValue()));
+        return EnchantmentHelper.getEnchantmentsForCrafting(itemStack).keySet().stream().anyMatch(e -> e.is(Enchantments.FIRE_ASPECT.identifier()));
     }
 }

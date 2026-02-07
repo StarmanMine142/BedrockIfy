@@ -2,17 +2,17 @@ package me.juancarloscp52.bedrockify.client.features.paperDoll;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
-import net.minecraft.client.gui.screen.ingame.InventoryScreen;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.entity.EntityRenderManager;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.state.EntityRenderState;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.util.Mth;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.spongepowered.include.com.google.common.collect.Sets;
@@ -20,15 +20,15 @@ import org.spongepowered.include.com.google.common.collect.Sets;
 import java.util.Set;
 
 public class PaperDoll {
-    private final MinecraftClient client;
+    private final Minecraft client;
     private final int size = 20;
     private long lastTimeShown = 0;
     private final BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
 
-    private static final Set<String> TARGET_POSE_NAMES = Sets.newHashSet(EntityPose.GLIDING.name(), EntityPose.SWIMMING.name(), "CRAWLING");
+    private static final Set<String> TARGET_POSE_NAMES = Sets.newHashSet(Pose.FALL_FLYING.name(), Pose.SWIMMING.name(), "CRAWLING");
     private static final float SCREEN_PIXEL_TO_GL_SCALE = 0.0625f;
 
-    public PaperDoll(MinecraftClient client) {
+    public PaperDoll(Minecraft client) {
         this.client = client;
     }
 
@@ -36,11 +36,11 @@ public class PaperDoll {
      * Render the player at the top left of the screen.
      * The player will be rendered only when the player is not riding another entity, and it is sneaking, running, using elytra, using an item, underwater, or using a shield.
      */
-    public void renderPaperDoll(DrawContext drawContext) {
+    public void renderPaperDoll(GuiGraphics drawContext) {
         if (!settings.isShowPaperDollEnabled())
             return;
 
-        if (this.client.currentScreen instanceof InventoryScreen || this.client.currentScreen instanceof CreativeInventoryScreen) {
+        if (this.client.screen instanceof InventoryScreen || this.client.screen instanceof CreativeModeInventoryScreen) {
             return;
         }
 
@@ -50,7 +50,7 @@ public class PaperDoll {
                 lastTimeShown = System.currentTimeMillis();
 
             // If the difference between the current game ticks and showTicks is less than 100 ticks, draw the player entity.
-            if ((!client.player.isRiding() && !client.player.isSleeping() && System.currentTimeMillis() - lastTimeShown < 2000))
+            if ((!client.player.isHandsBusy() && !client.player.isSleeping() && System.currentTimeMillis() - lastTimeShown < 2000))
                 drawPaperDoll(drawContext);
         }
     }
@@ -58,13 +58,13 @@ public class PaperDoll {
     /**
      * Checks player's action.
      *
-     * @param player An instance of a {@link ClientPlayerEntity}.
+     * @param player An instance of a {@link LocalPlayer}.
      * @return {@code true} if condition matches.
      */
-    private static boolean shouldShow(ClientPlayerEntity player) {
-        return player.isSneaking() ||
+    private static boolean shouldShow(LocalPlayer player) {
+        return player.isShiftKeyDown() ||
                 player.isSprinting() ||
-                player.isSubmergedInWater() ||
+                player.isUnderWater() ||
                 player.getAbilities().flying ||  // flying in Creative mode
                 player.isBlocking() ||
                 player.isUsingItem() ||
@@ -74,8 +74,8 @@ public class PaperDoll {
     /**
      * Draw the player entity in the specified position on screen.
      */
-    private void drawPaperDoll(DrawContext drawContext) {
-        ClientPlayerEntity player = client.player;
+    private void drawPaperDoll(GuiGraphics drawContext) {
+        LocalPlayer player = client.player;
         if (player == null)
             return;
 
@@ -98,9 +98,9 @@ public class PaperDoll {
         }
 
         // If the player is elytra flying, the entity must be manually centered depending on the pitch.
-        if (player.getPose().equals(EntityPose.GLIDING)) {
+        if (player.getPose().equals(Pose.FALL_FLYING)) {
             posX = 0;
-            offsetY = 15 - MathHelper.ceil(size * 2 * toMaxAngleRatio(player.getPitch()));
+            offsetY = 15 - Mth.ceil(size * 2 * toMaxAngleRatio(player.getXRot()));
         }
         // If the player is swimming, the entity must also be centered in the Y axis.
         else if (player.isSwimming()) {
@@ -109,43 +109,43 @@ public class PaperDoll {
         int safeArea = settings.overlayIgnoresSafeArea? 0 : settings.getScreenSafeArea();
         int x1 = posX + safeArea;
         int y2 = renderBottomPosY + safeArea;
-        int x2 = x1 + MathHelper.ceil(size * 3.25f);
+        int x2 = x1 + Mth.ceil(size * 3.25f);
         int y1 = Math.max(safeArea,  y2 - size * 3);
         drawContext.enableScissor(x1, y1, x2, y2);
 
         // Store previous entity rotations.
-        float bodyYaw = player.bodyYaw;
-        float yaw = player.getYaw();
-        float headYaw = player.headYaw;
+        float bodyYaw = player.yBodyRot;
+        float yaw = player.getYRot();
+        float headYaw = player.yHeadRot;
 
 
         // Set the entity desired rotation for drawing.
         float angle = 145;
-        if (player.getPose().equals(EntityPose.GLIDING) || player.isBlocking()) {
-            player.headYaw = angle;
+        if (player.getPose().equals(Pose.FALL_FLYING) || player.isBlocking()) {
+            player.yHeadRot = angle;
         } else {
-            player.setYaw(headYaw - bodyYaw + angle);
-            player.headYaw = player.getYaw();
+            player.setYRot(headYaw - bodyYaw + angle);
+            player.yHeadRot = player.getYRot();
         }
-        player.bodyYaw = angle;
+        player.yBodyRot = angle;
 
-        Vector3f translation = new Vector3f(offsetX * SCREEN_PIXEL_TO_GL_SCALE, player.getHeight() * 0.5f + offsetY * SCREEN_PIXEL_TO_GL_SCALE, 0.0F);
+        Vector3f translation = new Vector3f(offsetX * SCREEN_PIXEL_TO_GL_SCALE, player.getBbHeight() * 0.5f + offsetY * SCREEN_PIXEL_TO_GL_SCALE, 0.0F);
         Quaternionf rotation = new Quaternionf().rotateZ((float)Math.PI);
 
         // Draw the entity.
-        EntityRenderManager entityRenderManager = MinecraftClient.getInstance().getEntityRenderDispatcher();
+        EntityRenderDispatcher entityRenderManager = Minecraft.getInstance().getEntityRenderDispatcher();
         EntityRenderer<? super LivingEntity, ?> entityRenderer = entityRenderManager.getRenderer(player);
-        EntityRenderState entityRenderState = entityRenderer.getAndUpdateRenderState(player, 1.0F);
-        entityRenderState.light = 15728880;
+        EntityRenderState entityRenderState = entityRenderer.createRenderState(player, 1.0F);
+        entityRenderState.lightCoords = 15728880;
         entityRenderState.shadowPieces.clear();
         entityRenderState.outlineColor = 0;
 
-        drawContext.addEntity(entityRenderState, (float)size, translation, rotation, null, x1, y1, x2, y2);
+        drawContext.submitEntityRenderState(entityRenderState, (float)size, translation, rotation, null, x1, y1, x2, y2);
 
         // Restore previous entity rotations.
-        player.bodyYaw = bodyYaw;
-        player.setYaw(yaw);
-        player.headYaw = headYaw;
+        player.yBodyRot = bodyYaw;
+        player.setYRot(yaw);
+        player.yHeadRot = headYaw;
 
         drawContext.disableScissor();
     }
