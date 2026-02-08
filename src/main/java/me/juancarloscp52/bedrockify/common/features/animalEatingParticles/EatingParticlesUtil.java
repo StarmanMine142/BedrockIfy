@@ -7,7 +7,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class EatingParticlesUtil {
 
@@ -17,18 +17,18 @@ public class EatingParticlesUtil {
         int count = 16;
         for (int i = 0; i < count; ++i) {
             final EatParticlePayload particlePayload = new EatParticlePayload();
-            Vec3 vec3d = new Vec3(((double)entity.getRandom().nextFloat() - 0.5) * 0.1, Math.random() * 0.1 + 0.1, 0.0);
-            vec3d = vec3d.xRot(-entity.getXRot() * ((float)Math.PI / 180));
-            vec3d = vec3d.yRot(-entity.getYRot() * ((float)Math.PI / 180));
-            double d = (double)(-entity.getRandom().nextFloat()) * 0.6 - 0.3;
-            Vec3 vec3d2 = new Vec3(((double)entity.getRandom().nextFloat()- 0.5) * 0.3, d, 0.6);
-            vec3d2 = vec3d2.xRot(-entity.getXRot() * ((float)Math.PI / 180));
-            vec3d2 = vec3d2.yRot(-entity.getYHeadRot() * ((float)Math.PI / 180));
-            vec3d2 = vec3d2.add(entity.getX(), entity.getEyeY(), entity.getZ());
-            particlePayload.setPosition(vec3d2);
-            particlePayload.setVelocity(vec3d);
+            Vector3f velocity = new Vector3f((entity.getRandom().nextFloat() - 0.5f) * 0.1f, entity.getRandom().nextFloat() * 0.1f + 0.1f, 0.0f);
+            velocity = velocity.rotateX(-entity.getXRot() * ((float)Math.PI / 180));
+            velocity = velocity.rotateY(-entity.getYRot() * ((float)Math.PI / 180));
+            float f = -entity.getRandom().nextFloat() * 0.6f - 0.3f;
+            Vector3f position = new Vector3f((entity.getRandom().nextFloat()- 0.5f) * 0.3f, f, 0.6f);
+            position = position.rotateX(-entity.getXRot() * ((float)Math.PI / 180));
+            position = position.rotateY(-entity.getYHeadRot() * ((float)Math.PI / 180));
+            position = position.add((float) entity.getX(),(float) entity.getEyeY(),(float) entity.getZ());
+            particlePayload.setPosition(position);
+            particlePayload.setVelocity(velocity);
             particlePayload.setItemStack(stack);
-            PlayerLookup.world((ServerLevel) player.level()).forEach(serverPlayerEntity ->
+            PlayerLookup.level((ServerLevel) player.level()).forEach(serverPlayerEntity ->
                     ServerPlayNetworking.send(serverPlayerEntity, particlePayload));
         }
     }

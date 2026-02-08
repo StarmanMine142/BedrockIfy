@@ -4,15 +4,12 @@ import me.juancarloscp52.bedrockify.Bedrockify;
 import me.juancarloscp52.bedrockify.common.block.ColoredWaterCauldronBlock;
 import me.juancarloscp52.bedrockify.common.features.cauldron.BedrockCauldronBlocks;
 import me.juancarloscp52.bedrockify.common.features.cauldron.ColorBlenderHelper;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.item.DyeItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.Packet;
@@ -103,7 +100,7 @@ public class WaterCauldronBlockEntity extends BlockEntity {
         // Reason: To maintain forward compatibility from Bedrockify v1.7
         // Check commit e37f57564d736d455e4a06dcdce259ea0be377de
         if (BuiltInRegistries.ITEM.getValue(this.getFluidId()) instanceof DyeItem dyeItem) {
-            this.setDyeColor(ColorBlenderHelper.fromDyeItem(dyeItem));
+            this.setDyeColor(Objects.requireNonNull(new ItemStack(dyeItem).get(DataComponents.DYE)).getTextureDiffuseColor());
             valid = true;
         } else if (BuiltInRegistries.BLOCK.getValue(this.getFluidId()) instanceof ColoredWaterCauldronBlock) {
             valid = true;

@@ -1,6 +1,7 @@
 package me.juancarloscp52.bedrockify.mixin.common.features.cauldron;
 
 import me.juancarloscp52.bedrockify.Bedrockify;
+import net.minecraft.data.recipes.packs.VanillaRecipeProvider;
 import net.minecraft.world.item.crafting.ArmorDyeRecipe;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.level.Level;

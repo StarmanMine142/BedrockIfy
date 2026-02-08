@@ -21,6 +21,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Map;
+import java.util.Objects;
 
 @Mixin(FireworkStarRecipe.class)
 public class FireworkStarRecipeMixin {
@@ -102,7 +103,7 @@ public class FireworkStarRecipeMixin {
                 } else if (TRAIL_INGREDIENT.test(itemStack2)) {
                     hasTrailMod = true;
                 } else if (DyeHelper.isDyeableItem(itemStack2.getItem())) {
-                    list.add((DyeHelper.getDyeItem(itemStack2.getItem()).getDyeColor().getFireworkColor()));
+                    list.add(Objects.requireNonNull(itemStack2.get(DataComponents.DYE)).getFireworkColor());
                 }
             }
         }

@@ -25,7 +25,8 @@ public final class ColorBlenderHelper {
      * @return Blended item stack.
      */
     public static ItemStack blendColors(ItemStack base, int... colors) {
-        if (!base.is(ItemTags.DYEABLE)) {
+        //TODO: Previously Dyeable item tag, was changed to CAULDRON_CAN_REMOVE_DYE, for now it has the same items, probably for the future we should register our own item tag.
+        if (!base.is(ItemTags.CAULDRON_CAN_REMOVE_DYE)) {
             return base;
         }
         DyedItemColor dyedColorComponent = base.get(DataComponents.DYED_COLOR);

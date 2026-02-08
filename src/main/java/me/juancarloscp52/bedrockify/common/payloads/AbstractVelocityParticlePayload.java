@@ -6,25 +6,25 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
 public abstract class AbstractVelocityParticlePayload implements CustomPacketPayload {
-    protected Vec3f position;
+    protected Vector3f position;
     protected Vector3f velocity;
 
-    public void setPosition(Vec3 position) {
+    public void setPosition(Vector3f position) {
         this.position = position;
     }
 
-    public void setVelocity(Vec3 velocity) {
+    public void setVelocity(Vector3f velocity) {
         this.velocity = velocity;
     }
 
     public static final class OptionalCodec {
         public static void encode(RegistryFriendlyByteBuf buf, AbstractVelocityParticlePayload target) {
-            buf.writeVec3(target.position);
+            buf.writeVector3f(target.position);
             buf.writeVector3f(target.velocity);
         }
 
         public static void decode(RegistryFriendlyByteBuf buf, AbstractVelocityParticlePayload target) {
-            target.position = buf.readVec3();
+            target.position = buf.readVector3f();
             target.velocity = buf.readVector3f();
         }
     }

@@ -3,13 +3,13 @@ package me.juancarloscp52.bedrockify.common.payloads;
 import me.juancarloscp52.bedrockify.Bedrockify;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.Objects;
 
@@ -50,16 +50,16 @@ public final class EatParticlePayload extends AbstractVelocityParticlePayload {
             final Minecraft client = context.client();
             try {
                 ItemStack stack = Objects.requireNonNull(payload.itemStack);
-                double x = payload.position.x;
-                double y = payload.position.y;
-                double z = payload.position.z;
-                double velx = payload.velocity.x;
-                double vely = payload.velocity.y;
-                double velz = payload.velocity.z;
+                float x = payload.position.x;
+                float y = payload.position.y;
+                float z = payload.position.z;
+                float velx = payload.velocity.x;
+                float vely = payload.velocity.y;
+                float velz = payload.velocity.z;
 
                 client.execute(() -> {
                     if (null != client.level)
-                        client.level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, stack), x, y, z, velx, vely, velz);
+                        client.level.addParticle(new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(stack)), x, y, z, velx, vely, velz);
                 });
             } catch (Exception ignored) {
             }

@@ -9,12 +9,14 @@ import me.juancarloscp52.bedrockify.common.features.cauldron.ColorBlenderHelper;
 import me.juancarloscp52.bedrockify.common.payloads.CauldronParticlePayload;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.data.tags.VanillaItemTagsProvider;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
+import net.minecraft.world.item.trading.VillagerTrades;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -39,10 +41,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
+import org.joml.Vector3f;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * Defines the behavior of Bedrock's Cauldron.
@@ -55,8 +59,8 @@ public interface BedrockCauldronBehavior {
         if (state == null || world == null || pos == null || !Bedrockify.getInstance().settings.bedrockCauldron) {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
-
-        if (!stack.is(ItemTags.DYEABLE)) {
+        //TODO: Previously Dyeable item tag, was changed to CAULDRON_CAN_REMOVE_DYE, for now it has the same items, probably for the future we should register our own item tag.
+        if (!stack.is(ItemTags.CAULDRON_CAN_REMOVE_DYE)) {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
@@ -93,14 +97,16 @@ public interface BedrockCauldronBehavior {
         if (entity.isPresent()) {
             // The Cauldron already has color.
             final int currentColor = entity.get().getTintColor();
-            nextColor = ColorBlenderHelper.blendColors(currentColor, ColorBlenderHelper.fromDyeItem(dyeItem));
+            //TODO: TEST AND REMOVE
+            // nextColor = ColorBlenderHelper.blendColors(currentColor, ColorBlenderHelper.fromDyeItem(dyeItem));
+            nextColor = ColorBlenderHelper.blendColors(currentColor, Objects.requireNonNull(stack.get(DataComponents.DYE)).getTextureDiffuseColor());
             if (nextColor == currentColor) {
                 return InteractionResult.SUCCESS;
             }
             level = state.getValue(ColoredWaterCauldronBlock.LEVEL);
         } else {
             // Otherwise it may be Water Cauldron.
-            nextColor = ColorBlenderHelper.fromDyeItem(dyeItem);
+            nextColor = Objects.requireNonNull(stack.get(DataComponents.DYE)).getTextureDiffuseColor();
             level = ColoredWaterCauldronBlock.getLevelFromWaterCauldronState(state);
         }
 
@@ -437,17 +443,18 @@ public interface BedrockCauldronBehavior {
      */
     static InteractionResult evaporateCauldron(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, ItemStack current, ItemStack after) {
         if (!world.isClientSide()) {
+            Random random = new Random();
             final Identifier particleId = BuiltInRegistries.PARTICLE_TYPE.getKey(ParticleTypes.POOF);
             for (int i = 0; i < 10; ++i) {
                 CauldronParticlePayload particlePayload = new CauldronParticlePayload();
                 particlePayload.setParticleType(particleId);
-                particlePayload.setPosition(new Vec3(pos.getX() + 0.25 + Math.random() * 0.5, pos.getY() + 0.35, pos.getZ() + 0.25 + Math.random() * 0.5));
-                particlePayload.setVelocity(new Vec3(Math.random() * 0.075, 0, Math.random() * 0.075));
+                particlePayload.setPosition(new Vector3f(pos.getX() + 0.25f + random.nextFloat() * 0.5f, pos.getY() + 0.35f, pos.getZ() + 0.25f + random.nextFloat() * 0.5f));
+                particlePayload.setVelocity(new Vector3f(random.nextFloat() * 0.075f, 0, random.nextFloat() * 0.075f));
 
                 PlayerLookup.level((ServerLevel) world).forEach(serverPlayerEntity -> ServerPlayNetworking.send(serverPlayerEntity, particlePayload));
             }
         }
-        return CauldronInteraction.fillBucket(state, world, pos, player, hand, current, after, statex -> true, SoundEvents.FIRE_EXTINGUISH);
+        return CauldronInteraction.fillBucket(state, world, pos, player, hand, current, after, _ -> true, SoundEvents.FIRE_EXTINGUISH);
     }
 
     /**
@@ -457,22 +464,23 @@ public interface BedrockCauldronBehavior {
         if (world.isClientSide()) {
             return;
         }
+        Random random = new Random();
 
-        final double offsetY;
+        final float offsetY;
         if (state.getBlock() instanceof PotionCauldronBlock potionCauldronBlock) {
-            offsetY = 0.05 + potionCauldronBlock.getContentHeight(state);
+            offsetY = 0.05f + (float) potionCauldronBlock.getContentHeight(state);
         } else {
-            offsetY = 0.5;
+            offsetY = 0.5f;
         }
-        final double red = ((color >> 16) & 0xff) / 255.;
-        final double green = ((color >> 8) & 0xff) / 255.;
-        final double blue = (color & 0xff) / 255.;
+        final float red = ((color >> 16) & 0xff) / 255.f;
+        final float green = ((color >> 8) & 0xff) / 255.f;
+        final float blue = (color & 0xff) / 255.f;
         final Identifier particleId = BuiltInRegistries.PARTICLE_TYPE.getKey(ParticleTypes.ENTITY_EFFECT);
         for (int i = 0; i < 7; ++i) {
             CauldronParticlePayload particlePayload = new CauldronParticlePayload();
             particlePayload.setParticleType(particleId);
-            particlePayload.setPosition(new Vec3(pos.getX() + 0.15 + Math.random() * 0.7, pos.getY() + offsetY, pos.getZ() + 0.15 + Math.random() * 0.7));
-            particlePayload.setVelocity(new Vec3(red, green, blue));
+            particlePayload.setPosition(new Vector3f(pos.getX() + 0.15f + random.nextFloat() * 0.7f, pos.getY() + offsetY, pos.getZ() + 0.15f + random.nextFloat() * 0.7f));
+            particlePayload.setVelocity(new Vector3f(red, green, blue));
 
             PlayerLookup.level((ServerLevel) world).forEach(serverPlayerEntity -> ServerPlayNetworking.send(serverPlayerEntity, particlePayload));
         }
@@ -504,7 +512,8 @@ public interface BedrockCauldronBehavior {
         });
 
         // Behavior of the colored cauldron.
-        BuiltInRegistries.ITEM.stream().filter(item -> item.getDefaultInstance().is(ItemTags.DYEABLE)).forEach(item -> {
+        //TODO: Previously Dyeable item tag, was changed to CAULDRON_CAN_REMOVE_DYE, for now it has the same items, probably for the future we should register our own item tag.
+        BuiltInRegistries.ITEM.stream().filter(item -> item.getDefaultInstance().is(ItemTags.CAULDRON_CAN_REMOVE_DYE)).forEach(item -> {
             dyeableBehaviorMap.putIfAbsent(item, DYE_ITEM_BY_COLORED_WATER);
         });
         dyeableBehaviorMap.putIfAbsent(Items.BUCKET, FILL_BUCKET_WITH_COLORED_WATER);
