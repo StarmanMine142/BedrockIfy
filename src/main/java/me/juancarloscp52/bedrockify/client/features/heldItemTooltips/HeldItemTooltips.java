@@ -10,7 +10,7 @@ import me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip.Too
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
@@ -42,7 +42,7 @@ public class HeldItemTooltips {
 
     private static final boolean B_DAB_LOADED = FabricLoader.getInstance().isModLoaded("detailab");
 
-    public void drawItemWithCustomTooltips(GuiGraphics drawContext, Font fontRenderer, Component text, float x, float y, int color, ItemStack currentStack) {
+    public void drawItemWithCustomTooltips(GuiGraphicsExtractor drawContext, Font fontRenderer, Component text, float x, float y, int color, ItemStack currentStack) {
         final BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
         final int screenBorder = settings.getScreenSafeArea();
         int tooltipOffset = 0;
@@ -96,7 +96,7 @@ public class HeldItemTooltips {
         }
 
         // Render the item name.
-        drawContext.drawString(fontRenderer, text, (int)x, (int)(y - tooltipOffset - screenBorder), color);
+        drawContext.text(fontRenderer, text, (int)x, (int)(y - tooltipOffset - screenBorder), color);
     }
 
     /**
@@ -177,7 +177,7 @@ public class HeldItemTooltips {
         return generateTooltipsForPotion(stack, stack.get(DataComponents.POTION_CONTENTS).getAllEffects());
     }
 
-    private void renderBackground(GuiGraphics drawContext, float y, int screenBorder, int tooltipOffset, int maxLength, int alpha) {
+    private void renderBackground(GuiGraphicsExtractor drawContext, float y, int screenBorder, int tooltipOffset, int maxLength, int alpha) {
         Minecraft client = Minecraft.getInstance();
         int background = Mth.lerpInt(alpha / 255f, 0, Mth.ceil((255.0D * BedrockifyClient.getInstance().settings.heldItemTooltipBackground))) << 24;
         drawContext.fill(Mth.ceil((client.getWindow().getGuiScaledWidth()-maxLength)/2f-3), Mth.ceil(y - tooltipOffset -5- screenBorder), Mth.ceil((client.getWindow().getGuiScaledWidth()+maxLength)/2f+1), Mth.ceil(y - tooltipOffset -4- screenBorder),background);
@@ -188,9 +188,9 @@ public class HeldItemTooltips {
     /**
      * Renders an item tooltip with the given text and height in screen.
      */
-    private void renderTooltip(GuiGraphics drawContext, Font fontRenderer, float y, int color, Component text) {
+    private void renderTooltip(GuiGraphicsExtractor drawContext, Font fontRenderer, float y, int color, Component text) {
         int enchantX = (Minecraft.getInstance().getWindow().getGuiScaledWidth() - fontRenderer.width(text)) / 2;
-        drawContext.drawString(fontRenderer, text, enchantX, (int)y, color);
+        drawContext.text(fontRenderer, text, enchantX, (int)y, color);
     }
 
     private int getMaxTooltipLength(List<Component> tooltips, Font textRenderer, ItemStack itemStack){

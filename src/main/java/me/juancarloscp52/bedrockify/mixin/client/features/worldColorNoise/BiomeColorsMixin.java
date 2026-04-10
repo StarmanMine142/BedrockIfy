@@ -2,8 +2,8 @@ package me.juancarloscp52.bedrockify.mixin.client.features.worldColorNoise;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import net.minecraft.client.renderer.BiomeColors;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockAndTintGetter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

@@ -2,7 +2,7 @@ package me.juancarloscp52.bedrockify.mixin.client.features.loadingScreens;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.features.loadingScreens.LoadingScreenWidget;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.LevelLoadingScreen;
 import net.minecraft.client.multiplayer.LevelLoadTracker;
@@ -30,8 +30,8 @@ public abstract class LevelLoadingScreenMixin extends Screen {
     /**
      * Draws the loading screen widget and allows to toggle the chunk map loading widget.
      */
-    @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    public void render(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo info) {
+    @Inject(method = "extractRenderState", at = @At("HEAD"), cancellable = true)
+    public void render(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo info) {
         if(!BedrockifyClient.getInstance().settings.isLoadingScreenEnabled())
             return;
 
@@ -48,7 +48,7 @@ public abstract class LevelLoadingScreenMixin extends Screen {
 
         ChunkLoadStatusView chunkLoadMap = loadTracker.statusView();
         if (BedrockifyClient.getInstance().settings.isShowChunkMapEnabled() && loadTracker.hasProgress() && chunkLoadMap !=null )
-            LevelLoadingScreen.renderChunks(context, xPosition, yPosition + yPosition / 2 + 89 / 4, 1, 0, chunkLoadMap);
+            LevelLoadingScreen.extractChunksForRendering(context, xPosition, yPosition + yPosition / 2 + 89 / 4, 1, 0, chunkLoadMap);
 
         info.cancel();
     }

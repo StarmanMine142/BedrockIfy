@@ -2,7 +2,7 @@ package me.juancarloscp52.bedrockify.mixin.client.features.slotHighlight;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractFurnaceScreen;
 import net.minecraft.client.gui.screens.inventory.CartographyTableScreen;
@@ -36,7 +36,7 @@ public abstract class AbstractContainerScreenMixin {
     @Shadow
     abstract boolean isHovering(Slot slot, double pointX, double pointY);
 
-    @Inject(method = {"renderSlotHighlightBack", "renderSlotHighlightFront"}, at = @At("HEAD"), cancellable = true)
+    @Inject(method = {"extractSlotHighlightBack", "extractSlotHighlightFront"}, at = @At("HEAD"), cancellable = true)
     private static void bedrockify$cancelVanillaHighlight(CallbackInfo ci) {
         BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
         if (settings.isSlotHighlightEnabled()) {
@@ -44,7 +44,7 @@ public abstract class AbstractContainerScreenMixin {
         }
     }
 
-    @ModifyVariable(method = "renderContents", at = @At("STORE"))
+    @ModifyVariable(method = "extractContents", at = @At("STORE"))
     private Slot bedrockify$storeSlotInLoop(Slot slot) {
         this.currentSlot = slot;
         return slot;
@@ -53,8 +53,8 @@ public abstract class AbstractContainerScreenMixin {
     /**
      * Draw the current slot in green.
      */
-    @Inject(method = "renderContents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;renderSlotHighlightBack(Lnet/minecraft/client/gui/GuiGraphics;)V"))
-    private void bedrockify$customHighlightColor(GuiGraphics drawContext, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    @Inject(method = "extractContents", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;extractSlotHighlightBack(Lnet/minecraft/client/gui/GuiGraphicsExtractor;)V"))
+    private void bedrockify$customHighlightColor(GuiGraphicsExtractor drawContext, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
         if (!settings.isSlotHighlightEnabled() || this.currentSlot == null) {
             return;

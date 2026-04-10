@@ -14,14 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Wolf.class)
 public class WolfMixin {
 
-    @Inject(method = "mobInteract",at=@At(value = "RETURN", ordinal = 0))
-    public void interactMob(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir){
-        if (cir.getReturnValue() == InteractionResult.CONSUME) {
-            EatingParticlesUtil.spawnItemParticles(player, player.getItemInHand(hand), ((Animal) (Object) this));
-        }
+    @Inject(method = "mobInteract",at=@At(value = "INVOKE", target = "Lnet/minecraft/world/entity/animal/wolf/Wolf;tryToTame(Lnet/minecraft/world/entity/player/Player;)V"))
+    public void bedrockify$onTryToTame(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir){
+        EatingParticlesUtil.spawnItemParticles(player, player.getItemInHand(hand), ((Animal) (Object) this));
     }
-    @Inject(method = "mobInteract",at=@At(value = "INVOKE",target = "Lnet/minecraft/world/entity/animal/wolf/Wolf;heal(F)V"))
-    public void interactMobOnHeal(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir){
+    @Inject(method = "mobInteract",at=@At(value = "INVOKE",target = "Lnet/minecraft/world/entity/animal/wolf/Wolf;feed(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;FF)V"))
+    public void bedrockify$onFeed(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir){
         EatingParticlesUtil.spawnItemParticles(player,player.getItemInHand(hand),((Animal)(Object)this));
     }
 }

@@ -6,13 +6,12 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import me.juancarloscp52.bedrockify.Bedrockify;
 import me.juancarloscp52.bedrockify.common.features.recipes.DyeHelper;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.component.FireworkExplosion;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.FireworkExplosion;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.FireworkStarFadeRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +22,7 @@ import java.util.Objects;
 
 @Mixin(FireworkStarFadeRecipe.class)
 public class FireworkStarFadeRecipeMixin {
-    @Shadow @Final private static Ingredient STAR_INGREDIENT;
+    @Shadow @Final private Ingredient target;
 
     @ModifyReturnValue(method = "matches(Lnet/minecraft/world/item/crafting/CraftingInput;Lnet/minecraft/world/level/Level;)Z", at = @At("RETURN"))
     public boolean matches(boolean original, CraftingInput craftingRecipeInput, Level world) {
@@ -38,7 +37,7 @@ public class FireworkStarFadeRecipeMixin {
                 if (DyeHelper.isDyeableItem(itemStack.getItem())) {
                     bl = true;
                 } else {
-                    if (!STAR_INGREDIENT.test(itemStack)) {
+                    if (!this.target.test(itemStack)) {
                         return original;
                     }
 
@@ -54,8 +53,8 @@ public class FireworkStarFadeRecipeMixin {
         return original || (bl2 && bl);
     }
 
-    @ModifyReturnValue(method = "assemble(Lnet/minecraft/world/item/crafting/CraftingInput;Lnet/minecraft/core/HolderLookup$Provider;)Lnet/minecraft/world/item/ItemStack;", at = @At("RETURN"))
-    public ItemStack craft(ItemStack original, CraftingInput craftingRecipeInput, HolderLookup.Provider wrapperLookup) {
+    @ModifyReturnValue(method = "assemble(Lnet/minecraft/world/item/crafting/CraftingInput;)Lnet/minecraft/world/item/ItemStack;", at = @At("RETURN"))
+    public ItemStack craft(ItemStack original, CraftingInput craftingRecipeInput) {
         if(!Bedrockify.getInstance().settings.isBedrockRecipesEnabled())
             return original;
         IntList list = new IntArrayList();
@@ -66,7 +65,7 @@ public class FireworkStarFadeRecipeMixin {
             Item item = itemStack2.getItem();
             if (DyeHelper.isDyeableItem(item)) {
                 list.add(Objects.requireNonNull(itemStack2.get(DataComponents.DYE)).getFireworkColor());
-            } else if (STAR_INGREDIENT.test(itemStack2)) {
+            } else if (this.target.test(itemStack2)) {
                 itemStack = itemStack2.copy();
                 itemStack.setCount(1);
             }

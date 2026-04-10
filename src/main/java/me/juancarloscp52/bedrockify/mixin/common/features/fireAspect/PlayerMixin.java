@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(Player.class)
 public class PlayerMixin {
 
-    @ModifyExpressionValue(method = "interactOn",at=@At(value = "INVOKE",target = "Lnet/minecraft/world/entity/Entity;interact(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResult;"))
+    @ModifyExpressionValue(method = "interactOn",at=@At(value = "INVOKE",target = "Lnet/minecraft/world/entity/Entity;interact(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/InteractionResult;"))
     private InteractionResult interact(InteractionResult original, Entity entity, InteractionHand hand){
         Player $this = Player.class.cast(this);
         if(entity instanceof MinecartTNT tntMinecart && Bedrockify.getInstance().settings.fireAspectLight && $this.getAbilities().mayBuild){

@@ -13,11 +13,9 @@ import java.util.List;
 
 @Mixin(TagLoader.class)
 public abstract class TagLoaderMixin {
-    // TODO(Ravel): target method method_43954 with the signature not found
-// TODO(Ravel): target method method_43954 with the signature not found
 /** The lambda of <code>tagFile.entries().forEach((entryx) -> { ... } );</code> */
-    @Inject(method = "method_43954(Ljava/util/List;Ljava/lang/String;Lnet/minecraft/registry/tag/TagEntry;)V", at = @At("HEAD"), cancellable = true)
-    private static void bedrockify$removeCauldronFromTag(List<TagLoader.EntryWithSource> instance, String packName, TagEntry entryx, CallbackInfo ci) {
+    @Inject(method = "lambda$load$1(Ljava/util/List;Ljava/lang/String;Lnet/minecraft/tags/TagEntry;)V", at = @At("HEAD"), cancellable = true)
+    private static void bedrockify$removeCauldronFromTag(List<?> instance, String packName, TagEntry entryx, CallbackInfo ci) {
         if (packName.equals(Bedrockify.MOD_ID) && !MixinFeatureManager.features.get(MixinFeatureManager.FEAT_CAULDRON) && entryx.toString().contains("cauldron")) {
             ci.cancel();
         }

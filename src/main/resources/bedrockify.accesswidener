@@ -2,6 +2,12 @@ accessWidener v1 official
 
 accessible method net/minecraft/world/level/levelgen/feature/treedecorators/TreeDecoratorType register (Ljava/lang/String;Lcom/mojang/serialization/MapCodec;)Lnet/minecraft/world/level/levelgen/feature/treedecorators/TreeDecoratorType;
 accessible method net/minecraft/world/level/block/CandleCakeBlock candleHit (Lnet/minecraft/world/phys/BlockHitResult;)Z
-accessible class net/minecraft/client/renderer/block/ModelBlockRenderer$CommonRenderStorage
-accessible method net/minecraft/client/gui/GuiGraphics blitSprite (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIII)V  #HudOpacity InGameHudMixin
-accessible field net/minecraft/client/renderer/LevelRenderer levelRenderState Lnet/minecraft/client/renderer/state/LevelRenderState; # SunGlare
+#accessible class net/minecraft/client/renderer/block/ModelBlockRenderer$CommonRenderStorage
+#accessible method net/minecraft/client/gui/GuiGraphics blitSprite (Lcom/mojang/blaze3d/pipeline/RenderPipeline;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;IIIIIIIII)V  #HudOpacity InGameHudMixin
+accessible field net/minecraft/client/renderer/LevelRenderer levelRenderState Lnet/minecraft/client/renderer/state/level/LevelRenderState; # SunGlare
+
+# Cauldron
+accessible method net/minecraft/core/cauldron/CauldronInteractions newDispatcher (Ljava/lang/String;)Lnet/minecraft/core/cauldron/CauldronInteraction$Dispatcher;
+accessible method net/minecraft/core/cauldron/CauldronInteractions fillBucket (Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;Ljava/util/function/Predicate;Lnet/minecraft/sounds/SoundEvent;)Lnet/minecraft/world/InteractionResult;
+accessible method net/minecraft/core/cauldron/CauldronInteractions addDefaultInteractions (Lnet/minecraft/core/cauldron/CauldronInteraction$Dispatcher;)V
+accessible field net/minecraft/core/cauldron/CauldronInteraction$Dispatcher items Ljava/util/Map;

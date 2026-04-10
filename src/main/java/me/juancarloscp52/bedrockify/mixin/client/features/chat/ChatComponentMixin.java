@@ -6,7 +6,7 @@ import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.ChatComponent;
-import net.minecraft.client.GuiMessage;
+import net.minecraft.client.multiplayer.chat.GuiMessage;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -49,7 +49,7 @@ public abstract class ChatComponentMixin {
         return settings.getPositionHUDHeight() + ((settings.getPositionHUDHeight() < 50) ? 50 : 0) + (settings.isShowPositionHUDEnabled() ? 10 : 0) + ((settings.getFPSHUDoption() == 2) ? 10 : 0) + safeArea - 6;
     }
 
-    @ModifyExpressionValue(method = "forEachLine", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent$AlphaCalculator;calculate(Lnet/minecraft/client/GuiMessage$Line;)F"))
+    @ModifyExpressionValue(method = "forEachLine", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/ChatComponent$AlphaCalculator;calculate(Lnet/minecraft/client/multiplayer/chat/GuiMessage$Line;)F"))
     private float bedrockify$changeHudOpacity(float original) {
         if (this.isChatFocused()) {
             return original;
@@ -69,7 +69,7 @@ public abstract class ChatComponentMixin {
         return Math.min(original, lines);
     }
 
-    @ModifyExpressionValue(method = "render(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IIZ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(F)I"))
+    @ModifyExpressionValue(method = "extractRenderState(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Mth;floor(F)I"))
     private int bedrockify$moveChatHud(int original) {
         if (!settings.isBedrockChatEnabled() || minecraft.gui.getDebugOverlay().showDebugScreen()) {
             return original;
@@ -81,8 +81,8 @@ public abstract class ChatComponentMixin {
     /**
      * Use bedrock-like chat if enabled.
      */
-    @Inject(method = "render(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IIZ)V", at = @At("HEAD"))
-    private void bedrockify$gatherInfo(ChatComponent.ChatGraphicsAccess backend, int windowHeight, int currentTick, boolean expanded, CallbackInfo ci) {
+    @Inject(method = "extractRenderState(Lnet/minecraft/client/gui/components/ChatComponent$ChatGraphicsAccess;IILnet/minecraft/client/gui/components/ChatComponent$DisplayMode;)V", at = @At("HEAD"))
+    private void bedrockify$gatherInfo(ChatComponent.ChatGraphicsAccess backend, int windowHeight, int currentTick, ChatComponent.DisplayMode displayMode, CallbackInfo ci) {
         if (!settings.isBedrockChatEnabled() || minecraft.gui.getDebugOverlay().showDebugScreen()) {
             return;
         }

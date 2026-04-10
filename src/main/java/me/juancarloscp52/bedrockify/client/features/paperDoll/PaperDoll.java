@@ -3,16 +3,16 @@ package me.juancarloscp52.bedrockify.client.features.paperDoll;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.state.EntityRenderState;
-import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.spongepowered.include.com.google.common.collect.Sets;
@@ -36,7 +36,7 @@ public class PaperDoll {
      * Render the player at the top left of the screen.
      * The player will be rendered only when the player is not riding another entity, and it is sneaking, running, using elytra, using an item, underwater, or using a shield.
      */
-    public void renderPaperDoll(GuiGraphics drawContext) {
+    public void renderPaperDoll(GuiGraphicsExtractor drawContext) {
         if (!settings.isShowPaperDollEnabled())
             return;
 
@@ -74,7 +74,7 @@ public class PaperDoll {
     /**
      * Draw the player entity in the specified position on screen.
      */
-    private void drawPaperDoll(GuiGraphics drawContext) {
+    private void drawPaperDoll(GuiGraphicsExtractor drawContext) {
         LocalPlayer player = client.player;
         if (player == null)
             return;
@@ -140,7 +140,7 @@ public class PaperDoll {
         entityRenderState.shadowPieces.clear();
         entityRenderState.outlineColor = 0;
 
-        drawContext.submitEntityRenderState(entityRenderState, (float)size, translation, rotation, null, x1, y1, x2, y2);
+        drawContext.entity(entityRenderState, (float)size, translation, rotation, null, x1, y1, x2, y2);
 
         // Restore previous entity rotations.
         player.yBodyRot = bodyYaw;

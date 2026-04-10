@@ -32,7 +32,8 @@ public class BedrockIfyMixinPlugin  implements IMixinConfigPlugin {
             LogManager.getLogger().info("The mod \"Held Item Info\" has been detected. This mod is not totally compatible with BedrockIfy. BedrockIfy Held Item Tooltips has been disabled.");
             return false;
         }
-        if(mixinClassName.contains("detailArmorBar") && !FabricLoader.getInstance().isModLoaded("detailab")){
+        // TODO: Disabled until DAB updates
+        if(mixinClassName.contains("detailArmorBar") /*&& !FabricLoader.getInstance().isModLoaded("detailab")*/){
             return false;
         }
         if(mixinClassName.contains("appleskin") && !FabricLoader.getInstance().isModLoaded("appleskin")){

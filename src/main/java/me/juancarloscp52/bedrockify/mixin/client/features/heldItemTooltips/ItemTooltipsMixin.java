@@ -4,8 +4,8 @@ import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.features.heldItemTooltips.HeldItemTooltips;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Final;
@@ -25,8 +25,8 @@ public class ItemTooltipsMixin {
     /**
      * Draw custom tooltips for effects and enchantments before the heldItemTooltip is rendered.
      */
-    @Redirect(method = "renderSelectedItemName", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;drawStringWithBackdrop(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIII)V"))
-    private void drawCustomTooltips(GuiGraphics instance, Font textRenderer, Component text, int x, int y, int width, int color) {
+    @Redirect(method = "extractSelectedItemName", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;textWithBackdrop(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;IIII)V"))
+    private void drawCustomTooltips(GuiGraphicsExtractor instance, Font textRenderer, Component text, int x, int y, int width, int color) {
         BedrockifyClient.getInstance().heldItemTooltips.drawItemWithCustomTooltips(instance,textRenderer, text, x, Minecraft.getInstance().getWindow().getGuiScaledHeight() - 38, color, lastToolHighlight);
     }
 

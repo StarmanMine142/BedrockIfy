@@ -1,8 +1,8 @@
 package me.juancarloscp52.bedrockify.common.features.cauldron;
 
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.component.DyedItemColor;
-import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.tags.ItemTags;
 
@@ -34,7 +34,7 @@ public final class ColorBlenderHelper {
         final int[] blendArray;
         if (dyedColorComponent != null) {
             blendArray = Arrays.copyOf(colors, colors.length + 1);
-            blendArray[blendArray.length - 1] = DyedItemColor.getOrDefault(base, 0xFFA06540);
+            blendArray[blendArray.length - 1] = dyedColorComponent.rgb();
         } else {
             blendArray = colors;
         }
@@ -74,10 +74,7 @@ public final class ColorBlenderHelper {
         final int resultGreen = (int) (normalizedGreen * peekMul / peek);
         final int resultBlue = (int) (normalizedBlue * peekMul / peek);
 
-        return resultRed << 16 | resultGreen << 8 | resultBlue;
+        return ARGB.color(resultRed, resultGreen, resultBlue);
     }
 
-    public static int fromDyeItem(DyeItem item) {
-        return item.getDyeColor().getTextureDiffuseColor();
-    }
 }

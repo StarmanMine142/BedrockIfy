@@ -20,7 +20,7 @@ import net.minecraft.world.level.LevelReader;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractBECauldronBlock extends AbstractCauldronBlock implements EntityBlock {
-    public AbstractBECauldronBlock(Properties settings, CauldronInteraction.InteractionMap behaviorMap) {
+    public AbstractBECauldronBlock(Properties settings, CauldronInteraction.Dispatcher behaviorMap) {
         super(settings, behaviorMap);
     }
 
