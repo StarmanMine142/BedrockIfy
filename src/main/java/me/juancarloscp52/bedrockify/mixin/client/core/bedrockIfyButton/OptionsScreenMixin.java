@@ -2,13 +2,16 @@ package me.juancarloscp52.bedrockify.mixin.client.core.bedrockIfyButton;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
+import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.options.OptionsScreen;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.network.chat.Component;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,6 +25,9 @@ public abstract class OptionsScreenMixin extends Screen {
     protected OptionsScreenMixin(Component title) {
         super(title);
     }
+
+    @Shadow
+    private @Final HeaderAndFooterLayout layout;
 
     @Unique
     private Button.Builder bedrockify$settingsButtonBuilder() {
@@ -46,8 +52,15 @@ public abstract class OptionsScreenMixin extends Screen {
             adder.addChild(bedrockify$settingsButtonBuilder().width(310).build(), 2);
         }
     }
-    @Inject(method = "init", at = @At("RETURN"))
+    @Inject(method = "repositionElements", at = @At("RETURN"))
     public void addBedrockIfyButton(CallbackInfo ci){
+        // Hide current widgets.
+        this.layout.visitChildren(element -> element.visitWidgets(widget -> widget.visible = false));
+
+        // Execute Screen#clearWidgets and then OptionsScreen#init
+        this.rebuildWidgets();
+
+        // Add settings button.
         BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
         Button.Builder bedrockIfyButton = bedrockify$settingsButtonBuilder().width(150);
         switch (settings.bedrockIfyButtonPosition){
