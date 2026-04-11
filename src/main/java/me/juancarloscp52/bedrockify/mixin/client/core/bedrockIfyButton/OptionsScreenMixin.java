@@ -52,7 +52,7 @@ public abstract class OptionsScreenMixin extends Screen {
             adder.addChild(bedrockify$settingsButtonBuilder().width(310).build(), 2);
         }
     }
-    @Inject(method = "repositionElements", at = @At("RETURN"))
+    @Inject(method = "added", at = @At("RETURN"))
     public void addBedrockIfyButton(CallbackInfo ci){
         // Hide current widgets.
         this.layout.visitChildren(element -> element.visitWidgets(widget -> widget.visible = false));
