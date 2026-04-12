@@ -18,8 +18,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
-import java.util.Objects;
-
 @Mixin(FireworkStarFadeRecipe.class)
 public class FireworkStarFadeRecipeMixin {
     @Shadow @Final private Ingredient target;
@@ -64,7 +62,9 @@ public class FireworkStarFadeRecipeMixin {
             ItemStack itemStack2 = craftingRecipeInput.getItem(i);
             Item item = itemStack2.getItem();
             if (DyeHelper.isDyeableItem(item)) {
-                list.add(Objects.requireNonNull(itemStack2.get(DataComponents.DYE)).getFireworkColor());
+                DyeHelper.getDyeItem(item).map(dyeItem -> dyeItem.getDefaultInstance().get(DataComponents.DYE)).ifPresent(dyeColor -> {
+                    list.add(dyeColor.getFireworkColor());
+                });
             } else if (this.target.test(itemStack2)) {
                 itemStack = itemStack2.copy();
                 itemStack.setCount(1);
