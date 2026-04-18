@@ -9,37 +9,30 @@ import me.juancarloscp52.bedrockify.common.features.cauldron.ColorBlenderHelper;
 import me.juancarloscp52.bedrockify.common.payloads.CauldronParticlePayload;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.data.tags.VanillaItemTagsProvider;
-import net.minecraft.world.item.DyeItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUtils;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.PotionItem;
-import net.minecraft.world.item.trading.VillagerTrades;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.cauldron.CauldronInteractions;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.alchemy.Potion;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
-import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.Holder;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.resources.Identifier;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.joml.Vector3f;
 
@@ -52,8 +45,8 @@ import java.util.Random;
  * Defines the behavior of Bedrock's Cauldron.
  */
 public interface BedrockCauldronBehavior {
-    CauldronInteraction.InteractionMap POTION_CAULDRON_BEHAVIOR = CauldronInteraction.newInteractionMap("potion");
-    CauldronInteraction.InteractionMap COLORED_WATER_CAULDRON_BEHAVIOR = CauldronInteraction.newInteractionMap("dye");
+    CauldronInteraction.Dispatcher POTION_CAULDRON_BEHAVIOR = CauldronInteractions.newDispatcher("potion");
+    CauldronInteraction.Dispatcher COLORED_WATER_CAULDRON_BEHAVIOR = CauldronInteractions.newDispatcher("dye");
 
     CauldronInteraction DYE_ITEM_BY_COLORED_WATER = (state, world, pos, player, hand, stack) -> {
         if (state == null || world == null || pos == null || !Bedrockify.getInstance().settings.bedrockCauldron) {
@@ -87,7 +80,7 @@ public interface BedrockCauldronBehavior {
         }
 
         Item item = stack.getItem();
-        if (!(item instanceof DyeItem dyeItem)) {
+        if (!(item instanceof DyeItem)) {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
@@ -97,8 +90,6 @@ public interface BedrockCauldronBehavior {
         if (entity.isPresent()) {
             // The Cauldron already has color.
             final int currentColor = entity.get().getTintColor();
-            //TODO: TEST AND REMOVE
-            // nextColor = ColorBlenderHelper.blendColors(currentColor, ColorBlenderHelper.fromDyeItem(dyeItem));
             nextColor = ColorBlenderHelper.blendColors(currentColor, Objects.requireNonNull(stack.get(DataComponents.DYE)).getTextureDiffuseColor());
             if (nextColor == currentColor) {
                 return InteractionResult.SUCCESS;
@@ -380,7 +371,7 @@ public interface BedrockCauldronBehavior {
     };
 
     CauldronInteraction FILL_BUCKET_WITH_COLORED_WATER = (state, world, pos, player, hand, stack) -> {
-        return CauldronInteraction.fillBucket(state, world, pos, player, hand, stack, new ItemStack(Items.WATER_BUCKET), (statex) -> {
+        return CauldronInteractions.fillBucket(state, world, pos, player, hand, stack, new ItemStack(Items.WATER_BUCKET), (statex) -> {
             return statex.getValue(ColoredWaterCauldronBlock.LEVEL) == ColoredWaterCauldronBlock.MAX_LEVEL;
         }, SoundEvents.BUCKET_FILL);
     };
@@ -454,7 +445,7 @@ public interface BedrockCauldronBehavior {
                 PlayerLookup.level((ServerLevel) world).forEach(serverPlayerEntity -> ServerPlayNetworking.send(serverPlayerEntity, particlePayload));
             }
         }
-        return CauldronInteraction.fillBucket(state, world, pos, player, hand, current, after, _ -> true, SoundEvents.FIRE_EXTINGUISH);
+        return CauldronInteractions.fillBucket(state, world, pos, player, hand, current, after, _ -> true, SoundEvents.FIRE_EXTINGUISH);
     }
 
     /**
@@ -491,10 +482,10 @@ public interface BedrockCauldronBehavior {
      * This method needs to be executed after all the registries are ready.
      */
     static void registerBehavior() {
-        final var dyeableBehaviorMap = COLORED_WATER_CAULDRON_BEHAVIOR.map();
-        final var potionBehaviorMap = POTION_CAULDRON_BEHAVIOR.map();
-        final var vanillaWaterBehaviorMap = CauldronInteraction.WATER.map();
-        final var vanillaEmptyBehaviorMap = CauldronInteraction.EMPTY.map();
+        final var dyeableBehaviorMap = COLORED_WATER_CAULDRON_BEHAVIOR.items;
+        final var potionBehaviorMap = POTION_CAULDRON_BEHAVIOR.items;
+        final var vanillaWaterBehaviorMap = CauldronInteractions.WATER.items;
+        final var vanillaEmptyBehaviorMap = CauldronInteractions.EMPTY.items;
 
         // Clear all modded maps and get ready to enter the world.
         BuiltInRegistries.ITEM.stream().filter(item -> item instanceof DyeItem).forEach(vanillaWaterBehaviorMap::remove);
@@ -518,7 +509,7 @@ public interface BedrockCauldronBehavior {
         });
         dyeableBehaviorMap.putIfAbsent(Items.BUCKET, FILL_BUCKET_WITH_COLORED_WATER);
         dyeableBehaviorMap.putIfAbsent(Items.GLASS_BOTTLE, PICK_COLORED_WATER);
-        CauldronInteraction.addDefaultInteractions(dyeableBehaviorMap);
+        CauldronInteractions.addDefaultInteractions(COLORED_WATER_CAULDRON_BEHAVIOR);
 
         // Behavior of the potion.
         BuiltInRegistries.ITEM.stream().filter(item -> item instanceof PotionItem).forEach(potionItem -> {

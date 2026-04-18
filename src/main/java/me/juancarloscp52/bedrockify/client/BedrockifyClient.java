@@ -22,14 +22,19 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockColorRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.KeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.color.block.BlockTintSource;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.glfw.GLFW;
@@ -38,6 +43,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 public class BedrockifyClient implements ClientModInitializer {
@@ -83,15 +89,18 @@ public class BedrockifyClient implements ClientModInitializer {
 
         // Register the Color Tint of Potion-filled and Colored Cauldron Block if enabled.
         if (MixinFeatureManager.features.get(MixinFeatureManager.FEAT_CAULDRON)) {
-            // TODO: BlockColorRegistry.register(); ??
-            ColorProviderRegistry.BLOCK.register((state, world, pos, tintIndex) -> {
-                if (world == null || pos == null) {
-                    return -1;
+            BlockColorRegistry.register(List.of(new BlockTintSource() {
+                @Override
+                public int color(BlockState state) {
+                    return 0;
                 }
 
-                final Optional<WaterCauldronBlockEntity> entity = world.getBlockEntity(pos, BedrockCauldronBlocks.WATER_CAULDRON_ENTITY);
-                return entity.map(WaterCauldronBlockEntity::getTintColor).orElse(-1);
-            }, BedrockCauldronBlocks.POTION_CAULDRON, BedrockCauldronBlocks.COLORED_WATER_CAULDRON);
+                @Override
+                public int colorInWorld(BlockState state, BlockAndTintGetter world, BlockPos pos) {
+                    final Optional<WaterCauldronBlockEntity> entity = world.getBlockEntity(pos, BedrockCauldronBlocks.WATER_CAULDRON_ENTITY);
+                    return entity.map(WaterCauldronBlockEntity::getTintColor).orElse(0);
+                }
+            }), BedrockCauldronBlocks.POTION_CAULDRON, BedrockCauldronBlocks.COLORED_WATER_CAULDRON);
 
             // Lazy initialization of Bedrock's cauldron behavior after all the registries/tags are ready.
             ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {

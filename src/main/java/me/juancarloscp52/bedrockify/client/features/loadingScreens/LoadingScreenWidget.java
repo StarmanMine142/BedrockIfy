@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.LogoRenderer;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.util.FormattedCharSequence;
@@ -100,14 +100,14 @@ public class LoadingScreenWidget {
      * @param message Message of the loading screen. Set to null to use a random tip.
      * @param progress Loading screen progress. Set to -1 is the screen has no progress bar.
      */
-    public void render(GuiGraphics drawContext, int width, int height, Component title, Component message, int progress) {
+    public void render(GuiGraphicsExtractor drawContext, int width, int height, Component title, Component message, int progress) {
         Minecraft client = Minecraft.getInstance();
 
-        logoDrawer.renderLogo(drawContext,client.getWindow().getGuiScaledWidth(),1,(height/2) - (89 / 2));
+        logoDrawer.extractRenderState(drawContext,client.getWindow().getGuiScaledWidth(),1,(height/2) - (89 / 2));
         renderLoadingWidget(drawContext, width, height);
 
         Font textRenderer = Minecraft.getInstance().font;
-        drawContext.drawString(textRenderer, title, width - textRenderer.width(title) / 2, height - 9 / 2 - 32, ARGB.opaque(76 | (76 << 8) | (76 << 16)),false);
+        drawContext.text(textRenderer, title, width - textRenderer.width(title) / 2, height - 9 / 2 - 32, ARGB.opaque(76 | (76 << 8) | (76 << 16)),false);
         renderTextBody(drawContext, width, height, message, textRenderer);
 
         if (progress >= 0) {
@@ -115,18 +115,18 @@ public class LoadingScreenWidget {
         }
     }
 
-    private void renderLoadingWidget(GuiGraphics drawContext, int x, int y) {
+    private void renderLoadingWidget(GuiGraphicsExtractor drawContext, int x, int y) {
         drawContext.blit(RenderPipelines.GUI_TEXTURED, WIDGET_TEXTURE, x - 256 / 2, y - 89 / 2, 0, 0, 256, 89, 256, 256);
     }
 
 
-    private void renderTextBody(GuiGraphics drawContext, int x, int y, Component message, Font textRenderer) {
+    private void renderTextBody(GuiGraphicsExtractor drawContext, int x, int y, Component message, Font textRenderer) {
         if (message == null)
             message = getTip();
         List<FormattedCharSequence> text = textRenderer.split(message, 230);
         int maxLineWidth = getMaxLineWidth(textRenderer, text);
         for (int i = 0; i < 4 && i < text.size(); i++) {
-            drawContext.drawString(textRenderer, text.get(i), x - maxLineWidth / 2, y - 15 + (i * 9), -1,false);
+            drawContext.text(textRenderer, text.get(i), x - maxLineWidth / 2, y - 15 + (i * 9), -1,false);
         }
 
     }
@@ -142,7 +142,7 @@ public class LoadingScreenWidget {
     }
 
 
-    private void renderLoadingBar(GuiGraphics drawContext, int x, int y, int progress) {
+    private void renderLoadingBar(GuiGraphicsExtractor drawContext, int x, int y, int progress) {
         int barProgress = (int) ((Mth.clamp(progress,0,100)/100.0f) * 223.0f);
         drawContext.blit(RenderPipelines.GUI_TEXTURED, WIDGET_TEXTURE, x - 111, y + 26, 0, 89, 222, 5, 256, 256);
         if (barProgress > 0)

@@ -1,6 +1,5 @@
 package me.juancarloscp52.bedrockify.client.features.heldItemTooltips;
 
-import com.google.common.collect.Lists;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
 import me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip.ContainerTooltip;
@@ -10,7 +9,7 @@ import me.juancarloscp52.bedrockify.client.features.heldItemTooltips.tooltip.Too
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
@@ -42,7 +41,7 @@ public class HeldItemTooltips {
 
     private static final boolean B_DAB_LOADED = FabricLoader.getInstance().isModLoaded("detailab");
 
-    public void drawItemWithCustomTooltips(GuiGraphics drawContext, Font fontRenderer, Component text, float x, float y, int color, ItemStack currentStack) {
+    public void drawItemWithCustomTooltips(GuiGraphicsExtractor drawContext, Font fontRenderer, Component text, float x, float y, int color, ItemStack currentStack) {
         final BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
         final int screenBorder = settings.getScreenSafeArea();
         int tooltipOffset = 0;
@@ -63,40 +62,36 @@ public class HeldItemTooltips {
             y-=16;
         }
 
-        // Draw item tooltips if the option is enabled.
-        if(settings.heldItemTooltips) {
-            // Get the current held item tooltips and convert to Text.
-            final List<Component> tooltips = Lists.newArrayList();
-            for (Tooltip tooltip : getTooltips(currentStack)) {
-                tooltips.add(tooltip.getTooltipText());
-            }
-            // Limit the maximum number of shown tooltips to tooltipSize.
-            final boolean showMoreTooltip = (tooltips.size() > TOOLTIP_SIZE);
-            if (showMoreTooltip) {
-                // Store the number of items.
-                final int xMore = tooltips.size() - (TOOLTIP_SIZE -1);
-                // Trim tooltips.
-                tooltips.subList(TOOLTIP_SIZE - 1, tooltips.size()).clear();
-                // Add the "and x more..." tooltip.
-                tooltips.add(Component.translatable("item.container.more_items", xMore).withStyle(ChatFormatting.GRAY));
-            }
-
-            tooltipOffset = 12 * tooltips.size();
-            //Render background behind tooltip.
-            int maxLength = getMaxTooltipLength(tooltips,fontRenderer,currentStack);
-            renderBackground(drawContext, y, screenBorder, tooltipOffset, maxLength, color >> 24 & 0xff);
-
-
-            int i = tooltips.size() - 1;
-            for (Component elem : tooltips) {
-                // Render the tooltip.
-                renderTooltip(drawContext, fontRenderer, y - screenBorder - (12 * i), color, ((MutableComponent)elem).withStyle(ChatFormatting.GRAY));
-                --i;
-            }
+        // Get the current held item tooltips and convert to Text.
+        final List<Component> tooltips = new ArrayList<>();
+        for (Tooltip tooltip : getTooltips(currentStack)) {
+            tooltips.add(tooltip.getTooltipText());
+        }
+        // Limit the maximum number of shown tooltips to tooltipSize.
+        final boolean showMoreTooltip = (tooltips.size() > TOOLTIP_SIZE);
+        if (showMoreTooltip) {
+            // Store the number of items.
+            final int xMore = tooltips.size() - (TOOLTIP_SIZE -1);
+            // Trim tooltips.
+            tooltips.subList(TOOLTIP_SIZE - 1, tooltips.size()).clear();
+            // Add the "and x more..." tooltip.
+            tooltips.add(Component.translatable("item.container.more_items", xMore).withStyle(ChatFormatting.GRAY));
         }
 
+        tooltipOffset = 12 * tooltips.size();
+        //Render background behind tooltip.
+        int maxLength = getMaxTooltipLength(tooltips,fontRenderer,currentStack);
+        renderBackground(drawContext, y, screenBorder, tooltipOffset, maxLength, color >> 24 & 0xff);
+
+
+        int i = tooltips.size() - 1;
+        for (Component elem : tooltips) {
+            // Render the tooltip.
+            renderTooltip(drawContext, fontRenderer, y - screenBorder - (12 * i), color, ((MutableComponent)elem).withStyle(ChatFormatting.GRAY));
+            --i;
+        }
         // Render the item name.
-        drawContext.drawString(fontRenderer, text, (int)x, (int)(y - tooltipOffset - screenBorder), color);
+        drawContext.text(fontRenderer, text, (int)x, (int)(y - tooltipOffset - screenBorder), color);
     }
 
     /**
@@ -106,7 +101,7 @@ public class HeldItemTooltips {
      */
     public static List<Tooltip> getTooltips(ItemStack currentStack) {
         final Item item = currentStack.getItem();
-        final List<Tooltip> result = Lists.newArrayList();
+        final List<Tooltip> result = new ArrayList<>();
         if (item == Items.ENCHANTED_BOOK || currentStack.isEnchanted()) {
             var enchantmentsComponent = EnchantmentHelper.getEnchantmentsForCrafting(currentStack);
             enchantmentsComponent.keySet().forEach(enchantment -> result.add(new EnchantmentTooltip(enchantment.value(), enchantmentsComponent.getLevel(enchantment))));
@@ -177,7 +172,7 @@ public class HeldItemTooltips {
         return generateTooltipsForPotion(stack, stack.get(DataComponents.POTION_CONTENTS).getAllEffects());
     }
 
-    private void renderBackground(GuiGraphics drawContext, float y, int screenBorder, int tooltipOffset, int maxLength, int alpha) {
+    private void renderBackground(GuiGraphicsExtractor drawContext, float y, int screenBorder, int tooltipOffset, int maxLength, int alpha) {
         Minecraft client = Minecraft.getInstance();
         int background = Mth.lerpInt(alpha / 255f, 0, Mth.ceil((255.0D * BedrockifyClient.getInstance().settings.heldItemTooltipBackground))) << 24;
         drawContext.fill(Mth.ceil((client.getWindow().getGuiScaledWidth()-maxLength)/2f-3), Mth.ceil(y - tooltipOffset -5- screenBorder), Mth.ceil((client.getWindow().getGuiScaledWidth()+maxLength)/2f+1), Mth.ceil(y - tooltipOffset -4- screenBorder),background);
@@ -188,9 +183,9 @@ public class HeldItemTooltips {
     /**
      * Renders an item tooltip with the given text and height in screen.
      */
-    private void renderTooltip(GuiGraphics drawContext, Font fontRenderer, float y, int color, Component text) {
+    private void renderTooltip(GuiGraphicsExtractor drawContext, Font fontRenderer, float y, int color, Component text) {
         int enchantX = (Minecraft.getInstance().getWindow().getGuiScaledWidth() - fontRenderer.width(text)) / 2;
-        drawContext.drawString(fontRenderer, text, enchantX, (int)y, color);
+        drawContext.text(fontRenderer, text, enchantX, (int)y, color);
     }
 
     private int getMaxTooltipLength(List<Component> tooltips, Font textRenderer, ItemStack itemStack){

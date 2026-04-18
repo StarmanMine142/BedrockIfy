@@ -3,7 +3,7 @@ package me.juancarloscp52.bedrockify.mixin.client.features.loadingScreens;
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.features.loadingScreens.LoadingScreenWidget;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -18,17 +18,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(DisconnectedScreen.class)
-public class DisconnectedScreenMixin extends Screen {
+public abstract class DisconnectedScreenMixin extends ExtendScreenMixin {
 
     @Shadow @Final private Component buttonText;
     @Shadow @Final private Screen parent;
     @Shadow @Final private static Component TO_TITLE;
     @Shadow @Final private DisconnectionDetails details;
-
-
-    protected DisconnectedScreenMixin(Component title) {
-        super(title);
-    }
 
     /**
      * Move the Back to Menu button down.
@@ -45,8 +40,8 @@ public class DisconnectedScreenMixin extends Screen {
      * Renders the loading screen widget.
      */
     @Override
-    public void render(GuiGraphics drawContext, int mouseX, int mouseY, float delta) {
-        super.render(drawContext, mouseX, mouseY, delta);
+    public void bedrockify$screenRender_AtHead(GuiGraphicsExtractor drawContext, int mouseX, int mouseY, float alpha, CallbackInfo ci) {
+        super.bedrockify$screenRender_AtHead(drawContext, mouseX, mouseY, alpha, ci);
         if(!BedrockifyClient.getInstance().settings.isLoadingScreenEnabled())
             return;
         LoadingScreenWidget.getInstance().render(drawContext, width / 2, height / 2, this.title, this.details.reason(), -1);

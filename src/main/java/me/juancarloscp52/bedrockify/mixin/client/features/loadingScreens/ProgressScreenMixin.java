@@ -2,7 +2,7 @@ package me.juancarloscp52.bedrockify.mixin.client.features.loadingScreens;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import me.juancarloscp52.bedrockify.client.features.loadingScreens.LoadingScreenWidget;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -25,12 +25,12 @@ public class ProgressScreenMixin extends Screen {
     /**
      * Renders the loading screen widgets with progress bar if necessary.
      */
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V"), cancellable = true)
-    public void renderLoadScreen(GuiGraphics context, int mouseX, int mouseY, float delta, CallbackInfo info) {
+    @Inject(method = "extractRenderState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;extractRenderState(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V"), cancellable = true)
+    public void renderLoadScreen(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, CallbackInfo info) {
         if(!BedrockifyClient.getInstance().settings.isLoadingScreenEnabled() || minecraft == null){
             return;
         }
-        super.render(context, mouseX, mouseY, delta);
+        super.extractRenderState(context, mouseX, mouseY, delta);
         if (title != null) {
             if (this.stage != null && this.progress != 0) {
                 LoadingScreenWidget.getInstance().render(context, minecraft.getWindow().getGuiScaledWidth() / 2, minecraft.getWindow().getGuiScaledHeight() / 2, this.title, this.stage, this.progress);

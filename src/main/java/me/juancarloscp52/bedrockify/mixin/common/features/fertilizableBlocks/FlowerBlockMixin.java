@@ -28,12 +28,13 @@ public class FlowerBlockMixin implements BonemealableBlock {
     @Override
     public void performBonemeal(ServerLevel world, RandomSource random, BlockPos pos, BlockState state) {
         int amount = random.nextIntBetweenInclusive(1,5);
+        System.out.println("HEY");
         for(int i = 0; i<amount;i++){
             int x = random.nextIntBetweenInclusive(-3,3);
             int z = random.nextIntBetweenInclusive(-3,3);
             BlockPos newPos = pos.offset(x,0,z);
-            if(world.getBlockState(newPos).isAir() && world.getBlockState(newPos.below()).is(BlockTags.DIRT)){
-                world.setBlockAndUpdate(newPos,state);
+            if(world.getBlockState(newPos).isAir() && world.getBlockState(newPos.below()).is(BlockTags.SUPPORTS_VEGETATION)){
+                world.setBlockAndUpdate(newPos, state.getBlock().defaultBlockState());
             }
         }
     }

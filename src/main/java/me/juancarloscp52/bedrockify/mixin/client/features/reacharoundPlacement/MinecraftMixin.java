@@ -25,13 +25,13 @@ public abstract class MinecraftMixin extends ReentrantBlockableEventLoop<Runnabl
     @Shadow
     @Nullable
     public HitResult hitResult;
-    @Shadow
-    public abstract boolean isLocalServer();
 
-    public MinecraftMixin(String string) {
-        super(string);
+    public MinecraftMixin(String name, boolean propagatesCrashes) {
+        super(name, propagatesCrashes);
     }
 
+    @Shadow
+    public abstract boolean isLocalServer();
 
     /**
      * Allows the player to use the reachAround placement feature if enabled.

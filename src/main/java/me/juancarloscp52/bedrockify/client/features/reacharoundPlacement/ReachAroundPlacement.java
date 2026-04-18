@@ -2,7 +2,7 @@ package me.juancarloscp52.bedrockify.client.features.reacharoundPlacement;
 
 import me.juancarloscp52.bedrockify.client.BedrockifyClient;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.HitResult;
@@ -20,7 +20,7 @@ public class ReachAroundPlacement {
         this.client = client;
     }
 
-    public void renderIndicator(GuiGraphics drawContext) {
+    public void renderIndicator(GuiGraphicsExtractor drawContext) {
         if (BedrockifyClient.getInstance().settings.isReacharoundIndicatorEnabled() && BedrockifyClient.getInstance().settings.isReacharoundEnabled() && (client.isLocalServer() || BedrockifyClient.getInstance().settings.isReacharoundMultiplayerEnabled()) && this.canReachAround() ) {
             drawContext.fill((client.getWindow().getGuiScaledWidth() / 2) - 5, (client.getWindow().getGuiScaledHeight() / 2) + 5, (client.getWindow().getGuiScaledWidth() / 2) + 4, (client.getWindow().getGuiScaledHeight() / 2) + 6, (100 << 24) + (255 << 8));
         }

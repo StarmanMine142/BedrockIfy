@@ -5,9 +5,7 @@ import me.juancarloscp52.bedrockify.client.BedrockifyClientSettings;
 import me.juancarloscp52.bedrockify.client.features.paperDoll.PaperDoll;
 import me.juancarloscp52.bedrockify.client.features.savingOverlay.SavingOverlay;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.DebugScreenOverlay;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.core.BlockPos;
@@ -29,7 +27,7 @@ public class Overlay {
         this.savingOverlay = new SavingOverlay();
     }
 
-    public void renderOverlay(GuiGraphics drawContext) {
+    public void renderOverlay(GuiGraphicsExtractor drawContext) {
         // Only render the overlay if HUD is not hidden and debug is NOT enabled.
         if (!client.gui.getDebugOverlay().showDebugScreen() && !client.options.hideGui){
             this.renderText(drawContext);
@@ -42,13 +40,13 @@ public class Overlay {
     /**
      * Renders the text components for the player position and client fps.
      */
-    private void renderText(GuiGraphics drawContext) {
+    private void renderText(GuiGraphicsExtractor drawContext) {
         fps = Component.translatable("bedrockify.hud.fps").append(String.valueOf(client.getFps()));
         renderPositionText(drawContext);
         renderFpsText(drawContext);
     }
 
-    private void renderPositionText(GuiGraphics drawContext) {
+    private void renderPositionText(GuiGraphicsExtractor drawContext) {
         BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
         int screenBorder = settings.overlayIgnoresSafeArea ? 0 : settings.getScreenSafeArea();
         int posY = settings.getPositionHUDHeight();
@@ -63,10 +61,10 @@ public class Overlay {
 //        RenderSystem.setShaderColor(1,1,1,1);
         drawContext.fill(textPosX + screenBorder, posY + screenBorder, textPosX + positionWidth + 6 + screenBorder, posY + 12 + screenBorder, Mth.ceil((255.0D * client.options.textBackgroundOpacity().get()) * opacity)<<24);
         int alpha = (int) Math.ceil(opacity*255);
-        drawContext.drawString(client.font, position, textPosX + 3 + screenBorder, posY + 3 + screenBorder, 16777215 | ((alpha) << 24));
+        drawContext.text(client.font, position, textPosX + 3 + screenBorder, posY + 3 + screenBorder, 16777215 | ((alpha) << 24));
     }
 
-    private void renderFpsText(GuiGraphics drawContext) {
+    private void renderFpsText(GuiGraphicsExtractor drawContext) {
         BedrockifyClientSettings settings = BedrockifyClient.getInstance().settings;
         int screenBorder = settings.overlayIgnoresSafeArea ? 0 : settings.getScreenSafeArea();
         int posY = settings.getPositionHUDHeight()+2;
@@ -78,7 +76,7 @@ public class Overlay {
 //        RenderSystem.setShaderColor(1,1,1,1);
         drawContext.fill(textPosX + screenBorder, posY + (positionEnabled ? 10 : 0) + screenBorder, textPosX + fpsCounterWidth + 6 + screenBorder, posY + (positionEnabled ? 10 : 0) + 10 + screenBorder, Mth.ceil((255.0D * client.options.textBackgroundOpacity().get()) * opacity)<<24);
         int alpha = (int) Math.ceil(opacity*255);
-        drawContext.drawString(client.font, fps, textPosX + 3 + screenBorder, posY + 1 + (positionEnabled ? 10 : 0) + screenBorder, 16777215 | ((alpha) << 24));
+        drawContext.text(client.font, fps, textPosX + 3 + screenBorder, posY + 1 + (positionEnabled ? 10 : 0) + screenBorder, 16777215 | ((alpha) << 24));
     }
 
 }
