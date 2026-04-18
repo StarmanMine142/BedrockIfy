@@ -1,3 +1,15 @@
+## [1.11.6] - 2026-04-18
+
+Available versions:
+-   Fabric: 26.1
+
+### Changed/Fixed
+Thanks to lonefelidae16 for this update :)
+Also to seriousfreezing for their help testing ;)
+
+-   Fixed hotbar item count opacity.
+-   Port to 26.1 update
+
 ## [1.11.5] - 2025-12-25
 
 Available versions:
