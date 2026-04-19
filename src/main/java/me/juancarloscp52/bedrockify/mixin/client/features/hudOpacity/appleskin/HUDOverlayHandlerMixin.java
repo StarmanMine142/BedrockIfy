@@ -10,11 +10,11 @@ import squeek.appleskin.client.HUDOverlayHandler;
 @Pseudo
 @Mixin(HUDOverlayHandler.class)
 public class HUDOverlayHandlerMixin {
-    @ModifyVariable(method = "drawHungerOverlay(Lnet/minecraft/client/gui/GuiGraphics;IILnet/minecraft/client/Minecraft;IIFZI)V", at = @At("HEAD"),ordinal = 0)
+    @ModifyVariable(method = "drawHungerOverlay(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IILnet/minecraft/client/Minecraft;IIFZI)V", at = @At("HEAD"),ordinal = 0)
     public float clampAlphaHungerOverlay(float alpha){
         return BedrockifyClient.getInstance().hudOpacity.getHudOpacity(false)*alpha;
     }
-    @ModifyVariable(method = "drawHealthOverlay(Lnet/minecraft/client/gui/GuiGraphics;FFLnet/minecraft/client/Minecraft;IIFI)V", at = @At("HEAD"),ordinal = 2)
+    @ModifyVariable(method = "drawHealthOverlay(Lnet/minecraft/client/gui/GuiGraphicsExtractor;FFLnet/minecraft/client/Minecraft;IIFI)V", at = @At("HEAD"),ordinal = 2)
     public float clampAlphaHealthOverlay(float alpha){
         return BedrockifyClient.getInstance().hudOpacity.getHudOpacity(false)*alpha;
     }
