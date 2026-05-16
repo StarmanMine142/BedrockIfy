@@ -1,3 +1,14 @@
+## [1.11.7] - 2026-05-16
+
+Available versions:
+-   Fabric: 26.1
+
+### Changed/Fixed
+-   Fix AppleSkin crash. (MagicJinn)
+-   Fixed Item durability bar. (lonefelidae16)
+-   Support custom item names on tooltips. (lonefelidae16)
+-   Fix slot highlight with Smooth Scrolling mod. (SmajloSlovakian)
+
 ## [1.11.6] - 2026-04-18
 
 Available versions:
