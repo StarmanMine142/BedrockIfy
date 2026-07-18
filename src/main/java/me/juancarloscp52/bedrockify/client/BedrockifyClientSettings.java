@@ -20,10 +20,22 @@ public class BedrockifyClientSettings {
         }
     }
 
+    public enum FpsHudOption {
+        OFF("bedrockify.options.off"),
+        WITH_POSITION("bedrockify.options.withPosition"),
+        UNDER_POSITION("bedrockify.options.underPosition");
+
+        public final String translateKey;
+        FpsHudOption(String key) {
+            this.translateKey = key;
+        }
+    }
+
     public boolean loadingScreen = true;
     public ButtonPosition bedrockIfyButtonPosition = ButtonPosition.BELOW_SLIDERS;
     public boolean showPositionHUD = true;
-    public byte FPSHUD = 0;
+    public boolean showDaysPlayed = false;
+    public FpsHudOption FPSHUD = FpsHudOption.OFF;
     public boolean heldItemTooltips = true;
     public double heldItemTooltipBackground = .5d;
 
@@ -55,7 +67,6 @@ public class BedrockifyClientSettings {
     public int sunlightIntensity = 50;
     public boolean hideEditionBranding = false;
     public boolean hotBarOverhang = true;
-    public boolean babyVillagerHeads = true;
     public boolean bedrockCubeMap = false;
 
     public boolean isPickupAnimationsEnabled() {
@@ -82,6 +93,10 @@ public class BedrockifyClientSettings {
         return showPositionHUD && !Minecraft.getInstance().showOnlyReducedInfo();
     }
 
+    public boolean isShowDaysPlayed() {
+        return showDaysPlayed && !Minecraft.getInstance().showOnlyReducedInfo();
+    }
+
     public boolean isExpTextStyle() {
         return expTextStyle && !FabricLoader.getInstance().isModLoaded("colormatic");
     }
@@ -95,7 +110,7 @@ public class BedrockifyClientSettings {
         return this.highLightColor2;
     }
 
-    public byte getFPSHUDoption() {
+    public FpsHudOption getFPSHUDoption() {
         return FPSHUD;
     }
 

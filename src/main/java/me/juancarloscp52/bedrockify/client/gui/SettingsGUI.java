@@ -80,11 +80,8 @@ public class SettingsGUI {
             SubCategoryBuilder bedrockOverlay = entryBuilder.startSubCategory(Component.translatable("bedrockify.options.subCategory.bedrockOverlay"));
             bedrockOverlay.add(entryBuilder.startTextDescription(Component.translatable("bedrockify.options.subCategory.bedrockOverlay.description")).build());
             bedrockOverlay.add(entryBuilder.startBooleanToggle(Component.translatable("bedrockify.options.showCoordinates"), settingsClient.showPositionHUD).setDefaultValue(true).setSaveConsumer(newValue -> settingsClient.showPositionHUD=newValue).build());
-            bedrockOverlay.add(entryBuilder.startSelector(Component.translatable("bedrockify.options.showFPS"), new Byte []{0,1,2}, settingsClient.FPSHUD).setDefaultValue((byte) 0).setNameProvider((value)-> switch (value) {
-                case 0 -> Component.translatable("bedrockify.options.off");
-                case 1 -> Component.translatable("bedrockify.options.withPosition");
-                default -> Component.translatable("bedrockify.options.underPosition");
-            }).setSaveConsumer((newValue)-> settingsClient.FPSHUD=newValue).build());
+            bedrockOverlay.add(entryBuilder.startEnumSelector(Component.translatable("bedrockify.options.showFPS"), BedrockifyClientSettings.FpsHudOption.class, settingsClient.FPSHUD).setDefaultValue(BedrockifyClientSettings.FpsHudOption.OFF).setEnumNameProvider(elem -> Component.translatable(((BedrockifyClientSettings.FpsHudOption) elem).translateKey)).setSaveConsumer((newValue)-> settingsClient.FPSHUD=newValue).build());
+            bedrockOverlay.add(entryBuilder.startBooleanToggle(Component.translatable("bedrockify.options.showDaysPlayed"), settingsClient.showDaysPlayed).setDefaultValue(false).setSaveConsumer(newValue -> settingsClient.showDaysPlayed = newValue).build());
             bedrockOverlay.add(entryBuilder.startIntSlider(Component.translatable("bedrockify.options.coordinatesPosition"), settingsClient.positionHUDHeight,0,100).setDefaultValue(50).setSaveConsumer((newValue)-> settingsClient.positionHUDHeight=newValue).build());
             bedrockOverlay.add(entryBuilder.startBooleanToggle(Component.translatable("bedrockify.options.showPaperDoll"), settingsClient.showPaperDoll).setDefaultValue(true).setSaveConsumer(newValue -> settingsClient.showPaperDoll=newValue).build());
             bedrockOverlay.add(entryBuilder.startBooleanToggle(Component.translatable("bedrockify.options.showSavingOverlay"), settingsClient.savingOverlay).setDefaultValue(true).setSaveConsumer(newValue -> settingsClient.savingOverlay=newValue).build());
@@ -131,12 +128,14 @@ public class SettingsGUI {
          *
          */
             visualImprovements.addEntry(entryBuilder.startBooleanToggle(Component.translatable("bedrockify.options.fishingBobber3D"), settingsClient.fishingBobber3D).setDefaultValue(true).setSaveConsumer(newValue -> settingsClient.fishingBobber3D=newValue).build());
-            visualImprovements.addEntry(entryBuilder.startBooleanToggle(Component.translatable("bedrockify.options.babyVillagerHeads"), settingsClient.babyVillagerHeads).setDefaultValue(true).setSaveConsumer(newValue -> settingsClient.babyVillagerHeads=newValue).build());
             visualImprovements.addEntry(entryBuilder.startSelector(Component.translatable("bedrockify.options.idleAnimation"), new Float []{0.0f,0.5f,1.0f,1.5f,2.0f,2.5f,3.0f,4.0f}, settingsClient.idleAnimation).setDefaultValue(1.0f).setNameProvider((value)-> Component.literal("x"+ value)).setSaveConsumer((newValue)-> settingsClient.idleAnimation=newValue).build());
             visualImprovements.addEntry(entryBuilder.startBooleanToggle(Component.translatable("bedrockify.options.eatingAnimations"), settingsClient.eatingAnimations).setDefaultValue(true).setSaveConsumer(newValue -> settingsClient.eatingAnimations=newValue).build());
             visualImprovements.addEntry(entryBuilder.startBooleanToggle(Component.translatable("bedrockify.options.bedrockShading"), settingsClient.bedrockShading).setTooltip(wrapLines(Component.translatable("bedrockify.options.bedrockShading.tooltip"))).setDefaultValue(true).setSaveConsumer(newValue -> {
                 settingsClient.bedrockShading=newValue;
-                Minecraft.getInstance().levelRenderer.allChanged();
+                // final Minecraft client = Minecraft.getInstance();
+                // if (client.level != null) {
+                //     client.levelRenderer.invalidateCompiledGeometry(client.level, client.options, client.gameRenderer.mainCamera(), client.getBlockColors());
+                // }
             }).build());
             visualImprovements.addEntry(entryBuilder.startIntSlider(Component.translatable("bedrockify.options.sunlightIntensity"), settingsClient.sunlightIntensity,0,100).setTooltip(wrapLines(Component.translatable("bedrockify.options.sunlightIntensity.tooltip"))).setDefaultValue(50).setSaveConsumer(newValue -> {
                 settingsClient.sunlightIntensity = newValue;

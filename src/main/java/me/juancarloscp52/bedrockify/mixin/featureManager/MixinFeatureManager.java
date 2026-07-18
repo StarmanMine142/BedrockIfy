@@ -27,6 +27,7 @@ public class MixinFeatureManager {
         features.put("client.features.heldItemTooltips",true);
         features.put("client.features.idleHandAnimations", true);
         features.put("client.features.loadingScreens", true);
+        features.put("client.features.loadingScreens.fancyMenu", true);
         features.put("client.features.pickupAnimations", true);
         features.put("client.features.reacharoundPlacement", true);
         features.put("client.features.savingOverlay", true);
@@ -48,8 +49,6 @@ public class MixinFeatureManager {
         features.put("client.features.hudOpacity.appleskin", true);
         features.put("client.features.hudOpacity.detailArmorBar", true);
         features.put("client.features.editionBranding", true);
-        features.put("client.features.babyVillagerHeads", true);
-
     }
 
     public static boolean isFeatureEnabled(String mixin){
