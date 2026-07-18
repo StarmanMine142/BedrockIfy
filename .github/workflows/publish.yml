@@ -85,7 +85,7 @@ jobs:
           changelog-file: changelog.md
           dependencies: |
             fabric-api(required)
-
+          environment: client | server
           loaders: "fabric"
           game-versions: "${{env.MINECRAFT_VERSION}}"
           java: "${{env.JAVA_VERSION}}"
@@ -104,7 +104,7 @@ jobs:
           changelog-file: changelog.md
           dependencies: |
             fabric-api(required)
-
+          environment: client | server
           loaders: "$fabric"
           game-versions: "${{env.MINECRAFT_VERSION}}"
           java: "${{env.JAVA_VERSION}}"
