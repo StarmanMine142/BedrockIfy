@@ -1,3 +1,15 @@
+## [1.11.8] - 2026-07-18
+
+Available versions:
+-   Fabric: 26.2
+
+### Changed/Fixed
+-   Port to 26.2
+-   Added option to display Played Days in Bedrockify Overlay
+-   Fix #454, #453
+
+Special thanks to lonefelidae16 and seriousfreezing for their work on this release <3
+
 ## [1.11.7] - 2026-05-16
 
 Available versions:
