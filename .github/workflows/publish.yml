@@ -74,7 +74,7 @@ jobs:
 
       - name: Publish (CurseForge)
         if: ${{ inputs.curseforge }}
-        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3.0
+        uses: Kir-Antipov/mc-publish@v3.3
         with:
           curseforge-id: 403858
           curseforge-token: "${{env.CURSEFORGE_TOKEN}}"
@@ -92,7 +92,7 @@ jobs:
 
       - name: Publish (Modrinth)
         if: ${{ inputs.modrinth }}
-        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3.0
+        uses: Kir-Antipov/mc-publish@v3.3
         with:
           modrinth-id: ox3rDp1B
           modrinth-token: "${{env.MODRINTH_TOKEN}}"
@@ -111,7 +111,7 @@ jobs:
 
       - name: Publish (Github)
         if: ${{ inputs.github }}
-        uses: Kir-Antipov/mc-publish@995edadc13559a8b28d0b7e6571229f067ec7659 # v3.3.0
+        uses: Kir-Antipov/mc-publish@v3.3
         with:
 
           github-token: "${{secrets.PUBLISH_GITHUB_TOKEN}}"
